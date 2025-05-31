@@ -13,10 +13,8 @@
             --secondary: #4a5c7a;
             --accent: #3a5f8a;
             --light: #f9fafc;
-            --border: #e0e6ed;
             --gold: #b89f6b;
-            --notice-bg: #f8f4f0;
-            --notice-border: #e8d9c5;
+            --border: #e0e6ed;
         }
         
         * {
@@ -36,455 +34,169 @@
         .container {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 80px 50px;
+            padding: 50px 30px;
             background-color: white;
             min-height: 100vh;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow-x: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.03);
         }
         
         header {
             text-align: center;
-            padding-bottom: 60px;
-            margin-bottom: 60px;
-            position: relative;
+            padding-bottom: 40px;
+            margin-bottom: 40px;
             border-bottom: 1px solid rgba(0,0,0,0.08);
         }
         
         .company-name {
-            font-size: 3.2rem;
+            font-size: 2.8rem;
             font-weight: 600;
             color: var(--primary);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             letter-spacing: 0.5px;
-            font-family: 'Cormorant Garamond', serif;
-            position: relative;
-            display: inline-block;
-        }
-        
-        .company-name:after {
-            content: "";
-            position: absolute;
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 3px;
-            background: var(--gold);
         }
         
         .company-tagline {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--secondary);
-            font-weight: 400;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            margin: 25px 0 15px;
+            margin: 15px 0;
             font-family: 'Montserrat', sans-serif;
         }
         
-        .company-subtitle {
-            font-size: 1.2rem;
-            color: var(--secondary);
-            font-style: italic;
-            margin-bottom: 15px;
-            opacity: 0.9;
-        }
-        
         .location {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--secondary);
-            margin-top: 10px;
+            margin-top: 5px;
             font-family: 'Montserrat', sans-serif;
             font-weight: 300;
         }
         
-        .established {
-            color: var(--secondary);
-            font-size: 0.9rem;
-            margin-top: 20px;
-            opacity: 0.7;
+        /* Navigation Menu */
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .nav-item {
+            cursor: pointer;
             font-family: 'Montserrat', sans-serif;
-        }
-        
-        main {
-            margin-bottom: 80px;
-        }
-        
-        .intro-section {
-            margin-bottom: 60px;
-            padding: 50px;
-            background-color: var(--light);
-            border-left: 4px solid var(--gold);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .intro-section:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle, rgba(184, 159, 107, 0.1) 0%, rgba(0,0,0,0) 70%);
-            z-index: 0;
-        }
-        
-        .intro-text {
-            font-size: 1.2rem;
-            text-align: justify;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 1;
-            color: var(--primary);
-            line-height: 1.9;
-        }
-        
-        .governance-section {
-            margin-bottom: 60px;
-            padding: 50px;
-            background-color: var(--light);
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .governance-section:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--gold);
-        }
-        
-        .business-areas {
-            margin-bottom: 60px;
-        }
-        
-        .section-title {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            position: relative;
-            font-weight: 600;
-        }
-        
-        .section-title:after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 2px;
-            background: var(--gold);
-        }
-        
-        .business-list {
-            list-style: none;
-            padding: 0;
-            margin-left: 30px;
-        }
-        
-        .business-list li {
-            padding: 15px 0;
-            padding-left: 35px;
-            position: relative;
-            font-size: 1.2rem;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-        
-        .business-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .business-list li:hover {
-            color: var(--primary);
-            padding-left: 40px;
-        }
-        
-        .business-list li:before {
-            content: "•";
-            color: var(--gold);
-            position: absolute;
-            left: 0;
-            font-size: 1.8rem;
-            line-height: 1;
-            top: 15px;
-        }
-        
-        .governance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-            margin-top: 40px;
-        }
-        
-        .governance-card {
-            background: white;
-            padding: 30px;
-            border-radius: 4px;
-            border-bottom: 3px solid var(--gold);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .governance-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .governance-card h4 {
-            color: var(--primary);
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            font-family: 'Cormorant Garamond', serif;
-            font-weight: 600;
-            position: relative;
-            padding-bottom: 10px;
-        }
-        
-        .governance-card h4:after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 30px;
-            height: 1px;
-            background: var(--gold);
-        }
-        
-        .governance-card p {
-            font-size: 1.05rem;
-            line-height: 1.8;
+            font-size: 0.9rem;
             color: var(--secondary);
-        }
-        
-        .committee-details {
-            margin-top: 40px;
-            padding: 40px;
-            background: white;
-            border-radius: 4px;
-            border: 1px solid rgba(184, 159, 107, 0.2);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-        }
-        
-        .committee-title {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 25px;
-            font-weight: 600;
             position: relative;
-            padding-bottom: 10px;
+            padding-bottom: 5px;
         }
         
-        .committee-title:after {
+        .nav-item:after {
             content: "";
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 40px;
+            width: 0;
             height: 1px;
             background: var(--gold);
+            transition: width 0.3s ease;
         }
         
-        .committee-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
+        .nav-item:hover:after {
+            width: 100%;
         }
         
-        .info-item {
-            padding: 20px;
+        /* Content Sections (Hidden by Default) */
+        .content-section {
+            display: none;
+            margin: 40px 0;
+            padding: 30px;
             background: var(--light);
-            border-radius: 4px;
             border-left: 3px solid var(--gold);
         }
         
-        .info-label {
-            font-size: 0.9rem;
-            color: var(--gold);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            font-family: 'Montserrat', sans-serif;
+        .content-section.active {
+            display: block;
         }
         
-        .info-value {
-            font-size: 1.05rem;
-            color: var(--secondary);
-            line-height: 1.7;
-        }
-        
-        .notice-section {
-            background-color: var(--notice-bg);
-            border: 1px solid var(--notice-border);
-            padding: 40px;
-            margin: 50px 0;
-            position: relative;
-        }
-        
-        .notice-title {
-            font-weight: 600;
+        .section-title {
+            font-size: 1.6rem;
             color: var(--primary);
             margin-bottom: 20px;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.3rem;
-        }
-        
-        .contact-info {
-            margin-top: 60px;
-            padding: 50px;
-            background-color: var(--light);
-            position: relative;
-            overflow: hidden;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .contact-info:before {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle, rgba(184, 159, 107, 0.1) 0%, rgba(0,0,0,0) 70%);
-            z-index: 0;
-        }
-        
-        .contact-title {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 1;
             font-weight: 600;
         }
         
-        .contact-details {
+        .section-text {
             font-size: 1.1rem;
             line-height: 1.9;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 20px;
         }
         
-        .contact-details strong {
+        /* Secure Contact Form */
+        .contact-form {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--gold);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
             color: var(--primary);
-            font-weight: 600;
         }
         
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            font-family: 'Cormorant Garamond', serif;
+        }
+        
+        .form-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.3s ease;
+        }
+        
+        .form-submit:hover {
+            background: var(--accent);
+        }
+        
+        /* Footer */
         footer {
             text-align: center;
-            padding-top: 50px;
+            padding-top: 40px;
             border-top: 1px solid var(--border);
+            font-size: 0.9rem;
             color: var(--secondary);
-            font-size: 0.95rem;
-        }
-        
-        .footer-address {
-            margin-top: 20px;
-            font-style: italic;
-            opacity: 0.8;
-            font-family: 'Montserrat', sans-serif;
         }
         
         .legal-disclaimer {
-            margin-top: 25px;
-            font-size: 0.85rem;
-            color: var(--secondary);
-            line-height: 1.7;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .seal {
-            width: 100px;
-            height: 100px;
-            margin: 30px auto;
-            background: #f5f5f5;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border);
-            font-family: 'Cormorant Garamond', serif;
+            margin-top: 20px;
             font-size: 0.8rem;
-            color: var(--gold);
-            text-align: center;
-            line-height: 1.3;
-            padding: 10px;
+            opacity: 0.7;
         }
         
-        @media (max-width: 900px) {
-            .container {
-                padding: 60px 40px;
-            }
-            
-            .company-name {
-                font-size: 2.6rem;
-            }
-            
-            .intro-section, .contact-info, .governance-section {
-                padding: 40px;
-            }
-            
-            .governance-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 50px 30px;
-            }
-            
+        @media (max-width: 768px) {
             .company-name {
                 font-size: 2.2rem;
             }
             
-            .company-tagline {
-                letter-spacing: 2px;
-                font-size: 0.9rem;
-            }
-            
-            .intro-section, .contact-info, .governance-section {
-                padding: 30px;
-            }
-            
-            .section-title {
-                font-size: 1.6rem;
-            }
-            
-            .business-list li {
-                font-size: 1.1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 40px 20px;
-            }
-            
-            .company-name {
-                font-size: 1.8rem;
-            }
-            
-            .intro-text {
-                font-size: 1.1rem;
-            }
-            
-            .committee-info {
-                grid-template-columns: 1fr;
+            .nav-menu {
+                gap: 15px;
             }
         }
     </style>
@@ -493,130 +205,112 @@
     <div class="container">
         <header>
             <h1 class="company-name">Massey & Rosupo Co.</h1>
-            <p class="company-tagline">Fiduciary Excellence • Asset Protection • Strategic Holdings</p>
-            <p class="company-subtitle">A Delaware Registered Patent Company</p>
+            <p class="company-tagline">Delaware Registered Holding Company</p>
             <p class="location">8 The Green, Suite #22026, Dover, Delaware</p>
-            <p class="established">Established 2024 | EIN: [Redacted]</p>
+            
+            <div class="nav-menu">
+                <div class="nav-item" onclick="showSection('overview')">Overview</div>
+                <div class="nav-item" onclick="showSection('structure')">Corporate Structure</div>
+                <div class="nav-item" onclick="showSection('governance')">Governance</div>
+                <div class="nav-item" onclick="showSection('contact')">Contact</div>
+            </div>
         </header>
         
-        <main>
-            <div class="intro-section">
-                <p class="intro-text">
-                    Massey & Rosupo Co. is a Delaware-registered holding company structured to provide comprehensive asset protection and strategic management of diversified holdings. As the parent entity of wholly-owned subsidiaries including WizDevTech LLC, Wisdom Analytics & Consulting, and Wise Legacy Estates LLC, we maintain a disciplined approach to fiduciary management and long-term value preservation.
-                </p>
-                <p class="intro-text">
-                    Our unique tripartite structure—comprising the holding company, Athena Aegis Foundation (unincorporated association of beneficiaries), and Withholding Agent—ensures optimal asset protection while maintaining beneficial ownership rights for designated members. All assets are held WITHOUT THE UNITED STATES under fiduciary certificates to maximize jurisdictional advantages.
-                </p>
-            </div>
-            
-            <div class="business-areas">
-                <h2 class="section-title">Corporate Structure</h2>
-                <ul class="business-list">
-                    <li>Registered Patent Company (Delaware)</li>
-                    <li>Wholly-Owned Subsidiary Structure</li>
-                    <li>Tripartite Asset Protection Framework</li>
-                    <li>Fiduciary Certificates & Offshore Holdings</li>
-                    <li>UCC-Compliant Security Agreements</li>
-                </ul>
-            </div>
-            
-            <div class="governance-section">
-                <h2 class="section-title">Governance Framework</h2>
-                <p class="intro-text">
-                    Massey & Rosupo Co. operates under a sophisticated governance model designed to comply with Delaware corporate law while implementing advanced asset protection strategies. Our framework includes UCC filings (Article 9 secured transactions), fiduciary certifications, and jurisdictional optimization.
-                </p>
-                
-                <div class="governance-grid">
-                    <div class="governance-card">
-                        <h4>Asset Protection</h4>
-                        <p>All holdings transferred to Withholding Agent via perfected UCC-1 filings under Delaware law (UCC §9-310). Assets held WITHOUT THE UNITED STATES under fiduciary certificates to prevent creditor claims.</p>
-                    </div>
-                    
-                    <div class="governance-card">
-                        <h4>Subsidiary Management</h4>
-                        <p>Operational liabilities contained within subsidiaries (70% moribund interests). Core assets protected via tripartite agreement with Athena Aegis Foundation beneficiaries and Withholding Agent.</p>
-                    </div>
-                    
-                    <div class="governance-card">
-                        <h4>Fiduciary Structure</h4>
-                        <p>Withholding Agent (Delaware-registered) maintains strict separation between legal ownership and beneficial interests. Spendthrift protections prevent involuntary transfers of beneficiary interests.</p>
-                    </div>
-                    
-                    <div class="governance-card">
-                        <h4>Dispute Resolution</h4>
-                        <p>Binding arbitration WITHOUT THE UNITED STATES under international commercial law. Domestic court jurisdiction expressly waived per agreement terms.</p>
-                    </div>
+        <!-- Overview Section -->
+        <div id="overview" class="content-section active">
+            <h2 class="section-title">Strategic Holdings & Asset Protection</h2>
+            <p class="section-text">
+                Massey & Rosupo Co. is a Delaware-registered holding company specializing in the management of intellectual property, fiduciary assets, and subsidiary operations. Our structure is designed to optimize legal protections while maintaining compliance with Delaware General Corporation Law.
+            </p>
+            <p class="section-text">
+                For detailed information about our governance framework or fiduciary arrangements, please submit a verified inquiry through the <a href="javascript:showSection('contact')" style="color: var(--gold);">Contact</a> portal.
+            </p>
+        </div>
+        
+        <!-- Corporate Structure Section -->
+        <div id="structure" class="content-section">
+            <h2 class="section-title">Corporate Structure</h2>
+            <p class="section-text">
+                Our entity operates through a tiered structure to separate operational liabilities from protected assets:
+            </p>
+            <ul style="margin-left: 20px; line-height: 2;">
+                <li>Delaware-registered holding company</li>
+                <li>Wholly-owned subsidiary entities</li>
+                <li>Independent fiduciary management</li>
+            </ul>
+            <p class="section-text">
+                <em>Note: Beneficiary details and asset locations are confidential.</em>
+            </p>
+        </div>
+        
+        <!-- Governance Section -->
+        <div id="governance" class="content-section">
+            <h2 class="section-title">Governance & Compliance</h2>
+            <p class="section-text">
+                Massey & Rosupo Co. adheres to Delaware corporate law and standardized fiduciary practices. Key instruments include:
+            </p>
+            <ul style="margin-left: 20px; line-height: 2;">
+                <li>Perfected UCC-1 filings for asset security</li>
+                <li>Registered agent services in Delaware</li>
+                <li>Binding arbitration clauses for disputes</li>
+            </ul>
+        </div>
+        
+        <!-- Secure Contact Form -->
+        <div id="contact" class="content-section">
+            <h2 class="section-title">Request Information</h2>
+            <p class="section-text">
+                For verified parties seeking corporate documentation or fiduciary details:
+            </p>
+            <div class="contact-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required>
                 </div>
-                
-                <div class="committee-details">
-                    <h3 class="committee-title">Key Legal Instruments</h3>
-                    <p style="margin-bottom: 25px; font-size: 1.1rem; color: var(--secondary);">
-                        Our governance is codified through executed agreements and filings:
-                    </p>
-                    
-                    <div class="committee-info">
-                        <div class="info-item">
-                            <div class="info-label">Primary Agreement</div>
-                            <div class="info-value">Tripartite Asset Protection and Fiduciary Agreement executed WITHOUT THE UNITED STATES</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">UCC Filings</div>
-                            <div class="info-value">Perfected security interests under UCC Article 9 for all transferred assets</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Fiduciary Certificates</div>
-                            <div class="info-value">Confidential alphanumeric certificates for Athena Aegis Foundation members</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Jurisdictional Strategy</div>
-                            <div class="info-value">Assets held outside U.S. jurisdiction with Delaware as governing law</div>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="email">Professional Email</label>
+                    <input type="email" id="email" required>
                 </div>
-            </div>
-            
-            <div class="notice-section">
-                <div class="notice-title">Official Notice Regarding Asset Protection</div>
-                <p>All assets of Massey & Rosupo Co. have been transferred to the Withholding Agent under perfected UCC-1 filings and are held WITHOUT THE UNITED STATES pursuant to executed fiduciary agreements. Creditor claims against subsidiaries shall not reach protected assets. For verification of corporate status or fiduciary arrangements, contact our registered Delaware office through proper legal channels.</p>
-            </div>
-            
-            <div class="contact-info">
-                <h3 class="contact-title">Corporate & Fiduciary Information</h3>
-                <div class="contact-details">
-                    <strong>Legal Name:</strong> Massey & Rosupo Co.<br>
-                    <strong>Entity Type:</strong> Delaware Registered Patent Company<br>
-                    <strong>Registered Agent:</strong> Ann B. Wiseman<br>
-                    <strong>Fiduciary Structure:</strong> Tripartite Agreement with Athena Aegis Foundation<br>
-                    <strong>Primary Subsidiaries:</strong> WizDevTech LLC, Wisdom Analytics & Consulting, Wise Legacy Estates LLC<br>
-                    <strong>Asset Holdings:</strong> Protected under UCC §9-332 (transfers to fiduciaries)<br>
-                    <strong>Jurisdictional Strategy:</strong> Assets held WITHOUT THE UNITED STATES<br>
-                    <strong>Governance Documentation:</strong> Available to verified parties per confidentiality agreements
+                <div class="form-group">
+                    <label for="request">Nature of Inquiry</label>
+                    <select id="request" style="padding: 10px; width: 100%; border: 1px solid var(--border);">
+                        <option value="corporate">Corporate Status Verification</option>
+                        <option value="fiduciary">Fiduciary Arrangements</option>
+                        <option value="legal">Legal Documentation</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <label for="message">Additional Details</label>
+                    <textarea id="message" rows="4"></textarea>
+                </div>
+                <button class="form-submit">Submit Securely</button>
             </div>
-            
-            <div class="seal">
-                Registered Patent Company<br>
-                State of Delaware<br>
-                Est. 2024
-            </div>
-        </main>
+        </div>
         
         <footer>
             <p>&copy; <span id="year"></span> Massey & Rosupo Co. All Rights Reserved.</p>
-            <p class="footer-address">
-                8 The Green, Suite #22026, Dover, Delaware 19901 | Registered Agent: Ann B. Wiseman
-            </p>
             <p class="legal-disclaimer">
-                This document constitutes official corporate disclosure. The information contained herein is protected under Delaware trade secret statutes and international commercial law provisions. Unauthorized disclosure or use of this information is strictly prohibited. All asset transfers are documented through perfected UCC filings and fiduciary certificates. Corporate governance follows Delaware General Corporation Law and implemented UCC provisions.
+                This website provides general information only. Confidential details are available to verified parties per NDAs and compliance protocols.
             </p>
         </footer>
     </div>
     
     <script>
+        // Show/hide sections
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+        
+        // Auto-update year
         document.getElementById('year').textContent = new Date().getFullYear();
+        
+        // Simulate secure form submission (replace with backend in production)
+        document.querySelector('.form-submit').addEventListener('click', function() {
+            alert('Inquiry submitted. A representative will contact verified requests via secure channels.');
+        });
     </script>
 </body>
 </html>
