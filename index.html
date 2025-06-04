@@ -7,22 +7,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --primary: #1a2e4a;
-            --secondary: #4a5c7a;
-            --accent: #3a5f8a;
-            --light: #f9fafc;
-            --gold: #b89f6b;
-            --border: #e0e6ed;
+            --primary: #1a2e4a; /* Dark blue/navy */
+            --secondary: #4a5c7a; /* Medium blue-gray */
+            --accent: #284a68; /* Deeper, more professional blue (updated) */
+            --light: #f9fafc; /* Very light off-white */
+            --gold: #b89f6b; /* Gold/brown accent */
+            --border: #e0e6ed; /* Light gray */
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Cormorant Garamond', serif;
             line-height: 1.8;
@@ -30,7 +31,7 @@
             background-color: #f5f7fa;
             -webkit-font-smoothing: antialiased;
         }
-        
+
         .container {
             max-width: 1100px;
             margin: 0 auto;
@@ -39,22 +40,29 @@
             min-height: 100vh;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.03);
         }
-        
+
         header {
             text-align: center;
             padding-bottom: 40px;
             margin-bottom: 40px;
             border-bottom: 1px solid rgba(0,0,0,0.08);
         }
-        
-        .company-name {
+
+        .company-logo {
+            max-width: 180px; /* Adjust size as needed */
+            height: auto;
+            margin: 0 auto 15px; /* Center and add space below */
+            display: block;
+        }
+
+        .company-name { /* This style is now for fallback text if logo fails */
             font-size: 2.8rem;
             font-weight: 600;
             color: var(--primary);
             margin-bottom: 5px;
             letter-spacing: 0.5px;
         }
-        
+
         .company-tagline {
             font-size: 0.9rem;
             color: var(--secondary);
@@ -63,7 +71,7 @@
             margin: 15px 0;
             font-family: 'Montserrat', sans-serif;
         }
-        
+
         .location {
             font-size: 0.95rem;
             color: var(--secondary);
@@ -71,7 +79,30 @@
             font-family: 'Montserrat', sans-serif;
             font-weight: 300;
         }
-        
+
+        /* Primary CTA Button */
+        .cta-button {
+            display: inline-block;
+            background: var(--gold);
+            color: white;
+            padding: 15px 30px;
+            margin: 25px 0;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            background: #a58d5a; /* Slightly darker gold */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
         /* Navigation Menu */
         .nav-menu {
             display: flex;
@@ -80,7 +111,7 @@
             margin: 30px 0;
             flex-wrap: wrap;
         }
-        
+
         .nav-item {
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
@@ -89,7 +120,7 @@
             position: relative;
             padding-bottom: 5px;
         }
-        
+
         .nav-item:after {
             content: "";
             position: absolute;
@@ -100,37 +131,44 @@
             background: var(--gold);
             transition: width 0.3s ease;
         }
-        
+
         .nav-item:hover:after {
             width: 100%;
         }
-        
-        /* Content Sections (Hidden by Default) */
+
+        /* Content Sections */
         .content-section {
             display: none;
             margin: 40px 0;
             padding: 30px;
             background: var(--light);
             border-left: 3px solid var(--gold);
+            border-radius: 0.5rem;
         }
-        
+
         .content-section.active {
             display: block;
+            animation: fadeIn 0.5s ease;
         }
-        
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .section-title {
             font-size: 1.6rem;
             color: var(--primary);
             margin-bottom: 20px;
             font-weight: 600;
         }
-        
+
         .section-text {
             font-size: 1.1rem;
             line-height: 1.9;
             margin-bottom: 20px;
         }
-        
+
         /* Secure Contact Form */
         .contact-form {
             max-width: 500px;
@@ -139,12 +177,13 @@
             background: white;
             border: 1px solid var(--border);
             border-top: 3px solid var(--gold);
+            border-radius: 0.5rem;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -152,29 +191,104 @@
             font-size: 0.9rem;
             color: var(--primary);
         }
-        
-        .form-group input, 
-        .form-group textarea {
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border);
             font-family: 'Cormorant Garamond', serif;
+            border-radius: 0.375rem;
+            color: var(--secondary);
+            background-color: white;
         }
-        
-        .form-submit {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            cursor: pointer;
+
+        /* Login Section */
+        #login-section {
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--accent); /* Uses updated accent color */
+            border-radius: 0.5rem;
+            text-align: left;
+        }
+
+        #login-section h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .error-message {
+            color: #ef4444; /* Red 500 */
+            margin-top: 1rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        /* .btn-login was not used in HTML, cta-button is used instead */
+
+        /* Admin Portal */
+        #admin-portal-section {
+            display: none; /* Hidden by default */
+            margin: 40px 0;
+            padding: 30px;
+            background: var(--light);
+            border-left: 3px solid var(--accent); /* Uses updated accent color */
+            border-radius: 0.5rem;
+        }
+        #admin-portal-section h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .admin-links-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1.5rem;
+        }
+        .admin-links-list li {
+            margin-bottom: 0.75rem;
+        }
+        .admin-links-list a {
+            display: block;
+            background-color: #e0e7ff; /* Light indigo, adjusted slightly for scheme */
+            color: var(--accent); /* Uses updated accent color for link text */
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
             font-family: 'Montserrat', sans-serif;
-            transition: background 0.3s ease;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            text-align: left;
         }
-        
-        .form-submit:hover {
-            background: var(--accent);
+        .admin-links-list a:hover {
+            background-color: #c7d2fe; /* Lighter indigo */
+            transform: translateY(-2px);
         }
-        
+        /* .logout-btn was not used in HTML, cta-button is used instead */
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--accent); /* Uses updated accent color */
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -182,111 +296,186 @@
             border-top: 1px solid var(--border);
             font-size: 0.9rem;
             color: var(--secondary);
+            margin-top: 40px;
         }
-        
+
         .legal-disclaimer {
             margin-top: 20px;
             font-size: 0.8rem;
             opacity: 0.7;
         }
-        
+
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
             .company-name {
                 font-size: 2.2rem;
             }
-            
+
             .nav-menu {
                 gap: 15px;
+            }
+
+            .content-section, #login-section, #admin-portal-section {
+                padding: 20px;
+            }
+
+            .cta-button {
+                padding: 12px 25px;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1 class="company-name">Massey & Rosupo Co.</h1>
+        <header id="main-header">
+            <!-- Logo Integration -->
+            <img src="openart-image_u2NauXAE_1748877763331_raw (3).jpg-d0f267fb-6c44-4668-a456-5705c7b190bc"
+                 alt="Massey & Rosupo Co. Logo"
+                 class="company-logo"
+                 onerror="this.onerror=null;this.style.display='none';document.querySelector('.company-name').style.display='block';">
+            <!-- Fallback text if image fails to load -->
+            <h1 class="company-name" style="display: none;">Massey & Rosupo Co.</h1>
+
             <p class="company-tagline">Delaware Registered Holding Company</p>
             <p class="location">8 The Green, Suite #22026, Dover, Delaware</p>
-            
+
+            <!-- Primary CTA Button -->
+            <a href="javascript:showSection('contact')" class="cta-button">Request Corporate Documentation</a>
+
             <div class="nav-menu">
                 <div class="nav-item" onclick="showSection('overview')">Overview</div>
-                <div class="nav-item" onclick="showSection('structure')">Corporate Structure</div>
+                <div class="nav-item" onclick="showSection('structure')">Structure</div>
                 <div class="nav-item" onclick="showSection('governance')">Governance</div>
                 <div class="nav-item" onclick="showSection('contact')">Contact</div>
+                <div class="nav-item" id="login-nav-item" onclick="showSection('login')">Login</div>
+                <div class="nav-item" id="logout-nav-item" style="display: none;" onclick="logout()">Logout</div>
             </div>
         </header>
-        
-        <!-- Overview Section -->
-        <div id="overview" class="content-section active">
-            <h2 class="section-title">Strategic Holdings & Asset Protection</h2>
-            <p class="section-text">
-                Massey & Rosupo Co. is a Delaware-registered holding company specializing in the management of intellectual property, fiduciary assets, and subsidiary operations. Our structure is designed to optimize legal protections while maintaining compliance with Delaware General Corporation Law.
-            </p>
-            <p class="section-text">
-                For detailed information about our governance framework or fiduciary arrangements, please submit a verified inquiry through the <a href="javascript:showSection('contact')" style="color: var(--gold);">Contact</a> portal.
-            </p>
-        </div>
-        
-        <!-- Corporate Structure Section -->
-        <div id="structure" class="content-section">
-            <h2 class="section-title">Corporate Structure</h2>
-            <p class="section-text">
-                Our entity operates through a tiered structure to separate operational liabilities from protected assets:
-            </p>
-            <ul style="margin-left: 20px; line-height: 2;">
-                <li>Delaware-registered holding company</li>
-                <li>Wholly-owned subsidiary entities</li>
-                <li>Independent fiduciary management</li>
-            </ul>
-            <p class="section-text">
-                <em>Note: Beneficiary details and asset locations are confidential.</em>
-            </p>
-        </div>
-        
-        <!-- Governance Section -->
-        <div id="governance" class="content-section">
-            <h2 class="section-title">Governance & Compliance</h2>
-            <p class="section-text">
-                Massey & Rosupo Co. adheres to Delaware corporate law and standardized fiduciary practices. Key instruments include:
-            </p>
-            <ul style="margin-left: 20px; line-height: 2;">
-                <li>Perfected UCC-1 filings for asset security</li>
-                <li>Registered agent services in Delaware</li>
-                <li>Binding arbitration clauses for disputes</li>
-            </ul>
-        </div>
-        
-        <!-- Secure Contact Form -->
-        <div id="contact" class="content-section">
-            <h2 class="section-title">Request Information</h2>
-            <p class="section-text">
-                For verified parties seeking corporate documentation or fiduciary details:
-            </p>
-            <div class="contact-form">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" required>
+
+        <!-- Public Content Sections -->
+        <div id="public-content">
+            <!-- Overview Section -->
+            <div id="overview" class="content-section active">
+                <h2 class="section-title">Strategic Holdings & Asset Protection</h2>
+                <p class="section-text">
+                    Massey & Rosupo Co. is a Delaware-registered holding company specializing in the management of intellectual property, fiduciary assets, and subsidiary operations. Our structure is designed to optimize legal protections while maintaining compliance with Delaware General Corporation Law.
+                </p>
+                <p class="section-text">
+                    For detailed information about our governance framework or fiduciary arrangements, please submit a verified inquiry through our contact portal.
+                </p>
+                <a href="javascript:showSection('contact')" class="cta-button">Submit Inquiry</a>
+            </div>
+
+            <!-- Corporate Structure Section -->
+            <div id="structure" class="content-section">
+                <h2 class="section-title">Corporate Structure</h2>
+                <p class="section-text">
+                    Our entity operates through a tiered structure to separate operational liabilities from protected assets:
+                </p>
+                <ul style="margin-left: 20px; line-height: 2;">
+                    <li>Delaware-registered holding company</li>
+                    <li>Wholly-owned subsidiary entities</li>
+                    <li>Independent fiduciary management</li>
+                </ul>
+                <p class="section-text">
+                    <em>Note: Beneficiary details and asset locations are confidential.</em>
+                </p>
+                <a href="javascript:showSection('contact')" class="cta-button">Request Structure Details</a>
+            </div>
+
+            <!-- Governance Section -->
+            <div id="governance" class="content-section">
+                <h2 class="section-title">Governance & Compliance</h2>
+                <p class="section-text">
+                    Massey & Rosupo Co. adheres to Delaware corporate law and standardized fiduciary practices. Key instruments include:
+                </p>
+                <ul style="margin-left: 20px; line-height: 2;">
+                    <li>Perfected UCC-1 filings for asset security</li>
+                    <li>Registered agent services in Delaware</li>
+                    <li>Binding arbitration clauses for disputes</li>
+                </ul>
+                <a href="javascript:showSection('contact')" class="cta-button">Request Compliance Documents</a>
+            </div>
+
+            <!-- Secure Contact Form -->
+            <div id="contact" class="content-section">
+                <h2 class="section-title">Request Information</h2>
+                <p class="section-text">
+                    For verified parties seeking corporate documentation or fiduciary details:
+                </p>
+                <div class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Professional Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="request">Nature of Inquiry</label>
+                        <select id="request">
+                            <option value="corporate">Corporate Status Verification</option>
+                            <option value="fiduciary">Fiduciary Arrangements</option>
+                            <option value="legal">Legal Documentation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Additional Details</label>
+                        <textarea id="message" rows="4"></textarea>
+                    </div>
+                    <button class="cta-button" onclick="submitInquiry()" style="border: none; width: 100%; text-align: center;">Submit Securely</button>
                 </div>
-                <div class="form-group">
-                    <label for="email">Professional Email</label>
-                    <input type="email" id="email" required>
+            </div>
+        </div> <!-- End of public-content -->
+
+        <!-- Login Section -->
+        <div id="login" class="content-section">
+            <h2 class="section-title">Admin Login</h2>
+            <p class="section-text text-center text-red-600 font-bold">
+                WARNING: This is a client-side demo login. For real-world security, a server-side authentication system (e.g., Firebase Authentication) is REQUIRED.
+            </p>
+            <div id="login-section">
+                <div id="login-loading" class="spinner" style="display: none;"></div>
+                <div id="login-form">
+                    <div class="form-group">
+                        <label for="username">Email:</label>
+                        <input type="email" id="username" placeholder="admin@yourdomain.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                    <button class="cta-button" onclick="login()" style="border: none; width: 100%; text-align: center;">Login</button>
+                    <p id="errorMessage" class="error-message" style="display: none; color: #ef4444; margin-top: 1rem; text-align: center;"></p>
                 </div>
-                <div class="form-group">
-                    <label for="request">Nature of Inquiry</label>
-                    <select id="request" style="padding: 10px; width: 100%; border: 1px solid var(--border);">
-                        <option value="corporate">Corporate Status Verification</option>
-                        <option value="fiduciary">Fiduciary Arrangements</option>
-                        <option value="legal">Legal Documentation</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="message">Additional Details</label>
-                    <textarea id="message" rows="4"></textarea>
-                </div>
-                <button class="form-submit">Submit Securely</button>
             </div>
         </div>
-        
+
+        <!-- Admin Portal Section (Hidden by default) -->
+        <div id="admin-portal-section" class="content-section">
+            <h2 class="section-title">Admin Portal: Fillable Legal Documents</h2>
+            <p class="section-text text-gray-600">
+                Welcome to the secure admin portal. Here you can access and manage the various legal documents and forms.
+            </p>
+            <ul class="admin-links-list">
+                <li><a href="javascript:void(0)" onclick="openImmersive('promissory_note_fillable_app')">1.1. Promissory Note</a></li>
+                <li><a href="javascript:void(0)" onclick="openImmersive('security_agreement_fillable_app')">1.2. Security Agreement (Governing Assets)</a></li>
+                <li><a href="javascript:void(0)" onclick="openImmersive('promissory_note_exhibits_fillable_app')">Promissory Note Exhibits A & B</a></li>
+                <li><a href="javascript:void(0)" onclick="openImmersive('athena_aegis_articles_fillable_app')">Articles of Association (Athena Aegis Foundation)</a></li>
+                <li><a href="javascript:void(0)" onclick="openImmersive('delaware_incorporation_fillable_app')">Certificate of Incorporation (Delaware)</a></li>
+                <li><a href="javascript:void(0)" onclick="openImmersive('withholding_agent_contract_fillable_app')">Contract for Withholding Agent</a></li>
+                <li><a href="javascript:void(0)" onclick="openImmersive('promissory_note_statement_fillable_app')">Promissory Note Statement of Account</a></li>
+                <!-- Add more links here as needed for other documents -->
+            </ul>
+            <button class="cta-button" onclick="logout()" style="background: #dc2626; border: none; display: block; margin: 30px auto 0; width: fit-content; text-align: center;">Logout</button>
+        </div>
+
         <footer>
             <p>&copy; <span id="year"></span> Massey & Rosupo Co. All Rights Reserved.</p>
             <p class="legal-disclaimer">
@@ -294,22 +483,131 @@
             </p>
         </footer>
     </div>
-    
+
+    <!-- Firebase Module Script -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+            authDomain: "masseyrosupo.firebaseapp.com",
+            projectId: "masseyrosupo",
+            storageBucket: "masseyrosupo.firebasestorage.app",
+            messagingSenderId: "335180500143",
+            appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
+            measurementId: "G-TLVDZ69BVC"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+
+        // Authentication State Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                handleSuccessfulLogin();
+            } else {
+                handleLogout();
+            }
+        });
+
+        // Make functions available globally
+        window.login = async function() {
+            const email = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("errorMessage");
+            const loginForm = document.getElementById("login-form");
+            const loadingSpinner = document.getElementById("login-loading");
+
+            loginForm.style.display = "none";
+            loadingSpinner.style.display = "block";
+            errorMessage.style.display = "none";
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                errorMessage.textContent = getFirebaseErrorMessage(error);
+                errorMessage.style.display = "block";
+                loginForm.style.display = "block";
+                loadingSpinner.style.display = "none";
+            }
+        };
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
+
+        function getFirebaseErrorMessage(error) {
+            switch (error.code) {
+                case 'auth/invalid-email': return 'Invalid email address';
+                case 'auth/user-disabled': return 'Account disabled';
+                case 'auth/user-not-found': return 'Account not found';
+                case 'auth/wrong-password': return 'Incorrect password';
+                case 'auth/too-many-requests': return 'Too many attempts';
+                default: return 'Login failed. Please try again.';
+            }
+        }
+
+        window.handleSuccessfulLogin = function() {
+            document.getElementById("admin-portal-section").classList.add("active");
+            document.getElementById("admin-portal-section").style.display = "block"; // Ensure it's block
+            document.getElementById("login").classList.remove("active");
+            document.getElementById("login-nav-item").style.display = "none";
+            document.getElementById("logout-nav-item").style.display = "block";
+            document.getElementById("login-form").style.display = "block";
+            document.getElementById("login-loading").style.display = "none";
+        };
+
+        window.handleLogout = function() {
+            document.getElementById("admin-portal-section").classList.remove("active");
+            document.getElementById("admin-portal-section").style.display = "none";
+            document.getElementById("login-nav-item").style.display = "block";
+            document.getElementById("logout-nav-item").style.display = "none";
+            showSection('overview'); // Go back to overview after logout
+        };
+    </script>
+
+    <!-- Main Application Script -->
     <script>
-        // Show/hide sections
+        // Navigation and Section Management
         function showSection(sectionId) {
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
+            // Hide admin portal if visible
+            document.getElementById('admin-portal-section').classList.remove('active');
+            document.getElementById('admin-portal-section').style.display = 'none';
+
             document.getElementById(sectionId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        
-        // Auto-update year
+
+        // Form Submission
+        function submitInquiry() {
+            alert('Inquiry submitted. A representative will contact you via secure channels.');
+            showSection('overview');
+        }
+
+        // Document Viewer Simulation
+        function openImmersive(docType) {
+            alert(`Opening ${docType.replace(/_/g, ' ')} document...\n\nIn production, this would open the actual document.`);
+        }
+
+        // Set current year in footer
         document.getElementById('year').textContent = new Date().getFullYear();
-        
-        // Simulate secure form submission (replace with backend in production)
-        document.querySelector('.form-submit').addEventListener('click', function() {
-            alert('Inquiry submitted. A representative will contact verified requests via secure channels.');
+
+        // Initialize to show overview section on load
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('overview');
         });
     </script>
 </body>
