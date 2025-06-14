@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Massey & Rosupo Co. - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY", // Replace with your actual API key
+            authDomain: "masseyrosupo.firebaseapp.com",
+            projectId: "masseyrosupo",
+            storageBucket: "masseyrosupo.firebasestorage.app",
+            messagingSenderId: "335180500143",
+            appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
+            measurementId: "G-TLVDZ69BVC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html'; // Redirect to login if not authenticated
+            }
+        });
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <span class="logo-icon">MR</span>
+                <span class="header-title">Massey & Rosupo Co.</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <span class="user-avatar">U</span>
+                <span>Welcome, User!</span>
+            </div>
+            <div onclick="logout()">Logout</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-item" onclick="loadContent('litigation')">Litigation Management</div>
+            <div class="sidebar-item" onclick="loadContent('entity')">Entity Management</div>
+            </aside>
+
+        <main class="content" id="main-content-area">
+            <p>Select an option from the sidebar.</p>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Massey & Rosupo Co. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        async function loadContent(page) {
+            const contentArea = document.getElementById('main-content-area');
+            let url = '';
+
+            if (page === 'litigation') {
+                url = 'LitDash.html';
+            } else if (page === 'entity') {
+                url = 'SecureMainDash.html';
+            } else {
+                contentArea.innerHTML = '<p>Content not found.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const html = await response.text();
+
+                // Parse the fetched HTML to extract only the relevant content (e.g., from a specific div)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                let contentToLoad = '';
+
+                // Example: if the main content is within a div with class 'main-content'
+                const mainContentDiv = doc.querySelector('.main-content .content-area'); // Adjust selector as needed
+                if (mainContentDiv) {
+                    contentToLoad = mainContentDiv.innerHTML;
+                } else {
+                    // Fallback if specific content div not found, load entire body content
+                    contentToLoad = doc.body.innerHTML;
+                }
+
+                contentArea.innerHTML = contentToLoad;
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top after loading content
+
+                // Re-run any scripts within the loaded content (if any)
+                contentArea.querySelectorAll('script').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
+
+            } catch (error) {
+                console.error('Error loading content:', error);
+                contentArea.innerHTML = `<p>Failed to load ${page} content.</p>`;
+            }
+        }
+
+        // Optional: Load a default dashboard on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // loadContent('entity'); // Or 'litigation', or a new default home content
+        });
+    </script>
+</body>
+</html>

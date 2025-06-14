@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Massey & Rosupo Co. - Legal Forms Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a2e4a;
+            --secondary: #4a5c7a;
+            --accent: #284a68;
+            --light: #f9fafc;
+            --gold: #b89f6b;
+            --border: #e0e6ed;
+            --blue-light: #e0e7ff;
+            --blue-hover: #c7d2fe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.8;
+            color: var(--secondary);
+            background-color: #f5f7fa;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Navigation */
+        .top-nav {
+            background: var(--primary);
+            color: white;
+            padding: 8px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .top-nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .main-nav {
+            background: var(--accent);
+            padding: 12px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-tab {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            background-color: white;
+            min-height: calc(100vh - 120px);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 30px;
+            padding: 30px 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .sidebar-links {
+            list-style: none;
+        }
+
+        .sidebar-links li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: block;
+            padding: 5px 0;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar-links a:hover, .sidebar-links a.active {
+            color: var(--accent);
+            padding-left: 5px;
+            font-weight: 500;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+        }
+
+        .hero-section {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--light) 0%, #e8f2ff 100%);
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--gold);
+        }
+
+        .hero-image {
+            width: 180px;
+            height: 120px;
+            border-radius: 0.5rem;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .hero-content h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--secondary);
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .card-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .card-link:hover {
+            color: var(--gold);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .main-nav-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        .search-highlight {
+            background: var(--gold);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-content">
+            <div class="user-info">
+                <span>Ann Wiseman</span>
+            </div>
+            <div class="user-actions">
+                <span>Send Us Feedback</span> | 
+                <span>Help</span> | 
+                <span>Settings</span> | 
+                <span>Logout</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="main-nav-content">
+            <div class="logo">
+                <div style="width: 24px; height: 24px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
+                Admin
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-tab active">Entity Management</button>
+                <button class="nav-tab">Transactional Services</button>
+                <button class="nav-tab">Matters & SOP</button>
+                <button class="nav-tab">Orders & Results</button>
+                <button class="nav-tab">Forms & Tools</button>
+                <button class="nav-tab">My Account</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Entity Management</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="#" class="active">Company Management</a></li>
+                        <li><a href="#">Agent Addresses</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Agent Addresses Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="display: flex; gap: 5px;">
+                            <div style="width: 16px; height: 16px; background: var(--gold); border-radius: 2px;"></div>
+                            <div style="width: 16px; height: 16px; background: var(--accent); border-radius: 2px;"></div>
+                            <div style="width: 16px; height: 16px; background: var(--secondary); border-radius: 2px;"></div>
+                            <div style="width: 16px; height: 16px; background: #e67e22; border-radius: 2px;"></div>
+                        </div>
+                        <h1 style="font-size: 1.8rem; color: var(--primary); margin: 0;">Agent Addresses</h1>
+                    </div>
+                    <div style="color: var(--gold); font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 2px;">
+                        LITIGATION MANAGEMENT
+                    </div>
+                </div>
+
+                <!-- Search Form -->
+                <div style="background: white; border: 1px solid var(--border); border-radius: 0.5rem; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--primary); margin-bottom: 8px;">
+                            Jurisdiction
+                        </label>
+                        <select style="width: 200px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--secondary);">
+                            <option>ALL</option>
+                            <option>Delaware</option>
+                            <option>New York</option>
+                            <option>California</option>
+                            <option>Texas</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
+                        <button style="background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">
+                            SEARCH
+                        </button>
+                        <span style="color: var(--secondary); font-size: 0.9rem;">|</span>
+                        <button style="background: transparent; color: var(--secondary); border: none; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: color 0.3s ease;">
+                            CLEAR
+                        </button>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <a href="#" style="color: var(--accent); text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500;">
+                            Representation Company Address Change Form
+                        </a>
+                    </div>
+
+                    <div style="padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; margin-bottom: 20px;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #856404; line-height: 1.5;">
+                            <strong>IMPORTANT:</strong><br>
+                            To better serve you, you must notify a CSC℠ representative when designating Corporation Service Company® as your registered agent. Failure to do so could adversely affect the prompt delivery of important legal documents. If you require further assistance, please contact our Service of Process Call Center at 888-690-2882.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Results Area -->
+                <div style="background: white; border: 1px solid var(--border); border-radius: 0.5rem; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-height: 200px;">
+                    <div style="text-align: center; padding: 40px; color: var(--secondary);">
+                        <p style="font-style: italic; font-size: 1rem;">Select a jurisdiction, or "ALL" to view all jurisdictions</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

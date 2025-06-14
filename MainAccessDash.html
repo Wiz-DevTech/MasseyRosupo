@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Add this right after the opening <head> tag -->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    // Your web app's Firebase configuration (same as in index.html)
+    const firebaseConfig = {
+        apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+        authDomain: "masseyrosupo.firebaseapp.com",
+        projectId: "masseyrosupo",
+        storageBucket: "masseyrosupo.firebasestorage.app",
+        messagingSenderId: "335180500143",
+        appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
+        measurementId: "G-TLVDZ69BVC"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Check authentication state
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            // If not logged in, redirect to login page
+            window.location.href = 'index.html;
+        }
+    });
+
+    // Make logout function available
+    window.logout = async function() {
+        try {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
+
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- Root Variables (from dashboardv2 & dashboardv3) --- */
+        :root {
+            --primary: #1a2e4a; /* Dark blue/navy */
+            --secondary: #4a5c7a; /* Medium blue-gray */
+            --accent: #284a68; /* Deeper, more professional blue */
+            --light: #f9fafc; /* Very light off-white */
+            --gold: #b89f6b; /* Gold/brown accent */
+            --border: #e0e6ed; /* Light gray */
+            --header-height: 64px; /* Approximate header height */
+        }
+
+        /* --- Global Body Styling (from dashboardv2) --- */
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.8;
+            color: var(--secondary);
+            background-color: #f5f7fa;
+            -webkit-font-smoothing: antialiased;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 16px;
+            
+            /* Flexbox for full height layout */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header (from Dashboardv3, adapted with v2 colors/fonts) --- */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-right: 10px; /* Reduced from 20px */
+        }
+
+        .logo-icon {
+            background-color: var(--gold);
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .header-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            position: relative;
+            top: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-right div {
+            margin-left: 15px; /* Reduced from 25px */
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .user-avatar {
+            background-color: #5a708e;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        /* --- Main Layout (from Dashboardv3) --- */
+        .main-container {
+            display: flex;
+            /* Flex to take remaining height */
+            flex: 1; 
+        }
+
+        /* --- Sidebar (from Dashboardv3, adapted with v2 colors/fonts) --- */
+        .sidebar {
+            width: 220px;
+            background: var(--accent);
+            color: white;
+            padding: 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .account-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .account-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .account-details {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .feedback-btn {
+            background-color: var(--gold);
+            color: white;
+            border: none;
+            width: calc(100% - 40px);
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .feedback-btn:hover {
+            background-color: #a58d5a;
+        }
+
+        /* --- Content Area (from Dashboardv3, adapted with v2 container concept) --- */
+        .content {
+            flex: 1;
+            padding: 20px 40px; /* Adjusted padding to accommodate wider content */
+            background-color: var(--light);
+        }
+        
+        .container {
+            max-width: 1400px; /* Increased max-width from 1100px */
+            margin: 20px auto;
+            padding: 30px;
+            background-color: white;
+            min-height: calc(100vh - var(--header-height) - 40px); /* Adjusted min-height calculation */
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: 1fr; 
+            gap: 30px;
+        }
+
+        /* --- Search Section (from Dashboardv3) --- */
+        .search-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-dropdown,
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        .search-dropdown {
+            flex-grow: 0;
+            width: 250px;
+            background-color: white;
+        }
+
+        .search-input {
+            flex-grow: 1;
+        }
+
+        .search-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background-color: var(--accent);
+        }
+
+        /* --- Section Headers (from dashboardv2/v3 blend) --- */
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        .section-header {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- My Links Grid (from Dashboardv3.html) --- */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .link-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .link-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .link-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        /* Specific icon colors */
+        .icon-manage { background: var(--accent); }
+        .icon-info { background: #5ba3d4; }
+        .icon-orders { background: var(--secondary); }
+        .icon-invoice { background: #28a745; }
+        .icon-mail { background: #17a2b8; }
+        .icon-dba { background: var(--gold); }
+        .icon-ucc { background: #6f42c1; }
+        .icon-cta { background: #dc3545; }
+
+        .link-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        /* --- Standard Link Groups (for Account & Search) --- */
+        .link-group {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--gold);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+        }
+
+        .link-group-title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .link-list li {
+            margin-bottom: 10px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .link-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+        }
+
+        .link-list a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .link-list a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* --- Calendar Section (from Dashboardv3) --- */
+        .calendar-section {
+            margin-bottom: 30px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .calendar-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .calendar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .calendar-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: #e8f4f8;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--accent);
+        }
+
+        .calendar-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--primary);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- Additional Links Section (from Dashboardv3, with button styling retained) --- */
+        .additional-links {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+        .additional-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .additional-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary);
+            font-family: 'Montserrat', sans-serif;
+        }
+        .expand-icon {
+            font-size: 20px;
+            color: var(--accent);
+            transition: transform 0.2s ease;
+        }
+        .additional-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+        .additional-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .link-category {
+            display: flex;
+            flex-direction: column;
+        }
+        .category-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+            font-family: 'Montserrat', sans-serif;
+        }
+        .category-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .category-links .category-link {
+            display: block;
+            background-color: var(--light);
+            color: var(--secondary);
+            text-decoration: none;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .category-links .category-link:before {
+            content: none;
+        }
+        .category-links .category-link:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* --- Form Section (Moved to top of column) --- */
+        .form-section {
+            margin-bottom: 30px; /* Added margin for spacing below it */
+        }
+
+        .form-image-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            width: 100%;
+            height: 35%;
+            padding-bottom: 20%;
+            height: 0;
+        }
+
+        .form-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .form-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(26,46,74,0.1), rgba(26,46,74,0.3));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .form-overlay h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-overlay p {
+            margin-bottom: 25px;
+            font-family: 'Montserrat', sans-serif;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            font-size: 14px;
+        }
+
+        .form-btn {
+            background: var(--gold);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-btn:hover {
+            background: #a58d5a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .form-section {
+                position: relative;
+                top: auto;
+                margin-top: 0;
+            }
+            .additional-content {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                box-shadow: none;
+            }
+            .header-right div {
+                margin-left: 15px;
+            }
+            .header-title {
+                font-size: 16px;
+            }
+            .container {
+                padding: 15px;
+                margin: 15px auto;
+            }
+            .search-container {
+                flex-direction: column;
+            }
+            .search-dropdown {
+                width: 100%;
+            }
+            .links-grid, .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">ADMIN</div>
+                <span class="header-title">Administration Dashboard<sup>SM</sup></span>
+            </div>
+        </div>
+        <div class="header-right">
+    <div>🏠</div>
+    <div class="user-info">
+        <div class="user-avatar">AW</div>
+        <span>Ann Wiseman</span>
+    </div>
+    <div onclick="logout()" style="cursor: pointer; margin-left: 15px;">🚪 Logout</div>
+</div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-item">
+                🔗 My Links
+            </div>
+            <div class="sidebar-item">
+                ⚙️ Preferences & Settings
+            </div>
+            <div class="account-section">
+                <div class="account-title">Account</div>
+                <div class="account-details">Massey & RoSuPo, Co. (8487528)</div>
+            </div>
+            <button class="feedback-btn">📝 LEAVE FEEDBACK</button>
+        </aside>
+
+        <main class="content">
+            <div class="container">
+                <div class="links-section-column">
+                    <div class="form-section">
+                        <div class="form-image-container">
+                            <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Form example" class="form-image">
+                            <div class="form-overlay">
+                                <h2>Quick Access Form</h2>
+                                <p>Submit your requests directly through our secure form interface</p>
+                                <button class="form-btn">Open Form</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search-section">
+                        <div class="search-container">
+                            <select class="search-dropdown">
+                                <option>Orders by order number</option>
+                            </select>
+                            <input type="text" class="search-input" placeholder="Enter an order number">
+                            <button class="search-btn">🔍</button>
+                        </div>
+                    </div>
+
+                    <section class="dashboard-section">
+                        <h2 class="section-header">My Links</h2>
+                        <div class="links-grid">
+                            <div class="link-card">
+                                <div class="link-icon icon-manage">👥</div>
+                                <div class="link-text">Manage Entities</div>
+                            </div>
+                            <div class="link-card">
+                                <div class="link-icon icon-info">📄</div>
+                                <div class="link-text">Information Requests</div>
+                            </div>
+                            <div class="link-card">
+                                <div class="link-icon icon-orders">📋</div>
+                                <div class="link-text">View Current Orders</div>
+                            </div>
+                            <div class="link-card">
+                                <div class="link-icon icon-invoice">💳</div>
+                                <div class="link-text">Pay an Invoice</div>
+                            </div>
+                            <div class="link-card">
+                                <div class="link-icon icon-mail">✉️</div>
+                                <div class="link-text">Compliance Mail History</div>
+                            </div>
+                            <div class="link-card">
+                                <div class="link-icon icon-dba">👤</div>
+                                <div class="link-text">Manage My DBA Names</div>
+                            </div>
+                            <div class="link-card">
+                                <div class="link-icon icon-ucc">📊</div>
+                                <div class="link-text">View UCC</div>
+                            </div>
+                            <div class="link-card">
+                                <div class="link-icon icon-cta">🔒</div>
+                                <div class="link-text">CTA Beneficial Ownership Filing</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="calendar-section dashboard-section">
+                        <h2 class="section-header">My Calendars</h2>
+                        <div class="calendar-grid">
+                            <div class="calendar-card">
+                                <div class="calendar-icon">📅</div>
+                                <div class="calendar-title">View 31 Day Calendar</div>
+                            </div>
+                            <div class="calendar-card">
+                                <div class="calendar-icon">✅</div>
+                                <div class="calendar-title">View Good Standing Calendar</div>
+                            </div>
+                            <div class="calendar-card">
+                                <div class="calendar-icon">👥</div>
+                                <div class="calendar-title">View DBA Names Calendar</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="additional-links dashboard-section">
+                        <div class="additional-header">
+                            <h2 class="section-header additional-title">View Additional Links</h2>
+                            <span class="expand-icon">^</span>
+                        </div>
+                        <div class="additional-content">
+                            <div class="link-category">
+                                <h3 class="category-title">Additional Admin Resources</h3>
+                                <div class="category-links">
+                                    <a href="#" class="category-link">DELAWARE E-FILING</a>
+                                    <a href="#" class="category-link">REGISTERED AGENT ADDRESSES</a>
+                                    <a href="#" class="category-link">EVENTS, WEBINARS & INSIGHT REPORTS</a>
+                                    <a href="#" class="category-link">CONTACT UPDATE FORM</a>
+                                </div>
+                            </div>
+                            <div class="link-category">
+                                <h3 class="category-title">Business License</h3>
+                                <div class="category-links">
+                                    <a href="#" class="category-link">ACTIVE LICENSE ORDERS</a>
+                                    <a href="#" class="category-link">BUSINESS LICENSE SERVICES</a>
+                                </div>
+                            </div>
+                            <div class="link-category">
+                                <h3 class="category-title">Forms & Databases</h3>
+                                <div class="category-links">
+                                    <a href="#" class="category-link">STATE & ADMIN FORMS</a>
+                                    <a href="#" class="category-link">INTERNATIONAL FORMS</a>
+                                    <a href="#" class="category-link">UCC FILING FORMS</a>
+                                    <a href="#" class="category-link">STATE DATABASES</a>
+                                    <a href="#" class="category-link">FEDERAL DATABASES</a>
+                                    <a href="#" class="category-link">TAX FORMS</a>
+                                    <a href="#" class="category-link">TAX INTELLIGENCE</a>
+                                    <a href="#" class="category-link">PROCEDURAL SUMMARIES</a>
+                                    <a href="#" class="category-link">PACKETS</a>
+                                </div>
+                            </div>
+                            <div class="link-category">
+                                <h3 class="category-title">Orders & Results</h3>
+                                <div class="category-links">
+                                    <a href="#" class="category-link">PLACE NEW ORDERS</a>
+                                    <a href="#" class="category-link">DELAWARE STATUS SEARCH</a>
+                                    <a href="#" class="category-link">FORM AN LLC</a>
+                                    <a href="#" class="category-link">FORM A CORPORATION</a>
+                                    <a href="#" class="category-link">MODIFY DEALROOM RESULTS</a>
+                                    <a href="#" class="category-link">DELIVERY PREFERENCES</a>
+                                    <a href="#" class="category-link">VIEW TODAY'S ORDERS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const additionalHeader = document.querySelector('.additional-header');
+            const additionalContent = document.querySelector('.additional-content');
+
+            additionalHeader.addEventListener('click', function() {
+                additionalHeader.classList.toggle('expanded');
+                additionalContent.style.display = additionalHeader.classList.contains('expanded') ? 'grid' : 'none';
+            });
+            // Initially display the content
+            additionalContent.style.display = 'grid'; 
+        });
+    </script>
+</body>
+</html>

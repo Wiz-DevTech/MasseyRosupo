@@ -1,0 +1,327 @@
+:root {
+    --primary: #1a2e4a; /* Dark blue/navy */
+    --secondary: #4a5c7a; /* Medium blue-gray */
+    --accent: #284a68; /* Deeper, more professional blue (updated) */
+    --light: #f9fafc; /* Very light off-white */
+    --gold: #b89f6b; /* Gold/brown accent */
+    --border: #e0e6ed; /* Light gray */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 1.8;
+    color: var(--secondary);
+    background-color: #f5f7fa;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px 30px;
+    background-color: white;
+    min-height: 100vh;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.03);
+}
+
+header {
+    text-align: center;
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.company-logo {
+    max-width: 180px;
+    height: auto;
+    margin: 0 auto 15px;
+    display: block;
+}
+
+.company-name {
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+}
+
+.company-tagline {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 15px 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.location {
+    font-size: 0.95rem;
+    color: var(--secondary);
+    margin-top: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+}
+
+/* Primary CTA Button */
+.cta-button {
+    display: inline-block;
+    background: var(--gold);
+    color: white;
+    padding: 15px 30px;
+    margin: 25px 0;
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+    background: #a58d5a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Navigation Menu */
+.nav-menu {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.nav-item {
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.nav-item:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--gold);
+    transition: width 0.3s ease;
+}
+
+.nav-item:hover:after {
+    width: 100%;
+}
+
+/* Content Sections */
+.content-section {
+    display: none;
+    margin: 40px 0;
+    padding: 30px;
+    background: var(--light);
+    border-left: 3px solid var(--gold);
+    border-radius: 0.5rem;
+}
+
+.content-section.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+    font-size: 1.6rem;
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.section-text {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    margin-bottom: 20px;
+}
+
+/* Secure Contact Form */
+.contact-form {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background: white;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    border-radius: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: var(--primary);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    font-family: 'Cormorant Garamond', serif;
+    border-radius: 0.375rem;
+    color: var(--secondary);
+    background-color: white;
+}
+
+/* Login Section */
+#login-section {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 30px;
+    background: white;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 0.5rem;
+    text-align: left;
+}
+
+#login-section h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.error-message {
+    color: #ef4444;
+    margin-top: 1rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Admin Portal */
+#admin-portal-section {
+    display: none;
+    margin: 40px 0;
+    padding: 30px;
+    background: var(--light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0.5rem;
+}
+
+#admin-portal-section h2 {
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.admin-links-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+}
+
+.admin-links-list li {
+    margin-bottom: 0.75rem;
+}
+
+.admin-links-list a {
+    display: block;
+    background-color: #e0e7ff;
+    color: var(--accent);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    text-align: left;
+}
+
+.admin-links-list a:hover {
+    background-color: #c7d2fe;
+    transform: translateY(-2px);
+}
+
+/* Loading spinner */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: var(--accent);
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--secondary);
+    margin-top: 40px;
+}
+
+.legal-disclaimer {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 30px 20px;
+    }
+
+    .company-name {
+        font-size: 2.2rem;
+    }
+
+    .nav-menu {
+        gap: 15px;
+    }
+
+    .content-section, #login-section, #admin-portal-section {
+        padding: 20px;
+    }
+
+    .cta-button {
+        padding: 12px 25px;
+        font-size: 0.9rem;
+    }
+}
+/* Smooth hash navigation */
+html {
+  scroll-behavior: smooth;
+}

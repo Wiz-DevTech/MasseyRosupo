@@ -342,7 +342,7 @@
             <!-- Fallback text if image fails to load -->
             <h1 class="company-name" style="display: none;">Massey & Rosupo Co.</h1>
 
-            <p class="company-tagline">Delaware Registered Holding Company</p>
+            <p class="company-tagline">Building Trust Through Valued Foundation</p>
             <p class="location">8 The Green, Suite #22026, Dover, Delaware</p>
 
             <!-- Primary CTA Button -->
@@ -540,12 +540,44 @@
         };
 
         window.logout = async function() {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Logout error:", error);
-            }
-        };
+    try {
+        // Show loading state on logout button
+        const logoutBtn = document.getElementById("logout-nav-item");
+        if (logoutBtn) {
+            const originalText = logoutBtn.textContent;
+            logoutBtn.textContent = "Logging out...";
+            logoutBtn.style.opacity = "0.7";
+            logoutBtn.style.pointerEvents = "none";
+            
+            await signOut(auth);
+            
+            // Restore button state after successful logout
+            setTimeout(() => {
+                if (logoutBtn) {
+                    logoutBtn.textContent = originalText;
+                    logoutBtn.style.opacity = "1";
+                    logoutBtn.style.pointerEvents = "auto";
+                }
+            }, 500);
+        } else {
+            await signOut(auth);
+        }
+        
+        handleLogout();
+        
+    } catch (error) {
+        console.error("Logout failed:", error);
+        alert("Logout failed. Please try again.");
+        
+        // Restore logout button if it exists
+        const logoutBtn = document.getElementById("logout-nav-item");
+        if (logoutBtn) {
+            logoutBtn.textContent = "Logout";
+            logoutBtn.style.opacity = "1";
+            logoutBtn.style.pointerEvents = "auto";
+        }
+    }
+};
 
         function getFirebaseErrorMessage(error) {
             switch (error.code) {
@@ -558,15 +590,22 @@
             }
         }
 
-        window.handleSuccessfulLogin = function() {
-            document.getElementById("admin-portal-section").classList.add("active");
-            document.getElementById("admin-portal-section").style.display = "block"; // Ensure it's block
-            document.getElementById("login").classList.remove("active");
-            document.getElementById("login-nav-item").style.display = "none";
-            document.getElementById("logout-nav-item").style.display = "block";
-            document.getElementById("login-form").style.display = "block";
-            document.getElementById("login-loading").style.display = "none";
-        };
+window.handleSuccessfulLogin = function() {
+    // Only redirect to dashboard if we are *not* currently on the dashboard page
+    // This prevents the loop if MainAccessDash.html somehow brings you back here.
+    if (window.location.pathname !== '/MainAccessDash.html') {
+         window.location.href = 'MainAccessDash.html';
+    }
+    // Ensure admin portal section is displayed if user is on index.html and logs in
+    document.getElementById("admin-portal-section").classList.add("active");
+    document.getElementById("admin-portal-section").style.display = "block";
+    document.getElementById("login").classList.remove("active");
+    document.getElementById("login-nav-item").style.display = "none";
+    document.getElementById("logout-nav-item").style.display = "block";
+    document.getElementById("login-form").style.display = "block";
+    document.getElementById("login-loading").style.display = "none";
+    showSection('admin-portal-section'); // Show the admin portal section
+};
 
         window.handleLogout = function() {
             document.getElementById("admin-portal-section").classList.remove("active");
