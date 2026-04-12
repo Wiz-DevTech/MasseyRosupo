@@ -1,655 +1,1522 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Massey & Rosupo Co. | Delaware Holding Company</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --primary: #1a2e4a; /* Dark blue/navy */
-            --secondary: #4a5c7a; /* Medium blue-gray */
-            --accent: #284a68; /* Deeper, more professional blue (updated) */
-            --light: #f9fafc; /* Very light off-white */
-            --gold: #b89f6b; /* Gold/brown accent */
-            --border: #e0e6ed; /* Light gray */
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Massey &amp; Rosupo Co. | Delaware Holding Company</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ─── DESIGN TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --ink:         #0d0f14;
+    --ink-soft:    #1c1f28;
+    --ink-mid:     #2b2f3d;
+    --muted:       #5a5f74;
+    --border:      rgba(168,148,100,0.22);
+    --border-soft: rgba(168,148,100,0.10);
+    --gold:        #a89464;
+    --gold-lt:     #c8ae7e;
+    --gold-glow:   rgba(168,148,100,0.15);
+    --parchment:   #f5f0e8;
+    --parchment-dk:#ede6d8;
+    --cream:       #faf8f4;
+    --white:       #ffffff;
+    --r:           6px;
+  }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  /* ─── RESET & BASE ──────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        body {
-            font-family: 'Cormorant Garamond', serif;
-            line-height: 1.8;
-            color: var(--secondary);
-            background-color: #f5f7fa;
-            -webkit-font-smoothing: antialiased;
-        }
+  /* ─── SUBTLE NOISE TEXTURE ──────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 50px 30px;
-            background-color: white;
-            min-height: 100vh;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.03);
-        }
+  /* ─── TOPBAR ────────────────────────────────────────────────────── */
+  .topbar {
+    background: var(--ink);
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    position: relative; z-index: 100;
+  }
+  .topbar-pulse { display: flex; align-items: center; gap: 8px; }
+  .pulse-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #2ecc71; animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
 
-        header {
-            text-align: center;
-            padding-bottom: 40px;
-            margin-bottom: 40px;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-        }
+  /* ─── NAV ───────────────────────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 90;
+    background: rgba(250,248,244,0.92);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 72px;
+  }
+  .nav-brand { display: flex; flex-direction: column; line-height: 1.2; }
+  .nav-brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600; font-size: 1.25rem;
+    color: var(--ink); letter-spacing: 0.02em;
+  }
+  .nav-brand-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.14em;
+    color: var(--gold); text-transform: uppercase;
+  }
+  .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+  .nav-links a {
+    font-size: 0.8rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    background: var(--ink); color: var(--gold) !important;
+    padding: 9px 20px; border-radius: var(--r);
+    border: 1px solid var(--border);
+    transition: background 0.2s, color 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--gold-lt) !important; color: var(--ink) !important; }
 
-        .company-logo {
-            max-width: 180px; /* Adjust size as needed */
-            height: auto;
-            margin: 0 auto 15px; /* Center and add space below */
-            display: block;
-        }
+  /* ─── HERO ──────────────────────────────────────────────────────── */
+  .hero {
+    background: var(--ink); position: relative; overflow: hidden;
+    padding: 100px 80px 90px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -80px; right: -80px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(168,148,100,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: block;
+    width: 32px; height: 1px; background: var(--gold); opacity: 0.6;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    font-weight: 300; color: var(--parchment);
+    line-height: 1.12; letter-spacing: -0.01em; margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: italic; color: var(--gold-lt); }
+  .hero-body {
+    font-size: 0.95rem; color: #8a8fa8;
+    line-height: 1.7; max-width: 420px; margin-bottom: 36px;
+  }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: var(--r);
+    font-size: 0.8rem; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 500;
+    cursor: pointer; border: none; text-decoration: none; transition: all 0.2s;
+  }
+  .btn-gold { background: var(--gold); color: var(--ink); }
+  .btn-gold:hover { background: var(--gold-lt); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent; color: var(--parchment);
+    border: 1px solid rgba(168,148,100,0.4);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-        .company-name { /* This style is now for fallback text if logo fails */
-            font-size: 2.8rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 5px;
-            letter-spacing: 0.5px;
-        }
+  .hero-stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border); border-radius: var(--r);
+    overflow: hidden; position: relative; z-index: 2;
+  }
+  .hero-stat { background: var(--ink-soft); padding: 28px 24px; }
+  .hero-stat-value {
+    font-family: 'Cormorant Garamond', serif; font-size: 2.4rem;
+    font-weight: 500; color: var(--gold-lt); line-height: 1; margin-bottom: 6px;
+  }
+  .hero-stat-label {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  }
+  .hero-divider {
+    grid-column: 1/-1; background: var(--ink-mid); padding: 18px 24px;
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.1em; color: var(--gold);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-divider::before { content: '▸'; opacity: 0.7; }
 
-        .company-tagline {
-            font-size: 0.9rem;
-            color: var(--secondary);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin: 15px 0;
-            font-family: 'Montserrat', sans-serif;
-        }
+  /* ─── SECTION SHELL ─────────────────────────────────────────────── */
+  section { position: relative; z-index: 1; }
+  .section-label {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before {
+    content: ''; display: block;
+    width: 20px; height: 1px; background: var(--gold); opacity: 0.7;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 400; color: var(--ink);
+    line-height: 1.2; margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 0.9rem; color: var(--muted);
+    line-height: 1.7; max-width: 520px;
+  }
 
-        .location {
-            font-size: 0.95rem;
-            color: var(--secondary);
-            margin-top: 5px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 300;
-        }
+  /* ─── OVERVIEW ──────────────────────────────────────────────────── */
+  #overview { padding: 90px 80px; background: var(--cream); }
+  .overview-grid {
+    display: grid; grid-template-columns: 1fr 1.4fr;
+    gap: 80px; align-items: start; margin-top: 48px;
+  }
+  .pillar-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+  .pillar-item {
+    padding: 24px 0; border-bottom: 1px solid var(--border-soft);
+    display: flex; gap: 18px; align-items: flex-start;
+  }
+  .pillar-item:first-child { padding-top: 0; }
+  .pillar-num {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    color: var(--gold); letter-spacing: 0.06em; padding-top: 3px; flex-shrink: 0;
+  }
+  .pillar-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+    font-weight: 500; color: var(--ink); margin-bottom: 5px;
+  }
+  .pillar-body { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .overview-aside {
+    background: var(--ink); border-radius: var(--r);
+    overflow: hidden; border: 1px solid var(--border);
+  }
+  .aside-header {
+    padding: 22px 28px; border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase;
+    background: var(--ink-soft);
+  }
+  .aside-body { padding: 28px; }
+  .aside-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 0; border-bottom: 1px solid rgba(168,148,100,0.1);
+    font-size: 0.8rem;
+  }
+  .aside-item:last-child { border-bottom: none; }
+  .aside-key { color: #6b708a; font-size: 0.75rem; letter-spacing: 0.04em; }
+  .aside-val {
+    color: var(--parchment); font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; text-align: right;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 100px;
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .badge-green { background: rgba(46,204,113,0.15); color: #2ecc71; }
+  .badge-gold  { background: var(--gold-glow); color: var(--gold-lt); }
+  .badge-blue  { background: rgba(52,152,219,0.15); color: #5dade2; }
 
-        /* Primary CTA Button */
-        .cta-button {
-            display: inline-block;
-            background: var(--gold);
-            color: white;
-            padding: 15px 30px;
-            margin: 25px 0;
-            border-radius: 4px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+  /* ─── STRUCTURE ─────────────────────────────────────────────────── */
+  #structure {
+    padding: 90px 80px; background: var(--parchment);
+    border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft);
+  }
+  .structure-layout {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border); border-radius: var(--r);
+    overflow: hidden; margin-top: 48px;
+  }
+  .struct-card {
+    background: var(--cream); padding: 36px 30px; position: relative;
+  }
+  .struct-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .struct-card:hover::before { opacity: 1; }
+  .struct-icon {
+    width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; margin-bottom: 20px; background: var(--parchment);
+  }
+  .struct-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+    font-weight: 500; color: var(--ink); margin-bottom: 10px;
+  }
+  .struct-body { font-size: 0.8rem; color: var(--muted); line-height: 1.65; }
+  .struct-tag { margin-top: 20px; }
 
-        .cta-button:hover {
-            background: #a58d5a; /* Slightly darker gold */
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
+  /* ─── GOVERNANCE ────────────────────────────────────────────────── */
+  #governance { padding: 90px 80px; background: var(--cream); }
+  .gov-grid {
+    display: grid; grid-template-columns: 1.2fr 1fr;
+    gap: 60px; align-items: start; margin-top: 48px;
+  }
+  .instrument-list { display: flex; flex-direction: column; gap: 0; }
+  .instrument-item {
+    padding: 20px 24px;
+    border: 1px solid var(--border-soft); border-bottom: none;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--white); transition: background 0.2s; cursor: pointer;
+  }
+  .instrument-item:first-child { border-radius: var(--r) var(--r) 0 0; }
+  .instrument-item:last-child  { border-bottom: 1px solid var(--border-soft); border-radius: 0 0 var(--r) var(--r); }
+  .instrument-item:hover { background: var(--parchment); }
+  .instrument-name { font-size: 0.85rem; color: var(--ink); font-weight: 400; }
+  .instrument-code {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    color: var(--gold); letter-spacing: 0.06em;
+  }
+  .instrument-arrow { color: var(--muted); font-size: 0.75rem; margin-left: 16px; flex-shrink: 0; }
+  .ucc-panel {
+    background: var(--ink); border-radius: var(--r);
+    padding: 36px; border: 1px solid var(--border);
+  }
+  .ucc-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.3rem;
+    color: var(--gold-lt); margin-bottom: 20px; font-weight: 400; line-height: 1.3;
+  }
+  .ucc-body { font-size: 0.8rem; color: #7a7f96; line-height: 1.7; margin-bottom: 24px; }
+  .ucc-items { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .ucc-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 0.8rem; color: #8a8fa8; line-height: 1.5;
+  }
+  .ucc-item-icon { color: var(--gold); flex-shrink: 0; margin-top: 2px; }
 
-        /* Navigation Menu */
-        .nav-menu {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
+  /* ─── LEDGER REGISTRATION ───────────────────────────────────────── */
+  #ledger {
+    padding: 100px 80px; background: var(--ink);
+    position: relative; overflow: hidden;
+  }
+  #ledger::before {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(168,148,100,0.08) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  #ledger::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .ledger-header { margin-bottom: 56px; }
+  .ledger-header .section-title { color: var(--parchment); }
+  .ledger-header .section-sub { color: #6b708a; }
 
-        .nav-item {
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            color: var(--secondary);
-            position: relative;
-            padding-bottom: 5px;
-        }
+  /* step indicator */
+  .step-track {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 48px; position: relative;
+  }
+  .step-item { display: flex; align-items: center; gap: 10px; position: relative; z-index: 2; }
+  .step-circle {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    color: var(--muted); flex-shrink: 0; transition: all 0.3s;
+  }
+  .step-circle.active { border-color: var(--gold); background: var(--gold-glow); color: var(--gold-lt); }
+  .step-circle.done   { border-color: #2ecc71; background: rgba(46,204,113,0.1); color: #2ecc71; }
+  .step-label {
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; transition: color 0.3s;
+  }
+  .step-label.active { color: var(--gold-lt); }
+  .step-connector {
+    flex: 1; height: 1px; background: var(--border); margin: 0 14px;
+  }
+  .step-connector.done { background: rgba(46,204,113,0.4); }
 
-        .nav-item:after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--gold);
-            transition: width 0.3s ease;
-        }
+  /* form panels */
+  .reg-shell {
+    background: var(--ink-soft); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden;
+  }
+  .reg-panel { display: none; padding: 40px; animation: fadeUp 0.35s ease; }
+  .reg-panel.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reg-panel-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.35rem;
+    color: var(--parchment); margin-bottom: 6px; font-weight: 400;
+  }
+  .reg-panel-sub {
+    font-size: 0.8rem; color: #6b708a; margin-bottom: 32px; line-height: 1.6;
+  }
+  .form-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .form-full   { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field label {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase;
+  }
+  .field input, .field select, .field textarea {
+    background: var(--ink); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--parchment);
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    padding: 11px 14px; outline: none;
+    transition: border-color 0.2s; width: 100%; -webkit-appearance: none;
+  }
+  .field input::placeholder, .field textarea::placeholder { color: #3a3f52; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); }
+  .field select option { background: var(--ink); }
+  .field textarea { resize: vertical; min-height: 90px; }
+  .field-hint { font-size: 0.7rem; color: #4a4f62; line-height: 1.4; }
 
-        .nav-item:hover:after {
-            width: 100%;
-        }
+  /* document type cards */
+  .doc-type-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+  .doc-type-card {
+    border: 1px solid var(--border); border-radius: 6px; padding: 18px 16px;
+    cursor: pointer; transition: all 0.2s; background: var(--ink); position: relative;
+  }
+  .doc-type-card:hover { border-color: var(--gold); background: var(--gold-glow); }
+  .doc-type-card.selected { border-color: var(--gold); background: var(--gold-glow); }
+  .doc-type-card.selected::after {
+    content: '✓'; position: absolute; top: 10px; right: 12px;
+    color: var(--gold); font-size: 0.75rem;
+  }
+  .doc-type-icon { font-size: 1.3rem; margin-bottom: 8px; }
+  .doc-type-name { font-size: 0.78rem; color: var(--parchment); font-weight: 500; margin-bottom: 4px; }
+  .doc-type-code { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.06em; }
 
-        /* Content Sections */
-        .content-section {
-            display: none;
-            margin: 40px 0;
-            padding: 30px;
-            background: var(--light);
-            border-left: 3px solid var(--gold);
-            border-radius: 0.5rem;
-        }
+  /* parties */
+  .parties-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .party-block { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .party-header {
+    background: var(--ink-mid); padding: 10px 14px;
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase;
+  }
+  .party-body { padding: 14px; }
+  .party-body .field { gap: 6px; }
+  .party-body .field label { font-size: 0.57rem; }
+  .party-body .field input { padding: 8px 10px; font-size: 0.8rem; }
 
-        .content-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
+  /* review panel */
+  .review-block { background: var(--ink); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 20px; }
+  .review-header {
+    padding: 14px 20px; background: var(--ink-mid);
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .review-rows { padding: 0 20px; }
+  .review-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0; border-bottom: 1px solid rgba(168,148,100,0.08); font-size: 0.8rem;
+  }
+  .review-row:last-child { border-bottom: none; }
+  .review-key { color: #5a5f74; }
+  .review-val { color: var(--parchment); font-family: 'DM Mono', monospace; font-size: 0.75rem; text-align: right; max-width: 60%; word-break: break-word; }
+  .legal-anchor-box {
+    background: rgba(168,148,100,0.06); border: 1px solid rgba(168,148,100,0.2);
+    border-left: 3px solid var(--gold); border-radius: 4px; padding: 16px;
+    font-size: 0.78rem; color: #8a8fa8; line-height: 1.6; font-style: italic; margin-bottom: 20px;
+  }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  /* result panel */
+  .result-panel { display: none; padding: 60px 40px; text-align: center; animation: fadeUp 0.4s ease; }
+  .result-panel.active { display: block; }
+  .result-icon {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; margin: 0 auto 28px;
+  }
+  .result-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;
+    color: var(--parchment); margin-bottom: 8px; font-weight: 400;
+  }
+  .result-sub { font-size: 0.82rem; color: #6b708a; margin-bottom: 40px; line-height: 1.6; }
+  .doc-id-display {
+    background: var(--ink); border: 1px solid var(--gold);
+    border-radius: var(--r); padding: 28px 36px;
+    display: inline-block; margin-bottom: 32px; text-align: left;
+    min-width: 360px; position: relative;
+  }
+  .doc-id-label {
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .doc-id-value {
+    font-family: 'DM Mono', monospace; font-size: 1.15rem;
+    color: var(--parchment); letter-spacing: 0.06em; word-break: break-all;
+  }
+  .copy-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--gold-glow); border: 1px solid var(--border);
+    border-radius: 4px; padding: 5px 10px;
+    font-family: 'DM Mono', monospace; font-size: 0.58rem;
+    color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .copy-btn:hover { background: var(--gold); color: var(--ink); }
+  .next-action-bar { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
-        .section-title {
-            font-size: 1.6rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
+  /* reg footer nav */
+  .reg-footer {
+    padding: 24px 40px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--ink);
+  }
+  .reg-footer-note { font-size: 0.72rem; color: #3a3f52; font-style: italic; }
+  .reg-nav { display: flex; gap: 12px; }
+  .btn-ink { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ink:hover { color: var(--parchment); border-color: var(--muted); }
 
-        .section-text {
-            font-size: 1.1rem;
-            line-height: 1.9;
-            margin-bottom: 20px;
-        }
+  /* spinner */
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(13,15,20,0.3); border-top-color: var(--ink);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Secure Contact Form */
-        .contact-form {
-            max-width: 500px;
-            margin: 40px auto;
-            padding: 30px;
-            background: white;
-            border: 1px solid var(--border);
-            border-top: 3px solid var(--gold);
-            border-radius: 0.5rem;
-        }
+  /* toast */
+  #toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink-soft); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 12px 22px;
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    color: var(--parchment); letter-spacing: 0.04em;
+    opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+  /* ─── CONTACT ───────────────────────────────────────────────────── */
+  #contact {
+    padding: 90px 80px; background: var(--parchment);
+    border-top: 1px solid var(--border-soft);
+  }
+  .contact-grid {
+    display: grid; grid-template-columns: 1fr 1.2fr;
+    gap: 60px; align-items: start; margin-top: 48px;
+  }
+  .contact-detail { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 28px; }
+  .contact-icon {
+    font-size: 1rem; width: 36px; height: 36px; border: 1px solid var(--border);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    background: var(--cream); flex-shrink: 0; color: var(--gold);
+  }
+  .contact-dt {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .contact-dd { font-size: 0.85rem; color: var(--ink); }
+  .contact-form { background: var(--white); border: 1px solid var(--border-soft); border-radius: var(--r); padding: 36px; }
+  .contact-form .field input, .contact-form .field select, .contact-form .field textarea {
+    background: var(--cream); border-color: var(--border-soft); color: var(--ink); font-size: 0.85rem;
+  }
+  .contact-form .field input::placeholder, .contact-form .field textarea::placeholder { color: #b0a898; }
+  .contact-form .field label { color: var(--gold); }
+  .contact-form .field input:focus, .contact-form .field select:focus, .contact-form .field textarea:focus { border-color: var(--gold); }
+  .contact-form .field select option { background: var(--cream); color: var(--ink); }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            color: var(--primary);
-        }
+  /* ─── FOOTER ────────────────────────────────────────────────────── */
+  footer {
+    background: var(--ink); border-top: 1px solid var(--border);
+    padding: 48px 80px 32px; position: relative; z-index: 1;
+  }
+  .footer-top {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px;
+    padding-bottom: 40px; border-bottom: 1px solid var(--border); margin-bottom: 28px;
+  }
+  .footer-brand-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.15rem;
+    color: var(--parchment); margin-bottom: 8px;
+  }
+  .footer-brand-body { font-size: 0.77rem; color: #4a4f62; line-height: 1.65; margin-bottom: 16px; }
+  .footer-col-title {
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; margin-bottom: 16px;
+  }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links a { font-size: 0.78rem; color: #4a4f62; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--gold-lt); }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.7rem; color: #3a3f52;
+  }
+  .footer-mono { font-family: 'DM Mono', monospace; font-size: 0.62rem; }
+  .footer-disclaimer {
+    font-size: 0.68rem; color: #2a2f3d; max-width: 500px;
+    line-height: 1.5; margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid rgba(168,148,100,0.08);
+  }
 
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            font-family: 'Cormorant Garamond', serif;
-            border-radius: 0.375rem;
-            color: var(--secondary);
-            background-color: white;
-        }
-
-        /* Login Section */
-        #login-section {
-            max-width: 400px;
-            margin: 40px auto;
-            padding: 30px;
-            background: white;
-            border: 1px solid var(--border);
-            border-top: 3px solid var(--accent); /* Uses updated accent color */
-            border-radius: 0.5rem;
-            text-align: left;
-        }
-
-        #login-section h2 {
-            text-align: center;
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        .error-message {
-            color: #ef4444; /* Red 500 */
-            margin-top: 1rem;
-            font-weight: 500;
-            text-align: center;
-        }
-        /* .btn-login was not used in HTML, cta-button is used instead */
-
-        /* Admin Portal */
-        #admin-portal-section {
-            display: none; /* Hidden by default */
-            margin: 40px 0;
-            padding: 30px;
-            background: var(--light);
-            border-left: 3px solid var(--accent); /* Uses updated accent color */
-            border-radius: 0.5rem;
-        }
-        #admin-portal-section h2 {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .admin-links-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 1.5rem;
-        }
-        .admin-links-list li {
-            margin-bottom: 0.75rem;
-        }
-        .admin-links-list a {
-            display: block;
-            background-color: #e0e7ff; /* Light indigo, adjusted slightly for scheme */
-            color: var(--accent); /* Uses updated accent color for link text */
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-            text-align: left;
-        }
-        .admin-links-list a:hover {
-            background-color: #c7d2fe; /* Lighter indigo */
-            transform: translateY(-2px);
-        }
-        /* .logout-btn was not used in HTML, cta-button is used instead */
-
-        /* Loading spinner */
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: var(--accent); /* Uses updated accent color */
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding-top: 40px;
-            border-top: 1px solid var(--border);
-            font-size: 0.9rem;
-            color: var(--secondary);
-            margin-top: 40px;
-        }
-
-        .legal-disclaimer {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px 20px;
-            }
-
-            .company-name {
-                font-size: 2.2rem;
-            }
-
-            .nav-menu {
-                gap: 15px;
-            }
-
-            .content-section, #login-section, #admin-portal-section {
-                padding: 20px;
-            }
-
-            .cta-button {
-                padding: 12px 25px;
-                font-size: 0.9rem;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="css/styles.css">
+  /* ─── RESPONSIVE ────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; padding: 70px 40px; }
+    .hero-stat-grid { max-width: 480px; }
+    #overview, #structure, #governance, #ledger, #contact, footer { padding-left: 40px; padding-right: 40px; }
+    .overview-grid, .gov-grid, .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    .structure-layout { grid-template-columns: 1fr 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .doc-type-grid { grid-template-columns: repeat(2,1fr); }
+    .parties-grid { grid-template-columns: 1fr; }
+    .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+    .form-grid .form-full, .form-grid-3 .form-full { grid-column: 1; }
+  }
+  @media (max-width: 640px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 50px 24px; }
+    #overview, #structure, #governance, #ledger, #contact, footer { padding-left: 24px; padding-right: 24px; }
+    .structure-layout { grid-template-columns: 1fr; }
+    .step-track { flex-wrap: wrap; gap: 12px; }
+    .step-connector { display: none; }
+    .reg-panel, .result-panel { padding: 28px 20px; }
+    .reg-footer { padding: 18px 20px; flex-direction: column; gap: 14px; align-items: flex-start; }
+    .doc-id-display { min-width: unset; width: 100%; }
+    .footer-top { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header id="main-header">
-            <!-- Logo Integration -->
-            <img src="openart-image_u2NauXAE_1748877763331_raw (3).jpg-d0f267fb-6c44-4668-a456-5705c7b190bc"
-                 alt="Massey & Rosupo Co. Logo"
-                 class="company-logo"
-                 onerror="this.onerror=null;this.style.display='none';document.querySelector('.company-name').style.display='block';">
-            <!-- Fallback text if image fails to load -->
-            <h1 class="company-name" style="display: none;">Massey & Rosupo Co.</h1>
 
-            <p class="company-tagline">Building Trust Through Valued Foundation</p>
-            <p class="location">8 The Green, Suite #22026, Dover, Delaware</p>
+<!-- TOAST -->
+<div id="toast"></div>
 
-            <!-- Primary CTA Button -->
-            <a href="javascript:showSection('contact')" class="cta-button">Request Corporate Documentation</a>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-pulse">
+    <span class="pulse-dot"></span>
+    CipherNex Infrastructure Node &middot; Active
+  </div>
+  <span>Delaware UCC-1 Filing Authority &middot; Est. 2024</span>
+  <span>8 The Green, Suite #22026, Dover, DE 19901</span>
+</div>
 
-            <div class="nav-menu">
-                <div class="nav-item" onclick="showSection('overview')">Overview</div>
-                <div class="nav-item" onclick="showSection('structure')">Structure</div>
-                <div class="nav-item" onclick="showSection('governance')">Governance</div>
-                <div class="nav-item" onclick="showSection('contact')">Contact</div>
-                <div class="nav-item" id="login-nav-item" onclick="showSection('login')">Login</div>
-                <div class="nav-item" id="logout-nav-item" style="display: none;" onclick="logout()">Logout</div>
-            </div>
-        </header>
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <span class="nav-brand-name">Massey &amp; Rosupo Co.</span>
+    <span class="nav-brand-sub">Delaware Holding Company</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#structure">Structure</a></li>
+    <li><a href="#governance">Governance</a></li>
+    <li><a href="#ledger">Ledger Filing</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="admin-portal.html" class="nav-cta">Trustee Login</a></li>
+  </ul>
+</nav>
 
-        <!-- Public Content Sections -->
-        <div id="public-content">
-            <!-- Overview Section -->
-            <div id="overview" class="content-section active">
-                <h2 class="section-title">Strategic Holdings & Asset Protection</h2>
-                <p class="section-text">
-                    Massey & Rosupo Co. is a Delaware-registered holding company specializing in the management of intellectual property, fiduciary assets, and subsidiary operations. Our structure is designed to optimize legal protections while maintaining compliance with Delaware General Corporation Law.
-                </p>
-                <p class="section-text">
-                    For detailed information about our governance framework or fiduciary arrangements, please submit a verified inquiry through our contact portal.
-                </p>
-                <a href="javascript:showSection('contact')" class="cta-button">Submit Inquiry</a>
-            </div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Corporate Filing Authority</div>
+    <h1>Building Trust Through<br><em>Valued Foundation</em></h1>
+    <p class="hero-body">
+      Massey &amp; Rosupo Co. is the administrative corporate body of the CipherNex
+      infrastructure — managing UCC filings, ledger registrations, and the assignment
+      of Document IDs for member entities entering the trust system.
+    </p>
+    <div class="hero-actions">
+      <a href="#ledger" class="btn btn-gold">Register Entity Document</a>
+      <a href="#overview" class="btn btn-outline">Learn More</a>
+    </div>
+  </div>
 
-            <!-- Corporate Structure Section -->
-            <div id="structure" class="content-section">
-                <h2 class="section-title">Corporate Structure</h2>
-                <p class="section-text">
-                    Our entity operates through a tiered structure to separate operational liabilities from protected assets:
-                </p>
-                <ul style="margin-left: 20px; line-height: 2;">
-                    <li>Delaware-registered holding company</li>
-                    <li>Wholly-owned subsidiary entities</li>
-                    <li>Independent fiduciary management</li>
-                </ul>
-                <p class="section-text">
-                    <em>Note: Beneficiary details and asset locations are confidential.</em>
-                </p>
-                <a href="javascript:showSection('contact')" class="cta-button">Request Structure Details</a>
-            </div>
+  <div class="hero-stat-grid">
+    <div class="hero-stat">
+      <div class="hero-stat-value">UCC-1</div>
+      <div class="hero-stat-label">Perfected Filings</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">&sect;3-311</div>
+      <div class="hero-stat-label">Accord &amp; Satisfaction</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">DGCL</div>
+      <div class="hero-stat-label">Delaware Compliant</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">CIPR</div>
+      <div class="hero-stat-label">Reserve Currency</div>
+    </div>
+    <div class="hero-divider">
+      Document IDs issued upon filing are registered to the CipherNex distributed ledger
+    </div>
+  </div>
+</section>
 
-            <!-- Governance Section -->
-            <div id="governance" class="content-section">
-                <h2 class="section-title">Governance & Compliance</h2>
-                <p class="section-text">
-                    Massey & Rosupo Co. adheres to Delaware corporate law and standardized fiduciary practices. Key instruments include:
-                </p>
-                <ul style="margin-left: 20px; line-height: 2;">
-                    <li>Perfected UCC-1 filings for asset security</li>
-                    <li>Registered agent services in Delaware</li>
-                    <li>Binding arbitration clauses for disputes</li>
-                </ul>
-                <a href="javascript:showSection('contact')" class="cta-button">Request Compliance Documents</a>
-            </div>
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-label">About the Organization</div>
+  <h2 class="section-title">Strategic Holdings &amp;<br>Asset Protection</h2>
+  <p class="section-sub">
+    As the administrative body of the CipherNex trust infrastructure, Massey &amp; Rosupo
+    Co. coordinates the intake, registration, and ledger assignment for all member
+    subsidiary entities.
+  </p>
 
-            <!-- Secure Contact Form -->
-            <div id="contact" class="content-section">
-                <h2 class="section-title">Request Information</h2>
-                <p class="section-text">
-                    For verified parties seeking corporate documentation or fiduciary details:
-                </p>
-                <div class="contact-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Professional Email</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="request">Nature of Inquiry</label>
-                        <select id="request">
-                            <option value="corporate">Corporate Status Verification</option>
-                            <option value="fiduciary">Fiduciary Arrangements</option>
-                            <option value="legal">Legal Documentation</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Additional Details</label>
-                        <textarea id="message" rows="4"></textarea>
-                    </div>
-                    <button class="cta-button" onclick="submitInquiry()" style="border: none; width: 100%; text-align: center;">Submit Securely</button>
-                </div>
-            </div>
-        </div> <!-- End of public-content -->
-
-        <!-- Login Section -->
-        <div id="login" class="content-section">
-            <h2 class="section-title">Admin Login</h2>
-            <p class="section-text text-center text-red-600 font-bold">
-                WARNING: This is a client-side demo login. For real-world security, a server-side authentication system (e.g., Firebase Authentication) is REQUIRED.
-            </p>
-            <div id="login-section">
-                <div id="login-loading" class="spinner" style="display: none;"></div>
-                <div id="login-form">
-                    <div class="form-group">
-                        <label for="username">Email:</label>
-                        <input type="email" id="username" placeholder="admin@yourdomain.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" placeholder="Enter your password" required>
-                    </div>
-                    <button class="cta-button" onclick="login()" style="border: none; width: 100%; text-align: center;">Login</button>
-                    <p id="errorMessage" class="error-message" style="display: none; color: #ef4444; margin-top: 1rem; text-align: center;"></p>
-                </div>
-            </div>
+  <div class="overview-grid">
+    <ul class="pillar-list">
+      <li class="pillar-item">
+        <span class="pillar-num">01</span>
+        <div>
+          <div class="pillar-title">Ledger Document Registration</div>
+          <div class="pillar-body">Each filing entity submits its instrument here and receives a unique Document ID that is recorded on the CipherNex ledger — the foundation for CIPR issuance and reserve tracking.</div>
         </div>
- <script type="module" src="js/firebase.js"></script>
-        <!-- Admin Portal Section (Hidden by default) -->
-        <div id="admin-portal-section" class="content-section">
-            <h2 class="section-title">Admin Portal: Fillable Legal Documents</h2>
-            <p class="section-text text-gray-600">
-                Welcome to the secure admin portal. Here you can access and manage the various legal documents and forms.
-            </p>
-            <ul class="admin-links-list">
-                <li><a href="javascript:void(0)" onclick="openImmersive('promissory_note_fillable_app')">1.1. Promissory Note</a></li>
-                <li><a href="javascript:void(0)" onclick="openImmersive('security_agreement_fillable_app')">1.2. Security Agreement (Governing Assets)</a></li>
-                <li><a href="javascript:void(0)" onclick="openImmersive('promissory_note_exhibits_fillable_app')">Promissory Note Exhibits A & B</a></li>
-                <li><a href="javascript:void(0)" onclick="openImmersive('athena_aegis_articles_fillable_app')">Articles of Association (Athena Aegis Foundation)</a></li>
-                <li><a href="javascript:void(0)" onclick="openImmersive('delaware_incorporation_fillable_app')">Certificate of Incorporation (Delaware)</a></li>
-                <li><a href="javascript:void(0)" onclick="openImmersive('withholding_agent_contract_fillable_app')">Contract for Withholding Agent</a></li>
-                <li><a href="javascript:void(0)" onclick="openImmersive('promissory_note_statement_fillable_app')">Promissory Note Statement of Account</a></li>
-                <!-- Add more links here as needed for other documents -->
-            </ul>
-            <button class="cta-button" onclick="logout()" style="background: #dc2626; border: none; display: block; margin: 30px auto 0; width: fit-content; text-align: center;">Logout</button>
+      </li>
+      <li class="pillar-item">
+        <span class="pillar-num">02</span>
+        <div>
+          <div class="pillar-title">UCC-1 Security Interests</div>
+          <div class="pillar-body">Perfected security interests filed with Delaware SOS, establishing priority lien positions over all collateral assets held by subsidiary entities.</div>
         </div>
+      </li>
+      <li class="pillar-item">
+        <span class="pillar-num">03</span>
+        <div>
+          <div class="pillar-title">Fiduciary Administration</div>
+          <div class="pillar-body">Independent fiduciary management separating operational liability from protected assets across the holding structure and wholly-owned subsidiaries.</div>
+        </div>
+      </li>
+      <li class="pillar-item">
+        <span class="pillar-num">04</span>
+        <div>
+          <div class="pillar-title">Discharge &amp; Settlement</div>
+          <div class="pillar-body">Upon CIPR burn/settlement, discharge evidence is generated with formal UCC 3-311 / 3-603 language and linked to the original registered document.</div>
+        </div>
+      </li>
+    </ul>
 
-        <footer>
-            <p>&copy; <span id="year"></span> Massey & Rosupo Co. All Rights Reserved.</p>
-            <p class="legal-disclaimer">
-                This website provides general information only. Confidential details are available to verified parties per NDAs and compliance protocols.
-            </p>
-        </footer>
+    <div class="overview-aside">
+      <div class="aside-header">Entity Registry — Status</div>
+      <div class="aside-body">
+        <div class="aside-item">
+          <span class="aside-key">Registered State</span>
+          <span class="aside-val">Delaware</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-key">Entity Type</span>
+          <span class="aside-val">Holding Company</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-key">Fiduciary Role</span>
+          <span class="aside-val"><span class="badge badge-gold">Administrator</span></span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-key">UCC Filing Status</span>
+          <span class="aside-val"><span class="badge badge-green">Perfected</span></span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-key">Ledger Node</span>
+          <span class="aside-val"><span class="badge badge-blue">CipherNex</span></span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-key">Reserve Currency</span>
+          <span class="aside-val">CIPR</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-key">Registered Agent</span>
+          <span class="aside-val">8 The Green, Suite #22026<br>Dover, DE 19901</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STRUCTURE -->
+<section id="structure">
+  <div class="section-label">Corporate Architecture</div>
+  <h2 class="section-title">Tiered Entity Structure</h2>
+  <p class="section-sub">
+    Our entity operates through a tiered structure to separate operational liabilities
+    from protected assets, with Massey &amp; Rosupo Co. serving as the apex holding entity.
+  </p>
+
+  <div class="structure-layout">
+    <div class="struct-card">
+      <div class="struct-icon">🏛️</div>
+      <div class="struct-title">Holding Company (Apex)</div>
+      <div class="struct-body">Delaware-registered holding entity. Serves as the corporate body of the CipherNex infrastructure and UCC filing authority for all member entities. Issues Document IDs and assigns reserve references.</div>
+      <div class="struct-tag"><span class="badge badge-gold">Massey &amp; Rosupo Co.</span></div>
+    </div>
+    <div class="struct-card">
+      <div class="struct-icon">🏢</div>
+      <div class="struct-title">Subsidiary Entities</div>
+      <div class="struct-body">Wholly-owned and affiliated subsidiary companies. Each entity registers its instruments through this portal to receive a ledger-assigned Document ID, enabling CIPR issuance against their reserve documents.</div>
+      <div class="struct-tag"><span class="badge badge-blue">Member Companies</span></div>
+    </div>
+    <div class="struct-card">
+      <div class="struct-icon">⚖️</div>
+      <div class="struct-title">Fiduciary Management</div>
+      <div class="struct-body">Independent fiduciary layer — Trustees, Co-Trustees, Protectors, Beneficiaries, and Observers — administering the trust through the CipherNex AdminGateway with HMAC-secured credentials.</div>
+      <div class="struct-tag"><span class="badge badge-green">Trust Governance</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- GOVERNANCE -->
+<section id="governance">
+  <div class="section-label">Compliance Framework</div>
+  <h2 class="section-title">Governance &amp; Legal Instruments</h2>
+  <p class="section-sub">
+    Massey &amp; Rosupo Co. adheres to Delaware corporate law and standardized fiduciary
+    practices. All instruments are registered to the CipherNex ledger upon issuance.
+  </p>
+
+  <div class="gov-grid">
+    <div class="instrument-list">
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Promissory Note</div>
+          <div class="instrument-code">promissory-note &middot; Exhibits A &amp; B</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Security Agreement (Governing Assets)</div>
+          <div class="instrument-code">trust-instrument &middot; UCC-1 Secured</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Bill of Exchange</div>
+          <div class="instrument-code">bill-of-exchange &middot; UCC &sect;3-311 / &sect;3-603</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Articles of Association — Athena Aegis</div>
+          <div class="instrument-code">trust-instrument &middot; Foundation Charter</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Certificate of Incorporation (Delaware)</div>
+          <div class="instrument-code">court-order &middot; DGCL Compliant</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Contract for Withholding Agent</div>
+          <div class="instrument-code">reserve-pledge &middot; IRS &sect;1441</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Statement of Account</div>
+          <div class="instrument-code">indemnity &middot; Account Reconciliation</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
     </div>
 
-    <!-- Firebase Module Script -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    <div class="ucc-panel">
+      <div class="ucc-title">UCC Filing Authority &amp; Discharge Protocol</div>
+      <div class="ucc-body">
+        All instruments registered through this portal create a perfected record on the
+        CipherNex ledger, enabling downstream CIPR issuance, settlement, and formal
+        discharge documentation.
+      </div>
+      <ul class="ucc-items">
+        <li class="ucc-item"><span class="ucc-item-icon">▸</span>UCC-1 financing statements filed with Delaware SOS for priority security interests</li>
+        <li class="ucc-item"><span class="ucc-item-icon">▸</span>Accord &amp; Satisfaction under UCC &sect;3-311 for disputed obligation discharge</li>
+        <li class="ucc-item"><span class="ucc-item-icon">▸</span>Tender of Payment protocol under UCC &sect;3-603 for instrument settlement</li>
+        <li class="ucc-item"><span class="ucc-item-icon">▸</span>Binding arbitration clauses for dispute resolution outside litigation</li>
+        <li class="ucc-item"><span class="ucc-item-icon">▸</span>Registered agent services maintained in Dover, Delaware at all times</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
-            authDomain: "masseyrosupo.firebaseapp.com",
-            projectId: "masseyrosupo",
-            storageBucket: "masseyrosupo.firebasestorage.app",
-            messagingSenderId: "335180500143",
-            appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
-            measurementId: "G-TLVDZ69BVC"
-        };
+<!-- LEDGER REGISTRATION -->
+<section id="ledger">
+  <div class="ledger-header">
+    <div class="section-label" style="color:var(--gold)">Entity Filing Portal</div>
+    <h2 class="section-title">Ledger Document Registration</h2>
+    <p class="section-sub">
+      Submit your entity's instrument to receive an assigned Document ID — the permanent
+      ledger reference used for CIPR issuance, reserve tracking, and discharge settlement
+      within the CipherNex infrastructure.
+    </p>
+  </div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const auth = getAuth(app);
+  <!-- STEP TRACK -->
+  <div class="step-track" id="stepTrack">
+    <div class="step-item">
+      <div class="step-circle active" id="sc1">01</div>
+      <span class="step-label active" id="sl1">Entity Info</span>
+    </div>
+    <div class="step-connector" id="conn1"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc2">02</div>
+      <span class="step-label" id="sl2">Document Type</span>
+    </div>
+    <div class="step-connector" id="conn2"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc3">03</div>
+      <span class="step-label" id="sl3">Instrument Details</span>
+    </div>
+    <div class="step-connector" id="conn3"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc4">04</div>
+      <span class="step-label" id="sl4">Review &amp; Submit</span>
+    </div>
+  </div>
 
-        // Authentication State Listener
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                handleSuccessfulLogin();
-            } else {
-                handleLogout();
-            }
-        });
+  <div class="reg-shell">
 
-        // Make functions available globally
-        window.login = async function() {
-            const email = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const errorMessage = document.getElementById("errorMessage");
-            const loginForm = document.getElementById("login-form");
-            const loadingSpinner = document.getElementById("login-loading");
+    <!-- STEP 1: Entity Info -->
+    <div class="reg-panel active" id="panel1">
+      <div class="reg-panel-title">Entity Information</div>
+      <div class="reg-panel-sub">Provide the legal details of the entity submitting this instrument. This information will be associated with the assigned Document ID on the ledger.</div>
 
-            loginForm.style.display = "none";
-            loadingSpinner.style.display = "block";
-            errorMessage.style.display = "none";
+      <div class="form-grid">
+        <div class="field">
+          <label>Legal Entity Name</label>
+          <input type="text" id="entityName" placeholder="Acme Holdings LLC">
+        </div>
+        <div class="field">
+          <label>Entity Type</label>
+          <select id="entityType">
+            <option value="">Select type…</option>
+            <option>Delaware LLC</option>
+            <option>Delaware C-Corp</option>
+            <option>Delaware Statutory Trust</option>
+            <option>Limited Partnership</option>
+            <option>Sole Proprietorship</option>
+            <option>Foreign Entity</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>EIN / Tax ID</label>
+          <input type="text" id="entityEin" placeholder="XX-XXXXXXX">
+        </div>
+        <div class="field">
+          <label>Jurisdiction of Formation</label>
+          <input type="text" id="entityJurisdiction" placeholder="Delaware, USA">
+        </div>
+        <div class="field form-full">
+          <label>Registered Address</label>
+          <input type="text" id="entityAddress" placeholder="8 The Green, Suite #22026, Dover, DE 19901">
+        </div>
+        <div class="field">
+          <label>Authorized Representative</label>
+          <input type="text" id="entityRep" placeholder="Full legal name">
+        </div>
+        <div class="field">
+          <label>Representative Role</label>
+          <input type="text" id="entityRepRole" placeholder="Managing Member, CEO, Trustee…">
+        </div>
+        <div class="field">
+          <label>Contact Email</label>
+          <input type="email" id="entityEmail" placeholder="representative@entity.com">
+        </div>
+        <div class="field">
+          <label>Wallet / Ledger Address <span style="color:var(--muted);font-size:0.58rem;letter-spacing:0">(optional)</span></label>
+          <input type="text" id="entityWallet" placeholder="0x… or trust address">
+          <span class="field-hint">If provided, CIPR issuance against this document will default to this address.</span>
+        </div>
+      </div>
+    </div>
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                errorMessage.textContent = getFirebaseErrorMessage(error);
-                errorMessage.style.display = "block";
-                loginForm.style.display = "block";
-                loadingSpinner.style.display = "none";
-            }
-        };
+    <!-- STEP 2: Document Type -->
+    <div class="reg-panel" id="panel2">
+      <div class="reg-panel-title">Instrument Type Selection</div>
+      <div class="reg-panel-sub">Select the category that best describes the instrument you are submitting. Each type maps to a specific document class in the CipherNex ledger and determines the legal anchor language applied.</div>
 
-        window.logout = async function() {
+      <div class="doc-type-grid" id="docTypeGrid">
+        <div class="doc-type-card" data-type="bill-of-exchange" onclick="selectDocType(this)">
+          <div class="doc-type-icon">📄</div>
+          <div class="doc-type-name">Bill of Exchange</div>
+          <div class="doc-type-code">bill-of-exchange</div>
+        </div>
+        <div class="doc-type-card" data-type="promissory-note" onclick="selectDocType(this)">
+          <div class="doc-type-icon">📝</div>
+          <div class="doc-type-name">Promissory Note</div>
+          <div class="doc-type-code">promissory-note</div>
+        </div>
+        <div class="doc-type-card" data-type="trust-bond" onclick="selectDocType(this)">
+          <div class="doc-type-icon">📜</div>
+          <div class="doc-type-name">Trust Bond</div>
+          <div class="doc-type-code">trust-bond</div>
+        </div>
+        <div class="doc-type-card" data-type="indemnity" onclick="selectDocType(this)">
+          <div class="doc-type-icon">🛡️</div>
+          <div class="doc-type-name">Indemnity Agreement</div>
+          <div class="doc-type-code">indemnity</div>
+        </div>
+        <div class="doc-type-card" data-type="reserve-pledge" onclick="selectDocType(this)">
+          <div class="doc-type-icon">🏦</div>
+          <div class="doc-type-name">Reserve Pledge</div>
+          <div class="doc-type-code">reserve-pledge</div>
+        </div>
+        <div class="doc-type-card" data-type="court-order" onclick="selectDocType(this)">
+          <div class="doc-type-icon">⚖️</div>
+          <div class="doc-type-name">Court Order</div>
+          <div class="doc-type-code">court-order</div>
+        </div>
+        <div class="doc-type-card" data-type="trust-instrument" onclick="selectDocType(this)">
+          <div class="doc-type-icon">📋</div>
+          <div class="doc-type-name">Trust Instrument</div>
+          <div class="doc-type-code">trust-instrument</div>
+        </div>
+      </div>
+      <div class="field" style="max-width:300px">
+        <label>Selected Type</label>
+        <input type="text" id="selectedTypeDisplay" readonly placeholder="— click a card above —" style="cursor:default;color:var(--gold-lt)">
+      </div>
+    </div>
+
+    <!-- STEP 3: Instrument Details -->
+    <div class="reg-panel" id="panel3">
+      <div class="reg-panel-title">Instrument Details</div>
+      <div class="reg-panel-sub">Enter the formal details of the instrument. The parties, amount, and legal anchor will be recorded verbatim on the ledger.</div>
+
+      <div class="form-grid">
+        <div class="field form-full">
+          <label>Instrument Title</label>
+          <input type="text" id="docTitle" placeholder="e.g. Promissory Note — Acme Holdings LLC">
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" id="docAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Currency</label>
+          <select id="docCurrency">
+            <option value="CIPR">CIPR</option>
+            <option value="USD">USD</option>
+            <option value="XRP">XRP</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Due Date <span style="color:var(--muted);font-size:0.58rem;letter-spacing:0">(optional)</span></label>
+          <input type="date" id="docDueDate">
+        </div>
+        <div class="field">
+          <label>UCC Tender Type</label>
+          <select id="docUccTender">
+            <option value="">— not applicable —</option>
+            <option value="3-311">&sect;3-311 Accord &amp; Satisfaction</option>
+            <option value="3-603">&sect;3-603 Tender of Payment</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="parties-grid">
+        <div class="party-block">
+          <div class="party-header">Drawer / Maker</div>
+          <div class="party-body">
+            <div class="field">
+              <label>Name / Entity</label>
+              <input type="text" id="partyDrawer" placeholder="Legal name or entity">
+            </div>
+          </div>
+        </div>
+        <div class="party-block">
+          <div class="party-header">Drawee / Obligor</div>
+          <div class="party-body">
+            <div class="field">
+              <label>Name / Entity</label>
+              <input type="text" id="partyDrawee" placeholder="Legal name or entity">
+            </div>
+          </div>
+        </div>
+        <div class="party-block">
+          <div class="party-header">Payee / Beneficiary</div>
+          <div class="party-body">
+            <div class="field">
+              <label>Name / Entity</label>
+              <input type="text" id="partyPayee" placeholder="Legal name or entity">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:18px">
+        <label>Legal Anchor</label>
+        <textarea id="docLegalAnchor">UCC Article 3 — Negotiable Instruments. Parties agree this instrument is subject to the Uniform Commercial Code as adopted in Delaware. Discharge may be effected pursuant to UCC &sect;3-311 (Accord and Satisfaction) or &sect;3-603 (Tender of Payment). This document is registered as a security interest under UCC-1 with the Delaware Secretary of State.</textarea>
+        <span class="field-hint">Pre-populated from document type. Edit only if required by your instrument.</span>
+      </div>
+
+      <div class="field">
+        <label>Memo / Instrument Notes</label>
+        <textarea id="docMemo" placeholder="Additional terms, references, or notes to include in the ledger record…" style="min-height:70px"></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 4: Review & Submit -->
+    <div class="reg-panel" id="panel4">
+      <div class="reg-panel-title">Review &amp; Submit</div>
+      <div class="reg-panel-sub">Confirm the details below before submitting. Upon submission, a Document ID will be assigned and recorded on the CipherNex ledger. This action cannot be undone.</div>
+
+      <div class="review-block">
+        <div class="review-header">Entity</div>
+        <div class="review-rows">
+          <div class="review-row"><span class="review-key">Legal Name</span><span class="review-val" id="rv-name">—</span></div>
+          <div class="review-row"><span class="review-key">Type</span><span class="review-val" id="rv-type">—</span></div>
+          <div class="review-row"><span class="review-key">EIN</span><span class="review-val" id="rv-ein">—</span></div>
+          <div class="review-row"><span class="review-key">Representative</span><span class="review-val" id="rv-rep">—</span></div>
+          <div class="review-row"><span class="review-key">Wallet Address</span><span class="review-val" id="rv-wallet">Not provided</span></div>
+        </div>
+      </div>
+
+      <div class="review-block">
+        <div class="review-header">Instrument</div>
+        <div class="review-rows">
+          <div class="review-row"><span class="review-key">Document Type</span><span class="review-val" id="rv-doctype">—</span></div>
+          <div class="review-row"><span class="review-key">Title</span><span class="review-val" id="rv-title">—</span></div>
+          <div class="review-row"><span class="review-key">Amount</span><span class="review-val" id="rv-amount">—</span></div>
+          <div class="review-row"><span class="review-key">Parties</span><span class="review-val" id="rv-parties">—</span></div>
+          <div class="review-row"><span class="review-key">Due Date</span><span class="review-val" id="rv-duedate">Not specified</span></div>
+          <div class="review-row"><span class="review-key">UCC Tender</span><span class="review-val" id="rv-ucc">Not applicable</span></div>
+        </div>
+      </div>
+
+      <div class="legal-anchor-box" id="rv-anchor">Legal anchor will appear here…</div>
+
+      <div style="background:rgba(168,148,100,0.06);border:1px solid rgba(168,148,100,0.18);border-radius:4px;padding:14px 18px;font-size:0.75rem;color:#5a5f74;line-height:1.6;margin-bottom:8px;">
+        ⚠ By submitting, you certify that you are an authorized representative of the entity named above and that the information provided is accurate and complete. The Document ID issued is irrevocable and will be recorded permanently on the CipherNex ledger.
+      </div>
+    </div>
+
+    <!-- RESULT PANEL -->
+    <div class="result-panel" id="resultPanel">
+      <div class="result-icon">✓</div>
+      <div class="result-title">Document Registered</div>
+      <div class="result-sub">Your instrument has been assigned a Document ID and recorded on the CipherNex ledger.<br>Present this ID to your Trustee to initiate CIPR issuance.</div>
+      <div class="doc-id-display">
+        <div class="doc-id-label">Assigned Document ID</div>
+        <div class="doc-id-value" id="assignedDocId">—</div>
+        <button class="copy-btn" onclick="copyDocId()">Copy</button>
+      </div>
+      <div class="result-sub" style="font-size:0.75rem;margin-top:-20px;margin-bottom:28px;">
+        Retain this ID. It serves as the <code style="color:var(--gold-lt);font-family:'DM Mono',monospace">reserveReference</code> for all downstream CIPR operations.
+      </div>
+      <div class="next-action-bar">
+        <a href="#contact" class="btn btn-outline" style="color:var(--parchment);border-color:rgba(168,148,100,0.4)">Contact Trustee</a>
+        <button class="btn btn-gold" onclick="resetForm()">Register Another Document</button>
+      </div>
+    </div>
+
+    <!-- FORM NAV FOOTER -->
+    <div class="reg-footer" id="regFooter">
+      <span class="reg-footer-note">All submissions are reviewed by a Trustee before CIPR issuance.</span>
+      <div class="reg-nav">
+        <button class="btn btn-ink" id="btnBack" onclick="stepBack()" style="display:none">← Back</button>
+        <button class="btn btn-gold" id="btnNext" onclick="stepNext()">Continue →</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label">Verified Inquiries</div>
+  <h2 class="section-title">Request Corporate Documentation</h2>
+  <p class="section-sub">
+    For verified parties seeking fiduciary arrangements, compliance documents, or
+    structural details. Confidential information is released subject to NDA and
+    compliance protocols.
+  </p>
+
+  <div class="contact-grid">
+    <div>
+      <div class="contact-detail">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-dt">Registered Office</div>
+          <div class="contact-dd">8 The Green, Suite #22026<br>Dover, Delaware 19901</div>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">⚖️</div>
+        <div>
+          <div class="contact-dt">Legal Jurisdiction</div>
+          <div class="contact-dd">State of Delaware &middot; DGCL<br>UCC Article 3 &amp; 9 Compliant</div>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">🔐</div>
+        <div>
+          <div class="contact-dt">Trustee Access</div>
+          <div class="contact-dd">Admin portal access available to credentialed Trustees via HMAC-secured authentication. <a href="admin-portal.html" style="color:var(--gold);text-decoration:none">Login here →</a></div>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">💡</div>
+        <div>
+          <div class="contact-dt">Ledger Infrastructure</div>
+          <div class="contact-dd">CipherNex Node &middot; AdminGateway :3005<br>DocumentService :3004 &middot; PublicAPI :3001</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form">
+      <div class="reg-panel-title" style="color:var(--ink);font-size:1.1rem;margin-bottom:4px">Submit Inquiry</div>
+      <div class="reg-panel-sub" style="color:var(--muted);margin-bottom:24px;font-size:0.78rem">Verified parties only. All submissions are reviewed within 2 business days.</div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="cName" placeholder="Legal name">
+        </div>
+        <div class="field">
+          <label>Professional Email</label>
+          <input type="email" id="cEmail" placeholder="you@entity.com">
+        </div>
+        <div class="field form-full">
+          <label>Nature of Inquiry</label>
+          <select id="cInquiry">
+            <option>Corporate Status Verification</option>
+            <option>Fiduciary Arrangements</option>
+            <option>Legal Documentation Request</option>
+            <option>Ledger Registration Support</option>
+            <option>UCC Filing Inquiry</option>
+            <option>CIPR Reserve Information</option>
+          </select>
+        </div>
+        <div class="field form-full">
+          <label>Additional Details</label>
+          <textarea id="cDetails" placeholder="Provide context for your inquiry…" style="min-height:80px"></textarea>
+        </div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center" onclick="showToast('Inquiry submitted. We will respond within 2 business days.')">Submit Securely</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name">Massey &amp; Rosupo Co.</div>
+      <div class="footer-brand-body">Delaware holding company and administrative body of the CipherNex trust infrastructure. Managing UCC filings, ledger registrations, and fiduciary oversight for member entities.</div>
+      <span class="badge badge-gold">CipherNex Administrator</span>
+    </div>
+    <div>
+      <div class="footer-col-title">Navigation</div>
+      <ul class="footer-links">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#structure">Corporate Structure</a></li>
+        <li><a href="#governance">Governance</a></li>
+        <li><a href="#ledger">Ledger Registration</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Instruments</div>
+      <ul class="footer-links">
+        <li><a href="#ledger">Bill of Exchange</a></li>
+        <li><a href="#ledger">Promissory Note</a></li>
+        <li><a href="#ledger">Trust Bond</a></li>
+        <li><a href="#ledger">Reserve Pledge</a></li>
+        <li><a href="#ledger">Trust Instrument</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Infrastructure</div>
+      <ul class="footer-links">
+        <li><a href="admin-portal.html">Trustee Login</a></li>
+        <li><a href="#governance">UCC-1 Filings</a></li>
+        <li><a href="#governance">CIPR Reserve</a></li>
+        <li><a href="#contact">Registered Agent</a></li>
+        <li><a href="MainAccessDash.html">Document Portal</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>&copy; <span id="year"></span> Massey &amp; Rosupo Co. All Rights Reserved.</span>
+    <span class="footer-mono">Delaware &middot; UCC-1 &middot; DGCL &middot; CipherNex</span>
+  </div>
+  <div class="footer-disclaimer">
+    This website provides general information only. Confidential details are available to verified parties per NDAs and compliance protocols. Document IDs assigned through this portal do not constitute legal advice. Trustee authentication is required for all ledger operations beyond document registration.
+  </div>
+</footer>
+
+<script>
+  /* ── CONFIG ─────────────────────────────────────────────────── */
+  const API_ADMIN = 'http://localhost:3005';
+
+  /* ── STATE ──────────────────────────────────────────────────── */
+  let currentStep    = 1;
+  let selectedDocType = '';
+  const totalSteps   = 4;
+
+  /* ── TOAST ──────────────────────────────────────────────────── */
+  function showToast(msg, dur = 3200) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), dur);
+  }
+
+  /* ── STEP NAVIGATION ────────────────────────────────────────── */
+  function updateStepUI() {
+    for (let i = 1; i <= totalSteps; i++) {
+      const sc = document.getElementById('sc' + i);
+      const sl = document.getElementById('sl' + i);
+      if (i < currentStep) {
+        sc.className = 'step-circle done'; sc.textContent = '✓';
+        sl.className = 'step-label';
+      } else if (i === currentStep) {
+        sc.className = 'step-circle active';
+        sc.textContent = String(i).padStart(2, '0');
+        sl.className = 'step-label active';
+      } else {
+        sc.className = 'step-circle';
+        sc.textContent = String(i).padStart(2, '0');
+        sl.className = 'step-label';
+      }
+      if (i < totalSteps) {
+        const conn = document.getElementById('conn' + i);
+        if (conn) conn.className = i < currentStep ? 'step-connector done' : 'step-connector';
+      }
+    }
+    document.getElementById('btnBack').style.display = currentStep > 1 ? 'inline-flex' : 'none';
+    document.getElementById('btnNext').textContent = currentStep === totalSteps ? 'Submit to Ledger' : 'Continue →';
+    for (let i = 1; i <= totalSteps; i++) {
+      const p = document.getElementById('panel' + i);
+      if (p) p.className = 'reg-panel' + (i === currentStep ? ' active' : '');
+    }
+  }
+
+  function stepNext() {
+    if (currentStep === 1 && !validateStep1()) return;
+    if (currentStep === 2 && !validateStep2()) return;
+    if (currentStep === 3 && !validateStep3()) return;
+    if (currentStep === totalSteps) { submitDocument(); return; }
+    if (currentStep === totalSteps - 1) populateReview();
+    currentStep++;
+    updateStepUI();
+    document.getElementById('ledger').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function stepBack() {
+    if (currentStep > 1) { currentStep--; updateStepUI(); }
+  }
+
+  /* ── VALIDATION ─────────────────────────────────────────────── */
+  function validateStep1() {
+    if (!document.getElementById('entityName').value.trim()) {
+      showToast('Please enter the legal entity name.'); return false;
+    }
+    if (!document.getElementById('entityRep').value.trim()) {
+      showToast('Please enter the authorized representative name.'); return false;
+    }
+    return true;
+  }
+  function validateStep2() {
+    if (!selectedDocType) { showToast('Please select a document type.'); return false; }
+    return true;
+  }
+  function validateStep3() {
+    if (!document.getElementById('docTitle').value.trim()) {
+      showToast('Please enter the instrument title.'); return false;
+    }
+    if (!document.getElementById('docAmount').value) {
+      showToast('Please enter the instrument amount.'); return false;
+    }
+    if (!document.getElementById('partyDrawer').value.trim()) {
+      showToast('Please enter the Drawer / Maker.'); return false;
+    }
+    return true;
+  }
+
+  /* ── DOC TYPE SELECTION ─────────────────────────────────────── */
+  function selectDocType(card) {
+    document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedDocType = card.dataset.type;
+    document.getElementById('selectedTypeDisplay').value = selectedDocType;
+    const anchors = {
+      'bill-of-exchange': 'UCC Article 3 — Negotiable Instruments. This Bill of Exchange is issued pursuant to UCC §3-104 and is subject to discharge under §3-311 (Accord and Satisfaction) or §3-603 (Tender of Payment). Perfected security interest registered under UCC-1 with Delaware SOS.',
+      'promissory-note':  'UCC Article 3 — Negotiable Instruments. This Promissory Note constitutes an unconditional promise to pay a fixed sum. Subject to all rights and remedies under Delaware UCC Article 3. UCC-1 financing statement filed.',
+      'trust-bond':       'This Trust Bond is issued under the authority of the governing Trust Instrument and Delaware Statutory Trust Act, 12 Del. C. §3801 et seq. Secured by trust assets; UCC-1 perfected.',
+      'indemnity':        'This Indemnity Agreement is governed by Delaware law. The indemnifying party agrees to hold harmless all named beneficiaries against claims arising from the described obligations. UCC-9 security interest attached.',
+      'reserve-pledge':   'This Reserve Pledge secures CIPR reserve obligations. The pledgor commits specified assets as collateral for CIPR issuance. Perfected under UCC Article 9; priority interest registered with Delaware SOS.',
+      'court-order':      'Instrument issued pursuant to judicial authority. All parties are bound by the terms of this Order under applicable Delaware and federal law. Filed for record with the CipherNex ledger pursuant to trust governance protocols.',
+      'trust-instrument': 'This Trust Instrument establishes, amends, or restates fiduciary arrangements under the laws of the State of Delaware. Governs the rights and obligations of all named parties to the trust. UCC-1 filed.',
+    };
+    if (anchors[selectedDocType]) {
+      document.getElementById('docLegalAnchor').value = anchors[selectedDocType];
+    }
+  }
+
+  /* ── REVIEW POPULATE ────────────────────────────────────────── */
+  function populateReview() {
+    document.getElementById('rv-name').textContent   = document.getElementById('entityName').value || '—';
+    document.getElementById('rv-type').textContent   = document.getElementById('entityType').value || '—';
+    document.getElementById('rv-ein').textContent    = document.getElementById('entityEin').value  || '—';
+    const rep  = document.getElementById('entityRep').value || '—';
+    const role = document.getElementById('entityRepRole').value;
+    document.getElementById('rv-rep').textContent    = rep + (role ? ' · ' + role : '');
+    document.getElementById('rv-wallet').textContent = document.getElementById('entityWallet').value || 'Not provided';
+    document.getElementById('rv-doctype').textContent = selectedDocType || '—';
+    document.getElementById('rv-title').textContent  = document.getElementById('docTitle').value || '—';
+    const amt = document.getElementById('docAmount').value;
+    const cur = document.getElementById('docCurrency').value;
+    document.getElementById('rv-amount').textContent = amt ? Number(amt).toLocaleString() + ' ' + cur : '—';
+    const drawer = document.getElementById('partyDrawer').value;
+    const drawee = document.getElementById('partyDrawee').value;
+    const payee  = document.getElementById('partyPayee').value;
+    document.getElementById('rv-parties').innerHTML = `Drawer: ${drawer||'—'}<br>Drawee: ${drawee||'—'}<br>Payee: ${payee||'—'}`;
+    document.getElementById('rv-duedate').textContent = document.getElementById('docDueDate').value || 'Not specified';
+    const ucc = document.getElementById('docUccTender').value;
+    document.getElementById('rv-ucc').textContent    = ucc ? 'UCC §' + ucc : 'Not applicable';
+    document.getElementById('rv-anchor').textContent = document.getElementById('docLegalAnchor').value || '—';
+  }
+
+  /* ── SUBMIT TO LEDGER ───────────────────────────────────────── */
+  async function submitDocument() {
+    const btn = document.getElementById('btnNext');
+    btn.innerHTML = '<span class="spinner"></span>Registering…';
+    btn.disabled = true;
+
+    const payload = {
+      documentType: selectedDocType,
+      title:        document.getElementById('docTitle').value.trim(),
+      amount:       parseFloat(document.getElementById('docAmount').value),
+      currency:     document.getElementById('docCurrency').value,
+      parties: {
+        drawer: document.getElementById('partyDrawer').value.trim(),
+        drawee: document.getElementById('partyDrawee').value.trim(),
+        payee:  document.getElementById('partyPayee').value.trim(),
+      },
+      dueDate:     document.getElementById('docDueDate').value || undefined,
+      legalAnchor: document.getElementById('docLegalAnchor').value.trim(),
+      memo:        document.getElementById('docMemo').value.trim() || undefined,
+      _entity: {
+        name:    document.getElementById('entityName').value.trim(),
+        type:    document.getElementById('entityType').value,
+        ein:     document.getElementById('entityEin').value.trim(),
+        address: document.getElementById('entityAddress').value.trim(),
+        rep:     document.getElementById('entityRep').value.trim(),
+        email:   document.getElementById('entityEmail').value.trim(),
+        wallet:  document.getElementById('entityWallet').value.trim(),
+      }
+    };
+
     try {
-        // Show loading state on logout button
-        const logoutBtn = document.getElementById("logout-nav-item");
-        if (logoutBtn) {
-            const originalText = logoutBtn.textContent;
-            logoutBtn.textContent = "Logging out...";
-            logoutBtn.style.opacity = "0.7";
-            logoutBtn.style.pointerEvents = "none";
-            
-            await signOut(auth);
-            
-            // Restore button state after successful logout
-            setTimeout(() => {
-                if (logoutBtn) {
-                    logoutBtn.textContent = originalText;
-                    logoutBtn.style.opacity = "1";
-                    logoutBtn.style.pointerEvents = "auto";
-                }
-            }, 500);
-        } else {
-            await signOut(auth);
-        }
-        
-        handleLogout();
-        
-    } catch (error) {
-        console.error("Logout failed:", error);
-        alert("Logout failed. Please try again.");
-        
-        // Restore logout button if it exists
-        const logoutBtn = document.getElementById("logout-nav-item");
-        if (logoutBtn) {
-            logoutBtn.textContent = "Logout";
-            logoutBtn.style.opacity = "1";
-            logoutBtn.style.pointerEvents = "auto";
-        }
+      const res = await fetch(`${API_ADMIN}/admin/document`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || err.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      showSuccess(data.documentId || data.document?.documentId || generateFallbackId());
+    } catch (err) {
+      console.warn('API offline — demo mode:', err.message);
+      showSuccess(generateFallbackId(), true);
+    } finally {
+      btn.textContent = 'Submit to Ledger';
+      btn.disabled = false;
     }
-};
+  }
 
-        function getFirebaseErrorMessage(error) {
-            switch (error.code) {
-                case 'auth/invalid-email': return 'Invalid email address';
-                case 'auth/user-disabled': return 'Account disabled';
-                case 'auth/user-not-found': return 'Account not found';
-                case 'auth/wrong-password': return 'Incorrect password';
-                case 'auth/too-many-requests': return 'Too many attempts';
-                default: return 'Login failed. Please try again.';
-            }
-        }
+  function generateFallbackId() {
+    const ts   = Date.now().toString(36).toUpperCase();
+    const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `MRC-${ts}-${rand}`;
+  }
 
-window.handleSuccessfulLogin = function() {
-    // Only redirect to dashboard if we are *not* currently on the dashboard page
-    // This prevents the loop if MainAccessDash.html somehow brings you back here.
-    if (window.location.pathname !== '/MainAccessDash.html') {
-         window.location.href = 'MainAccessDash.html';
+  function showSuccess(docId, isDemo = false) {
+    document.getElementById('assignedDocId').textContent = docId;
+    document.getElementById('resultPanel').className = 'result-panel active';
+    for (let i = 1; i <= totalSteps; i++) {
+      const p = document.getElementById('panel' + i);
+      if (p) p.className = 'reg-panel';
     }
-    // Ensure admin portal section is displayed if user is on index.html and logs in
-    document.getElementById("admin-portal-section").classList.add("active");
-    document.getElementById("admin-portal-section").style.display = "block";
-    document.getElementById("login").classList.remove("active");
-    document.getElementById("login-nav-item").style.display = "none";
-    document.getElementById("logout-nav-item").style.display = "block";
-    document.getElementById("login-form").style.display = "block";
-    document.getElementById("login-loading").style.display = "none";
-    showSection('admin-portal-section'); // Show the admin portal section
-};
+    document.getElementById('regFooter').style.display = 'none';
+    document.getElementById('stepTrack').style.display = 'none';
+    if (isDemo) showToast('Demo mode — ledger API offline. ID generated locally.', 5000);
+    document.getElementById('ledger').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
-        window.handleLogout = function() {
-            document.getElementById("admin-portal-section").classList.remove("active");
-            document.getElementById("admin-portal-section").style.display = "none";
-            document.getElementById("login-nav-item").style.display = "block";
-            document.getElementById("logout-nav-item").style.display = "none";
-            showSection('overview'); // Go back to overview after logout
-        };
-    </script>
+  function copyDocId() {
+    const val = document.getElementById('assignedDocId').textContent;
+    navigator.clipboard.writeText(val).then(() => showToast('Document ID copied to clipboard.'));
+  }
 
-    <!-- Main Application Script -->
-    <script>
-        // Navigation and Section Management
-        function showSection(sectionId) {
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            // Hide admin portal if visible
-            document.getElementById('admin-portal-section').classList.remove('active');
-            document.getElementById('admin-portal-section').style.display = 'none';
+  function resetForm() {
+    currentStep     = 1;
+    selectedDocType = '';
+    document.getElementById('resultPanel').className = 'result-panel';
+    document.getElementById('regFooter').style.display = '';
+    document.getElementById('stepTrack').style.display = 'flex';
+    document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('selectedTypeDisplay').value = '';
+    ['entityName','entityType','entityEin','entityJurisdiction','entityAddress','entityRep',
+     'entityRepRole','entityEmail','entityWallet','docTitle','docAmount','docDueDate','docMemo',
+     'partyDrawer','partyDrawee','partyPayee'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('docCurrency').value  = 'CIPR';
+    document.getElementById('docUccTender').value = '';
+    document.getElementById('docLegalAnchor').value = 'UCC Article 3 — Negotiable Instruments. Parties agree this instrument is subject to the Uniform Commercial Code as adopted in Delaware. Discharge may be effected pursuant to UCC §3-311 (Accord and Satisfaction) or §3-603 (Tender of Payment). This document is registered as a security interest under UCC-1 with the Delaware Secretary of State.';
+    updateStepUI();
+  }
 
-            document.getElementById(sectionId).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Form Submission
-        function submitInquiry() {
-            alert('Inquiry submitted. A representative will contact you via secure channels.');
-            showSection('overview');
-        }
-
-        // Document Viewer Simulation
-        function openImmersive(docType) {
-            alert(`Opening ${docType.replace(/_/g, ' ')} document...\n\nIn production, this would open the actual document.`);
-        }
-
-        // Set current year in footer
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Initialize to show overview section on load
-        document.addEventListener('DOMContentLoaded', () => {
-            showSection('overview');
-        });
-    </script>
-    <script src="js/script.js"></script>
+  /* ── INIT ───────────────────────────────────────────────────── */
+  document.getElementById('year').textContent = new Date().getFullYear();
+  updateStepUI();
+</script>
 </body>
 </html>

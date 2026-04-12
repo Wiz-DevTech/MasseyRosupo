@@ -1,9 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+            authDomain: "masseyrosupo.firebaseapp.com",
+            projectId: "masseyrosupo",
+            storageBucket: "masseyrosupo.firebasestorage.app",
+            messagingSenderId: "335180500143",
+            appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
+            measurementId: "G-TLVDZ69BVC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Massey & Rosupo Co. - Legal Forms Platform</title>
+    <title>Massey &amp; Rosupo Co. — Entity Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -55,6 +87,34 @@
             gap: 15px;
         }
 
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-actions a,
+        .user-actions button {
+            color: white;
+            text-decoration: none;
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 0;
+            transition: opacity 0.2s;
+        }
+
+        .user-actions a:hover,
+        .user-actions button:hover {
+            opacity: 0.75;
+        }
+
+        .user-actions .sep {
+            opacity: 0.4;
+        }
+
         .main-nav {
             background: var(--accent);
             padding: 12px 0;
@@ -77,11 +137,18 @@
             color: white;
             font-weight: 600;
             font-size: 1.1rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .logo:hover {
+            opacity: 0.85;
         }
 
         .nav-tabs {
             display: flex;
             gap: 0;
+            flex-wrap: wrap;
         }
 
         .nav-tab {
@@ -94,6 +161,8 @@
             font-size: 0.9rem;
             transition: background 0.3s ease;
             border-right: 1px solid rgba(255,255,255,0.1);
+            text-decoration: none;
+            display: inline-block;
         }
 
         .nav-tab:hover, .nav-tab.active {
@@ -165,136 +234,19 @@
             flex: 1;
         }
 
-        .hero-section {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: linear-gradient(135deg, var(--light) 0%, #e8f2ff 100%);
-            border-radius: 0.5rem;
-            border-left: 3px solid var(--gold);
-        }
-
-        .hero-image {
-            width: 180px;
-            height: 120px;
-            border-radius: 0.5rem;
-            object-fit: cover;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .hero-content h1 {
-            font-size: 2.2rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .hero-content p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: var(--secondary);
-        }
-
-        /* Info Cards */
-        .info-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .info-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .card-image {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-        }
-
-        .card-content {
-            padding: 25px;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .card-text {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: var(--secondary);
-            margin-bottom: 15px;
-        }
-
-        .card-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.3s ease;
-        }
-
-        .card-link:hover {
-            color: var(--gold);
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
             }
-
             .sidebar {
                 width: 100%;
                 order: 2;
             }
-
-            .hero-section {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .info-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-tabs {
-                flex-wrap: wrap;
-            }
-
             .main-nav-content {
                 flex-direction: column;
                 gap: 15px;
             }
-        }
-
-        .search-highlight {
-            background: var(--gold);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-weight: 500;
         }
     </style>
 </head>
@@ -306,10 +258,13 @@
                 <span>Ann Wiseman</span>
             </div>
             <div class="user-actions">
-                <span>Send Us Feedback</span> | 
-                <span>Help</span> | 
-                <span>Settings</span> | 
-                <span>Logout</span>
+                <a href="MainAccessDash.html">&#8592; Dashboard</a>
+                <span class="sep">|</span>
+                <span>Help</span>
+                <span class="sep">|</span>
+                <span>Settings</span>
+                <span class="sep">|</span>
+                <button onclick="logout()">Logout</button>
             </div>
         </div>
     </nav>
@@ -317,17 +272,17 @@
     <!-- Main Navigation -->
     <nav class="main-nav">
         <div class="main-nav-content">
-            <div class="logo">
+            <a href="MainAccessDash.html" class="logo">
                 <div style="width: 24px; height: 24px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
                 Admin
-            </div>
+            </a>
             <div class="nav-tabs">
-                <button class="nav-tab active">Entity Management</button>
-                <button class="nav-tab">Transactional Services</button>
-                <button class="nav-tab">Matters & SOP</button>
-                <button class="nav-tab">Orders & Results</button>
-                <button class="nav-tab">Forms & Tools</button>
-                <button class="nav-tab">My Account</button>
+                <span class="nav-tab active">Entity Management</span>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">Transactional Services</span>
+                <a href="LitDash.html" class="nav-tab">Matters &amp; SOP</a>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">Orders &amp; Results</span>
+                <a href="SecureMainDash.html" class="nav-tab">Forms &amp; Tools</a>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">My Account</span>
             </div>
         </div>
     </nav>
@@ -340,27 +295,34 @@
                 <div class="sidebar-section">
                     <h3 class="sidebar-title">Entity Management</h3>
                     <ul class="sidebar-links">
-                        <li><a href="#" class="active">Company Management</a></li>
-                        <li><a href="#">Agent Addresses</a></li>
+                        <li><a href="EntDash.html" class="active">Company Management</a></li>
+                        <li><a href="LitDash.html">Agent Addresses</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Quick Links</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="LitDash.html">Litigation &amp; SOP</a></li>
+                        <li><a href="SecureMainDash.html">Forms &amp; Databases</a></li>
                     </ul>
                 </div>
             </aside>
 
             <!-- Content Area -->
             <main class="content-area">
-                <!-- Agent Addresses Header -->
+                <!-- Page Header -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div style="display: flex; gap: 5px;">
                             <div style="width: 16px; height: 16px; background: var(--gold); border-radius: 2px;"></div>
                             <div style="width: 16px; height: 16px; background: var(--accent); border-radius: 2px;"></div>
                             <div style="width: 16px; height: 16px; background: var(--secondary); border-radius: 2px;"></div>
-                            <div style="width: 16px; height: 16px; background: #e67e22; border-radius: 2px;"></div>
+                            <div style="width: 16px; height: 16px; background: #2ecc71; border-radius: 2px;"></div>
                         </div>
-                        <h1 style="font-size: 1.8rem; color: var(--primary); margin: 0;">Agent Addresses</h1>
+                        <h1 style="font-size: 1.8rem; color: var(--primary); margin: 0;">Company Management</h1>
                     </div>
                     <div style="color: var(--gold); font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 2px;">
-                        LITIGATION MANAGEMENT
+                        ENTITY MANAGEMENT
                     </div>
                 </div>
 
@@ -378,7 +340,7 @@
                             <option>Texas</option>
                         </select>
                     </div>
-                    
+
                     <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
                         <button style="background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">
                             SEARCH
@@ -391,14 +353,14 @@
 
                     <div style="margin-bottom: 20px;">
                         <a href="#" style="color: var(--accent); text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500;">
-                            Representation Company Address Change Form
+                            Entity Registration &amp; Amendment Form
                         </a>
                     </div>
 
-                    <div style="padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; margin-bottom: 20px;">
-                        <p style="margin: 0; font-size: 0.9rem; color: #856404; line-height: 1.5;">
-                            <strong>IMPORTANT:</strong><br>
-                            To better serve you, you must notify a CSC℠ representative when designating Corporation Service Company® as your registered agent. Failure to do so could adversely affect the prompt delivery of important legal documents. If you require further assistance, please contact our Service of Process Call Center at 888-690-2882.
+                    <div style="padding: 15px; background: #e8f4fd; border: 1px solid #bee3f8; border-radius: 4px; margin-bottom: 20px;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #2b6cb0; line-height: 1.5;">
+                            <strong>NOTE:</strong><br>
+                            Manage your corporate entities, registered agent designations, and compliance calendars from this console. For agent address changes, use the <a href="LitDash.html" style="color: var(--accent);">Agent Addresses</a> section.
                         </p>
                     </div>
                 </div>
@@ -406,7 +368,7 @@
                 <!-- Results Area -->
                 <div style="background: white; border: 1px solid var(--border); border-radius: 0.5rem; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-height: 200px;">
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                        <p style="font-style: italic; font-size: 1rem;">Select a jurisdiction, or "ALL" to view all jurisdictions</p>
+                        <p style="font-style: italic; font-size: 1rem;">Select a jurisdiction, or "ALL" to view all managed entities</p>
                     </div>
                 </div>
             </main>

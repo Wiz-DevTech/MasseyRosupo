@@ -1,9 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+            authDomain: "masseyrosupo.firebaseapp.com",
+            projectId: "masseyrosupo",
+            storageBucket: "masseyrosupo.firebasestorage.app",
+            messagingSenderId: "335180500143",
+            appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
+            measurementId: "G-TLVDZ69BVC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Massey & Rosupo Co. - Legal Forms Platform</title>
+    <title>Massey &amp; Rosupo Co. — Forms &amp; Databases</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -55,6 +87,34 @@
             gap: 15px;
         }
 
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-actions a,
+        .user-actions button {
+            color: white;
+            text-decoration: none;
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 0;
+            transition: opacity 0.2s;
+        }
+
+        .user-actions a:hover,
+        .user-actions button:hover {
+            opacity: 0.75;
+        }
+
+        .user-actions .sep {
+            opacity: 0.4;
+        }
+
         .main-nav {
             background: var(--accent);
             padding: 12px 0;
@@ -77,11 +137,18 @@
             color: white;
             font-weight: 600;
             font-size: 1.1rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .logo:hover {
+            opacity: 0.85;
         }
 
         .nav-tabs {
             display: flex;
             gap: 0;
+            flex-wrap: wrap;
         }
 
         .nav-tab {
@@ -94,6 +161,8 @@
             font-size: 0.9rem;
             transition: background 0.3s ease;
             border-right: 1px solid rgba(255,255,255,0.1);
+            text-decoration: none;
+            display: inline-block;
         }
 
         .nav-tab:hover, .nav-tab.active {
@@ -154,9 +223,10 @@
             transition: color 0.3s ease;
         }
 
-        .sidebar-links a:hover {
+        .sidebar-links a:hover, .sidebar-links a.active {
             color: var(--accent);
             padding-left: 5px;
+            font-weight: 500;
         }
 
         /* Content Area */
@@ -258,42 +328,34 @@
             color: var(--gold);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                order: 2;
-            }
-
-            .hero-section {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .info-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-tabs {
-                flex-wrap: wrap;
-            }
-
-            .main-nav-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
-
         .search-highlight {
             background: var(--gold);
             color: white;
             padding: 2px 6px;
             border-radius: 3px;
             font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+            .main-nav-content {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
@@ -302,13 +364,16 @@
     <nav class="top-nav">
         <div class="top-nav-content">
             <div class="user-info">
-                <span>Ana Wiseman</span>
+                <span>Ann Wiseman</span>
             </div>
             <div class="user-actions">
-                <span>Send Us Feedback</span> | 
-                <span>Help</span> | 
-                <span>Settings</span> | 
-                <span>Logout</span>
+                <a href="MainAccessDash.html">&#8592; Dashboard</a>
+                <span class="sep">|</span>
+                <span>Help</span>
+                <span class="sep">|</span>
+                <span>Settings</span>
+                <span class="sep">|</span>
+                <button onclick="logout()">Logout</button>
             </div>
         </div>
     </nav>
@@ -316,17 +381,17 @@
     <!-- Main Navigation -->
     <nav class="main-nav">
         <div class="main-nav-content">
-            <div class="logo">
+            <a href="MainAccessDash.html" class="logo">
                 <div style="width: 24px; height: 24px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
                 Admin
-            </div>
+            </a>
             <div class="nav-tabs">
-                <button class="nav-tab active">Entity Management</button>
-                <button class="nav-tab">Transactional Services</button>
-                <button class="nav-tab">Matters & SOP</button>
-                <button class="nav-tab">Orders & Results</button>
-                <button class="nav-tab">Forms & Tools</button>
-                <button class="nav-tab">My Account</button>
+                <a href="EntDash.html" class="nav-tab">Entity Management</a>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">Transactional Services</span>
+                <a href="LitDash.html" class="nav-tab">Matters &amp; SOP</a>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">Orders &amp; Results</span>
+                <span class="nav-tab active">Forms &amp; Tools</span>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">My Account</span>
             </div>
         </div>
     </nav>
@@ -339,11 +404,11 @@
                 <div class="sidebar-section">
                     <h3 class="sidebar-title">Forms Library</h3>
                     <ul class="sidebar-links">
-                        <li><a href="#" style="color: var(--accent); font-weight: 500;">UCC Filing Forms</a></li>
-                        <li><a href="#">State and Admin Forms</a></li>
-                        <li><a href="#">International Forms</a></li>
-                        <li><a href="#">Procedural Summaries</a></li>
-                        <li><a href="#">Packets</a></li>
+                        <li><a href="SecureMainDash.html" class="active">UCC Filing Forms</a></li>
+                        <li><a href="SecureMainDash.html">State and Admin Forms</a></li>
+                        <li><a href="SecureMainDash.html">International Forms</a></li>
+                        <li><a href="SecureMainDash.html">Procedural Summaries</a></li>
+                        <li><a href="SecureMainDash.html">Packets</a></li>
                     </ul>
                 </div>
                 <div class="sidebar-section">
@@ -353,13 +418,20 @@
                         <li><a href="#">Federal Databases</a></li>
                     </ul>
                 </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Quick Links</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="EntDash.html">Entity Management</a></li>
+                        <li><a href="LitDash.html">Litigation &amp; SOP</a></li>
+                    </ul>
+                </div>
             </aside>
 
             <!-- Content Area -->
             <main class="content-area">
                 <!-- Hero Section -->
                 <section class="hero-section">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDE4MCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjBmNGY4Ii8+CjxjaXJjbGUgY3g9IjkwIiBjeT0iNjAiIHI9IjMwIiBmaWxsPSIjYjg5ZjZiIiBvcGFjaXR5PSIwLjMiLz4KPHN2ZyB4PSI3NSIgeT0iNDUiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YTVjN2EiIHN0cm9rZS13aWR0aD0iMiI+CjxjaXJjbGUgY3g9IjExIiBjeT0iMTEiIHI9IjgiLz4KPGBBOSE09Im0yMSAyMWwtNC4zNS00LjM1Ii8+Cjwvc3ZnPgo8L3N2Zz4K" alt="Search illustration" class="hero-image">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDE4MCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjBmNGY4Ii8+CjxjaXJjbGUgY3g9IjkwIiBjeT0iNjAiIHI9IjMwIiBmaWxsPSIjYjg5ZjZiIiBvcGFjaXR5PSIwLjMiLz4KPHN2ZyB4PSI3NSIgeT0iNDUiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YTVjN2EiIHN0cm9rZS13aWR0aD0iMiI+CjxjaXJjbGUgY3g9IjExIiBjeT0iMTEiIHI9IjgiLz4KPGxpbmUgeDE9IjIxIiB5MT0iMjEiIHgyPSIxNi42NSIgeTI9IjE2LjY1Ii8+Cjwvc3ZnPgo8L3N2Zz4K" alt="Search illustration" class="hero-image">
                     <div class="hero-content">
                         <h1>Searching for <span class="search-highlight">Forms</span>?</h1>
                         <p>Use this platform as your ultimate online reference spot for legal forms, state-specific information, international requirements, and revised Article 9 applications.</p>
@@ -373,7 +445,7 @@
                         <div class="card-content">
                             <h3 class="card-title">Preparing to File?</h3>
                             <p class="card-text">Need to prepare a UCC filing in more than one jurisdiction? Find out how to cut your UCC filing time in half.</p>
-                            <a href="#" class="card-link">More →</a>
+                            <a href="#" class="card-link">More &#8594;</a>
                         </div>
                     </div>
 
@@ -382,7 +454,7 @@
                         <div class="card-content">
                             <h3 class="card-title">It's Your Account</h3>
                             <p class="card-text">Track virtually any aspect of your Administration account including quick reports and invoices.</p>
-                            <a href="#" class="card-link">More →</a>
+                            <a href="MainAccessDash.html" class="card-link">Go to Dashboard &#8594;</a>
                         </div>
                     </div>
                 </div>

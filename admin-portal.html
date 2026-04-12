@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Massey &amp; Rosupo — Trustee Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ──────────────────────────────────────────────── */
+:root {
+  --ink:        #0d0f14;
+  --ink-soft:   #161921;
+  --ink-mid:    #1e2230;
+  --ink-light:  #252a38;
+  --border:     rgba(168,148,100,0.18);
+  --border-s:   rgba(168,148,100,0.09);
+  --gold:       #a89464;
+  --gold-lt:    #c8ae7e;
+  --gold-glow:  rgba(168,148,100,0.14);
+  --parchment:  #f0ece3;
+  --cream:      #faf8f4;
+  --muted:      #525873;
+  --muted-lt:   #7a7f96;
+  --green:      #2ecc71;
+  --red:        #e74c3c;
+  --blue:       #5dade2;
+  --amber:      #f39c12;
+  --r:          6px;
+  --sidebar-w:  240px;
+  --header-h:   58px;
+  --mono:       'DM Mono', monospace;
+  --serif:      'Cormorant Garamond', serif;
+  --sans:       'DM Sans', sans-serif;
+}
+
+/* ─── RESET ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: var(--sans);
+  background: var(--ink);
+  color: var(--parchment);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--sans); cursor: pointer; }
+input, select, textarea { font-family: var(--sans); }
+
+/* ─── LOGIN SCREEN ────────────────────────────────────────── */
+#loginScreen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ink);
+  position: relative; overflow: hidden;
+}
+#loginScreen::before {
+  content: '';
+  position: absolute; top: -300px; right: -300px;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(168,148,100,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+#loginScreen::after {
+  content: '';
+  position: absolute; bottom: -300px; left: -300px;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(93,173,226,0.04) 0%, transparent 65%);
+  pointer-events: none;
+}
+.login-card {
+  background: var(--ink-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 440px; overflow: hidden;
+  position: relative; z-index: 2;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+.login-header {
+  padding: 32px 36px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--ink);
+}
+.login-logo {
+  font-family: var(--serif); font-size: 1.3rem;
+  font-weight: 500; color: var(--parchment); margin-bottom: 4px;
+}
+.login-sub {
+  font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase;
+}
+.login-body { padding: 28px 36px; }
+.login-step { display: none; animation: fadeUp 0.3s ease; }
+.login-step.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.login-step-label {
+  font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase;
+  margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label {
+  font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase;
+}
+.field input, .field select, .field textarea {
+  background: var(--ink); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--parchment);
+  font-size: 0.85rem; padding: 10px 13px;
+  outline: none; transition: border-color 0.2s; width: 100%;
+}
+.field input::placeholder { color: #2e3245; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); }
+.nonce-display {
+  background: var(--ink); border: 1px solid var(--border);
+  border-radius: 4px; padding: 12px 14px;
+  font-family: var(--mono); font-size: 0.72rem;
+  color: var(--gold-lt); word-break: break-all; letter-spacing: 0.04em; margin-bottom: 14px;
+}
+.timer-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
+.timer-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 1s linear; }
+.warn-box {
+  background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.25);
+  border-radius: 4px; padding: 10px 13px;
+  font-size: 0.72rem; color: #e57373; margin-bottom: 14px; line-height: 1.5;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 20px; border-radius: var(--r); font-size: 0.78rem;
+  letter-spacing: 0.04em; font-weight: 500; border: none; cursor: pointer; transition: all 0.18s;
+}
+.btn-gold   { background: var(--gold); color: var(--ink); }
+.btn-gold:hover { background: var(--gold-lt); }
+.btn-ghost  { background: transparent; color: var(--muted-lt); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--muted-lt); color: var(--parchment); }
+.btn-danger { background: rgba(231,76,60,0.15); color: #e57373; border: 1px solid rgba(231,76,60,0.3); }
+.btn-danger:hover { background: rgba(231,76,60,0.25); }
+.btn-sm  { padding: 6px 13px; font-size: 0.72rem; }
+.btn-full { width: 100%; }
+.login-footer { padding: 18px 36px 24px; display: flex; flex-direction: column; gap: 10px; }
+
+/* ─── APP SHELL ───────────────────────────────────────────── */
+#appShell { display: none; min-height: 100vh; flex-direction: row; }
+#appShell.active { display: flex; }
+
+/* ─── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w); background: var(--ink-soft);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100vh;
+  z-index: 50; overflow-y: auto;
+}
+.sidebar-brand { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sidebar-brand-name { font-family: var(--serif); font-size: 1rem; font-weight: 500; color: var(--parchment); line-height: 1.2; margin-bottom: 2px; }
+.sidebar-brand-sub { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; }
+.sidebar-trustee { padding: 12px 18px; border-bottom: 1px solid var(--border-s); flex-shrink: 0; }
+.trustee-label { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.trustee-addr  { font-family: var(--mono); font-size: 0.65rem; color: var(--gold-lt); word-break: break-all; }
+.session-bar   { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.session-dot   { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+.session-ttl   { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); }
+.sidebar-nav   { flex: 1; padding: 12px 10px; }
+.nav-section-label { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; padding: 10px 8px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 5px; font-size: 0.8rem;
+  color: var(--muted-lt); cursor: pointer; transition: all 0.15s;
+  margin-bottom: 1px; border: 1px solid transparent;
+}
+.nav-item:hover { background: var(--ink-mid); color: var(--parchment); }
+.nav-item.active { background: var(--gold-glow); color: var(--gold-lt); border-color: var(--border); }
+.nav-icon   { font-size: 0.9rem; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-badge  {
+  margin-left: auto; background: rgba(231,76,60,0.2); color: #e57373;
+  font-family: var(--mono); font-size: 0.55rem; padding: 2px 6px;
+  border-radius: 10px; min-width: 18px; text-align: center;
+}
+.sidebar-footer { padding: 12px 10px; border-top: 1px solid var(--border-s); flex-shrink: 0; display: flex; gap: 6px; }
+
+/* ─── MAIN CONTENT ────────────────────────────────────────── */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ─── TOP HEADER ──────────────────────────────────────────── */
+.topbar {
+  height: var(--header-h); background: var(--ink-soft);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 40;
+}
+.topbar-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 400; color: var(--parchment); }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: none; }
+.alert-dot.active { display: block; animation: pulse 1.5s infinite; }
+
+/* ─── SCREEN CONTAINER ────────────────────────────────────── */
+.screen { display: none; padding: 28px; flex: 1; animation: fadeUp 0.25s ease; }
+.screen.active { display: block; }
+
+/* ─── SHARED UI ───────────────────────────────────────────── */
+.screen-title  { font-family: var(--serif); font-size: 1.6rem; font-weight: 400; color: var(--parchment); margin-bottom: 4px; }
+.screen-sub    { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+.card   { background: var(--ink-soft); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.card-header { padding: 14px 18px; border-bottom: 1px solid var(--border-s); display: flex; align-items: center; justify-content: space-between; }
+.card-title   { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; }
+.card-body    { padding: 18px; }
+.stat-big     { font-family: var(--serif); font-size: 2.2rem; font-weight: 500; color: var(--gold-lt); line-height: 1; margin-bottom: 4px; }
+.stat-label   { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 100px;
+  font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.badge-green { background: rgba(46,204,113,0.12); color: var(--green); }
+.badge-red   { background: rgba(231,76,60,0.12);  color: var(--red); }
+.badge-gold  { background: var(--gold-glow);       color: var(--gold-lt); }
+.badge-blue  { background: rgba(93,173,226,0.12);  color: var(--blue); }
+.badge-amber { background: rgba(243,156,18,0.12);  color: var(--amber); }
+
+/* table */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+td { padding: 11px 14px; border-bottom: 1px solid var(--border-s); font-size: 0.8rem; color: var(--muted-lt); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.015); color: var(--parchment); }
+.mono    { font-family: var(--mono); font-size: 0.72rem; }
+.mono-sm { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.04em; }
+
+/* tabs */
+.tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 22px; overflow-x: auto; }
+.tab { padding: 10px 18px; font-size: 0.75rem; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; letter-spacing: 0.03em; }
+.tab:hover { color: var(--parchment); }
+.tab.active { color: var(--gold-lt); border-bottom-color: var(--gold); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp 0.2s ease; }
+
+/* row / field */
+.row { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+.row .field { flex: 1; }
+.section-divider { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; margin: 20px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-s); }
+.field select option { background: var(--ink-mid); }
+.field textarea {
+  resize: vertical; min-height: 80px;
+  background: var(--ink); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--parchment); font-size: 0.82rem;
+  padding: 10px 13px; outline: none; transition: border-color 0.2s; width: 100%;
+}
+.field textarea:focus { border-color: var(--gold); }
+.field textarea::placeholder { color: #2e3245; }
+
+/* alerts */
+.alert-item  { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: 5px; margin-bottom: 8px; }
+.alert-critical { background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.2); }
+.alert-warning  { background: rgba(243,156,18,0.08); border: 1px solid rgba(243,156,18,0.2); }
+.alert-info     { background: rgba(93,173,226,0.08); border: 1px solid rgba(93,173,226,0.2); }
+.alert-dot-c { color: var(--red);   font-size: 0.7rem; margin-top: 2px; }
+.alert-dot-w { color: var(--amber); font-size: 0.7rem; margin-top: 2px; }
+.alert-dot-i { color: var(--blue);  font-size: 0.7rem; margin-top: 2px; }
+.alert-msg   { font-size: 0.78rem; color: var(--parchment); margin-bottom: 2px; }
+.alert-meta  { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); letter-spacing: 0.04em; }
+
+/* gauge */
+.gauge-wrap   { margin: 12px 0; }
+.gauge-track  { height: 6px; background: var(--ink-mid); border-radius: 3px; overflow: hidden; }
+.gauge-fill   { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.gauge-labels { display: flex; justify-content: space-between; margin-top: 5px; }
+.gauge-lbl    { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); }
+
+/* detail row */
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border-s); font-size: 0.78rem; }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { color: var(--muted); }
+.detail-val { font-family: var(--mono); font-size: 0.72rem; color: var(--parchment); text-align: right; }
+
+/* confirm modal */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px); z-index: 200;
+  display: none; align-items: center; justify-content: center;
+}
+.confirm-overlay.open { display: flex; }
+.confirm-box { background: var(--ink-soft); border: 1px solid var(--border); border-radius: var(--r); padding: 32px 28px; max-width: 420px; width: 90%; animation: fadeUp 0.25s ease; }
+.confirm-title { font-family: var(--serif); font-size: 1.2rem; color: var(--parchment); margin-bottom: 10px; }
+.confirm-body  { font-size: 0.8rem; color: var(--muted-lt); line-height: 1.6; margin-bottom: 22px; }
+.confirm-actions { display: flex; gap: 10px; }
+
+/* toast */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--ink-mid); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 10px 20px; font-family: var(--mono); font-size: 0.7rem;
+  color: var(--parchment); letter-spacing: 0.04em;
+  opacity: 0; transition: all 0.3s; z-index: 300; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* spinner */
+.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(13,15,20,0.25); border-top-color: var(--ink); border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* refresh banner */
+.refresh-banner { background: rgba(243,156,18,0.1); border: 1px solid rgba(243,156,18,0.25); border-radius: 5px; padding: 10px 16px; display: none; align-items: center; justify-content: space-between; margin-bottom: 16px; font-size: 0.78rem; color: var(--amber); }
+.refresh-banner.visible { display: flex; }
+
+/* block card */
+.block-card { background: var(--ink-mid); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s; }
+.block-card:hover { border-color: var(--gold); }
+.block-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.block-index { font-family: var(--mono); font-size: 0.65rem; color: var(--gold); }
+.block-hash  { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+.block-meta  { display: flex; gap: 16px; }
+.block-meta-item { font-size: 0.72rem; color: var(--muted-lt); }
+.block-meta-item span { color: var(--parchment); font-weight: 500; }
+
+/* member roles */
+.role-trustee    { color: var(--gold-lt); }
+.role-co-trustee { color: var(--blue); }
+.role-beneficiary{ color: var(--green); }
+.role-protector  { color: var(--amber); }
+.role-observer   { color: var(--muted-lt); }
+
+/* discharge box */
+.discharge-box { background: var(--ink-mid); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: var(--r); padding: 20px; font-size: 0.78rem; color: var(--muted-lt); line-height: 1.7; }
+
+/* network monitor */
+.monitor-metric { background: var(--ink-mid); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; }
+
+/* global freeze toggle */
+.freeze-toggle {
+  width: 52px; height: 28px; border-radius: 14px;
+  background: var(--ink-mid); border: 1px solid var(--border);
+  position: relative; cursor: pointer; transition: background 0.25s; flex-shrink: 0;
+}
+.freeze-toggle.frozen { background: rgba(231,76,60,0.3); border-color: rgba(231,76,60,0.4); }
+.freeze-toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--muted); transition: transform 0.25s, background 0.25s;
+}
+.freeze-toggle.frozen::after { transform: translateX(24px); background: var(--red); }
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- ───────────────────────────────────────────────────────────
+     LOGIN SCREEN
+──────────────────────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">Massey &amp; Rosupo Co.</div>
+      <div class="login-sub">Trustee Admin Portal &middot; CipherNex</div>
+    </div>
+    <div class="login-body">
+
+      <!-- Step A: credentials -->
+      <div class="login-step active" id="ls-a">
+        <div class="login-step-label">Step 1 of 3 — Identify</div>
+        <div class="warn-box">⚠ HMAC challenge-response authentication. Your secret is never transmitted.</div>
+        <div class="field">
+          <label>Trustee Address</label>
+          <input type="text" id="li-address" placeholder="Cold wallet address">
+        </div>
+        <div class="field">
+          <label>Admin Secret</label>
+          <input type="password" id="li-secret" placeholder="TRUSTEE_ADMIN_SECRET">
+        </div>
+      </div>
+
+      <!-- Step B: challenge -->
+      <div class="login-step" id="ls-b">
+        <div class="login-step-label">Step 2 of 3 — Challenge Issued</div>
+        <div class="field"><label>Nonce</label></div>
+        <div class="nonce-display" id="li-nonce">—</div>
+        <div class="field"><label>Expires In</label></div>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:14px" id="timerLabel">Computing proof…</div>
+        <div style="font-size:0.75rem;color:var(--muted-lt)">HMAC-SHA256 proof is being computed locally. No secret leaves your browser.</div>
+      </div>
+
+      <!-- Step C: verified -->
+      <div class="login-step" id="ls-c">
+        <div class="login-step-label">Step 3 of 3 — Authenticated</div>
+        <div style="text-align:center;padding:12px 0 18px">
+          <div style="font-size:2rem;margin-bottom:10px">✓</div>
+          <div style="font-family:var(--serif);font-size:1.1rem;color:var(--parchment);margin-bottom:6px">Session Active</div>
+          <div style="font-size:0.75rem;color:var(--muted)">Token stored in memory. Session expires in <span id="li-exp" style="color:var(--gold-lt)">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-footer">
+      <button class="btn btn-gold btn-full" id="loginBtn" onclick="loginFlow()">Request Challenge</button>
+      <a href="index.html" style="font-size:0.72rem;color:var(--muted);text-align:center;display:block">← Return to Massey &amp; Rosupo main site</a>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────────────────────────────────────────────────
+     APP SHELL
+──────────────────────────────────────────────────────────────── -->
+<div id="appShell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-name">Massey &amp; Rosupo</div>
+      <div class="sidebar-brand-sub">Trustee Portal</div>
+    </div>
+    <div class="sidebar-trustee">
+      <div class="trustee-label">Authenticated As</div>
+      <div class="trustee-addr" id="sb-addr">—</div>
+      <div class="session-bar">
+        <div class="session-dot"></div>
+        <div class="session-ttl" id="sb-ttl">Session active</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" onclick="navigate('dashboard')">
+        <span class="nav-icon">🏠</span> Dashboard
+        <span class="nav-badge" id="alertBadge" style="display:none">!</span>
+      </div>
+
+      <div class="nav-section-label">CIPR Operations</div>
+      <div class="nav-item" onclick="navigate('cipr')">
+        <span class="nav-icon">⚡</span> Issuance Console
+      </div>
+
+      <div class="nav-section-label">Registry</div>
+      <div class="nav-item" onclick="navigate('documents')">
+        <span class="nav-icon">📄</span> Document Register
+      </div>
+      <div class="nav-item" onclick="navigate('boe')">
+        <span class="nav-icon">📜</span> Bill of Exchange
+      </div>
+      <div class="nav-item" onclick="navigate('members')">
+        <span class="nav-icon">👥</span> Member Roll
+      </div>
+
+      <div class="nav-section-label">Ledger</div>
+      <div class="nav-item" onclick="navigate('chain')">
+        <span class="nav-icon">🔗</span> Chain Explorer
+      </div>
+
+      <div class="nav-section-label">Network</div>
+      <div class="nav-item" onclick="navigate('network')">
+        <span class="nav-icon">📡</span> Public Monitor
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="refreshSession()">↺ Refresh</button>
+      <button class="btn btn-danger btn-sm" style="flex:1" onclick="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="alert-dot" id="globalAlertDot"></div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)" id="topbarTime">—</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('network')">📡 Network</button>
+      </div>
+    </div>
+
+    <!-- refresh banner -->
+    <div style="padding:0 28px;padding-top:16px">
+      <div class="refresh-banner" id="refreshBanner">
+        <span>⚠ Session expiring soon — refresh to maintain access</span>
+        <button class="btn btn-gold btn-sm" onclick="refreshSession()">Refresh Session</button>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ──────────────────────────────────────────── -->
+    <div class="screen active" id="screen-dashboard">
+      <div class="screen-title">Operational Dashboard</div>
+      <div class="screen-sub">Real-time overview of chain status, reserve health, and pending activity.</div>
+
+      <div class="grid-4" style="margin-bottom:16px">
+        <div class="card" style="cursor:pointer" onclick="navigate('chain')">
+          <div class="card-header"><span class="card-title">Chain Status</span><span class="badge badge-green" id="chainBadge">Valid</span></div>
+          <div class="card-body"><div class="stat-big" id="chainHeight">—</div><div class="stat-label">Block Height</div></div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('cipr')">
+          <div class="card-header"><span class="card-title">Reserve Ratio</span><span class="badge badge-gold" id="reserveBadge">—</span></div>
+          <div class="card-body">
+            <div class="stat-big" id="reserveRatio">—</div>
+            <div class="gauge-wrap">
+              <div class="gauge-track"><div class="gauge-fill" id="gaugeBar" style="width:0%;background:var(--green)"></div></div>
+              <div class="gauge-labels"><span class="gauge-lbl">0</span><span class="gauge-lbl">Target ≥ 1.0</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('documents')">
+          <div class="card-header"><span class="card-title">Documents</span></div>
+          <div class="card-body">
+            <div class="stat-big" id="docTotal">—</div>
+            <div class="stat-label">Total Registered</div>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <span class="badge badge-green" id="docActive">— Active</span>
+              <span class="badge badge-amber" id="docRetired">— Retired</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('members')">
+          <div class="card-header"><span class="card-title">Trust Members</span></div>
+          <div class="card-body"><div class="stat-big" id="memberCount">—</div><div class="stat-label">Registered Members</div></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">System Alerts</span><span class="badge badge-red" id="alertCount" style="display:none">—</span></div>
+          <div class="card-body" id="alertList"><div style="text-align:center;padding:20px;font-size:0.78rem;color:var(--muted)">Loading alerts…</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Pending Transactions</span><button class="btn btn-gold btn-sm" onclick="mineBlock()">Mine Block</button></div>
+          <div class="card-body">
+            <div style="margin-bottom:12px;font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt)"><span id="pendingCount">—</span> transactions awaiting settlement</div>
+            <div id="pendingList" style="max-height:200px;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="globalFreezeWarn" style="display:none;margin-top:16px">
+        <div class="alert-item alert-critical" style="background:rgba(231,76,60,0.12);border-color:rgba(231,76,60,0.35)">
+          <span class="alert-dot-c">🔴</span>
+          <div>
+            <div class="alert-msg" style="font-size:0.85rem;font-weight:500">GLOBAL FREEZE ACTIVE</div>
+            <div class="alert-meta">All CIPR payments are halted. Navigate to CIPR → Freeze Controls to lift the freeze.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CIPR ISSUANCE CONSOLE ──────────────────────────────── -->
+    <div class="screen" id="screen-cipr">
+      <div class="screen-title">CIPR Issuance Console</div>
+      <div class="screen-sub">Manage the full CIPR token lifecycle — issue, transfer, burn, and freeze controls.</div>
+
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('cipr','issue')">Issue</div>
+        <div class="tab" onclick="switchTab('cipr','trustset')">TrustSet</div>
+        <div class="tab" onclick="switchTab('cipr','transfer')">Transfer</div>
+        <div class="tab" onclick="switchTab('cipr','burn')">Burn / Settle</div>
+        <div class="tab" onclick="switchTab('cipr','freeze')">Freeze Controls</div>
+        <div class="tab" onclick="switchTab('cipr','trustlines')">Trust Lines</div>
+      </div>
+
+      <!-- Issue -->
+      <div class="tab-panel active" id="cipr-issue">
+        <div class="grid-2">
+          <div>
+            <div class="section-divider">Document-Linked Issuance (Primary)</div>
+            <div class="field"><label>Document ID (reserve reference)</label><input type="text" id="issueDocId" placeholder="DOC-XXXXXXX"></div>
+            <div class="field"><label>Destination Address</label><input type="text" id="issueDest" placeholder="Recipient wallet address"></div>
+            <div class="field"><label>Amount (auto-filled from document)</label><input type="number" id="issueAmount" placeholder="0.00"></div>
+            <div class="field"><label>Memo (optional)</label><input type="text" id="issueMemo" placeholder="Issuance note…"></div>
+            <button class="btn btn-gold" onclick="issueLinked()">Issue CIPR</button>
+          </div>
+          <div>
+            <div class="section-divider">Raw Issuance (No Document)</div>
+            <div class="field"><label>Destination Address</label><input type="text" id="issueRawDest" placeholder="Wallet address"></div>
+            <div class="field"><label>Reserve Reference</label><input type="text" id="issueRawRef" placeholder="Manual reserve reference"></div>
+            <div class="field"><label>Amount</label><input type="number" id="issueRawAmt" placeholder="0.00"></div>
+            <div class="field"><label>Memo (optional)</label><input type="text" id="issueRawMemo" placeholder="…"></div>
+            <button class="btn btn-ghost" onclick="issueRaw()">Issue Raw</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;display:none" id="issueResult">
+          <div class="card-header"><span class="card-title">Mint Receipt</span></div>
+          <div class="card-body" id="issueResultBody"></div>
+        </div>
+      </div>
+
+      <!-- TrustSet -->
+      <div class="tab-panel" id="cipr-trustset">
+        <div class="section-divider">Step 3 — Holder Consent / TrustSet</div>
+        <div style="max-width:440px">
+          <div class="field"><label>Holder Address</label><input type="text" id="tsHolder" placeholder="Holder wallet address"></div>
+          <div class="field"><label>Trust Limit (optional)</label><input type="number" id="tsLimit" placeholder="Leave blank for default"></div>
+          <button class="btn btn-gold" onclick="submitTrustSet()">Submit TrustSet</button>
+        </div>
+      </div>
+
+      <!-- Transfer -->
+      <div class="tab-panel" id="cipr-transfer">
+        <div class="section-divider">CIPR Transfer Between Addresses</div>
+        <div style="max-width:500px">
+          <div class="field"><label>From Address</label><input type="text" id="tfFrom" placeholder="Source address"></div>
+          <div class="field"><label>To Address</label><input type="text" id="tfTo" placeholder="Destination address"></div>
+          <div class="field"><label>Amount</label><input type="number" id="tfAmt" placeholder="0.00"></div>
+          <div class="field"><label>Memo (optional)</label><input type="text" id="tfMemo" placeholder="Transfer note…"></div>
+          <button class="btn btn-gold" onclick="executeTransfer()">Execute Transfer</button>
+        </div>
+      </div>
+
+      <!-- Burn -->
+      <div class="tab-panel" id="cipr-burn">
+        <div class="section-divider">Step 6 — Burn / Settle (Irreversible)</div>
+        <div class="warn-box" style="max-width:500px">⚠ Burning CIPR is irreversible. If a documentId is provided, that document will be retired and discharge evidence generated with UCC 3-311 / 3-603 language.</div>
+        <div style="max-width:440px">
+          <div class="field"><label>Holder Address</label><input type="text" id="burnHolder" placeholder="Holder wallet address"></div>
+          <div class="field"><label>Amount</label><input type="number" id="burnAmt" placeholder="0.00"></div>
+          <div class="field"><label>Document ID (optional — triggers retirement)</label><input type="text" id="burnDocId" placeholder="DOC-XXXXXXX"></div>
+          <div class="field"><label>Memo</label><input type="text" id="burnMemo" placeholder="Settlement note…"></div>
+          <button class="btn btn-danger" onclick="burnSettle()">⚠ Burn / Settle</button>
+        </div>
+      </div>
+
+      <!-- Freeze -->
+      <div class="tab-panel" id="cipr-freeze">
+        <div class="grid-2">
+          <div>
+            <div class="section-divider">Individual Trust Line Freeze</div>
+            <div class="field"><label>Holder Address</label><input type="text" id="freezeAddr" placeholder="Address to freeze/unfreeze"></div>
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <button class="btn btn-danger btn-sm" onclick="freezeAddress('freeze')">Freeze</button>
+              <button class="btn btn-ghost btn-sm" onclick="freezeAddress('unfreeze')">Unfreeze</button>
+            </div>
+          </div>
+          <div>
+            <div class="section-divider">Global Freeze Toggle</div>
+            <div class="card" style="max-width:320px">
+              <div class="card-body">
+                <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+                  <div class="freeze-toggle" id="globalFreezeToggle" onclick="toggleGlobalFreeze()"></div>
+                  <div>
+                    <div style="font-size:0.82rem;color:var(--parchment)" id="globalFreezeStatus">Not Frozen</div>
+                    <div style="font-size:0.7rem;color:var(--muted)">All CIPR payments</div>
+                  </div>
+                </div>
+                <div class="warn-box" style="font-size:0.7rem;margin-bottom:0">⚠ Global freeze halts ALL CIPR payments on the network.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Lines -->
+      <div class="tab-panel" id="cipr-trustlines">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt)" id="tlCount">Loading trust lines…</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadTrustLines()">↺ Refresh</button>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table id="tlTable">
+              <thead><tr><th>Address</th><th>Balance</th><th>Limit</th><th>Currency</th><th>Status</th></tr></thead>
+              <tbody id="tlBody"><tr><td colspan="5" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DOCUMENT REGISTER ──────────────────────────────────── -->
+    <div class="screen" id="screen-documents">
+      <div class="screen-title">Document Register</div>
+      <div class="screen-sub">Manage all trust instruments — enter, view, filter, and retire documents.</div>
+
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('docs','list')">All Documents</div>
+        <div class="tab" onclick="switchTab('docs','new')">Enter New Document</div>
+        <div class="tab" onclick="switchTab('docs','detail')">Document Detail</div>
+      </div>
+
+      <!-- List -->
+      <div class="tab-panel active" id="docs-list">
+        <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center">
+          <select id="docFilterStatus" onchange="loadDocuments()" style="background:var(--ink-soft);border:1px solid var(--border);color:var(--parchment);padding:7px 12px;border-radius:4px;font-size:0.78rem">
+            <option value="all">All Status</option><option value="active">Active</option><option value="retired">Retired</option>
+          </select>
+          <select id="docFilterType" onchange="loadDocuments()" style="background:var(--ink-soft);border:1px solid var(--border);color:var(--parchment);padding:7px 12px;border-radius:4px;font-size:0.78rem">
+            <option value="">All Types</option>
+            <option value="bill-of-exchange">Bill of Exchange</option>
+            <option value="promissory-note">Promissory Note</option>
+            <option value="trust-bond">Trust Bond</option>
+            <option value="indemnity">Indemnity</option>
+            <option value="reserve-pledge">Reserve Pledge</option>
+            <option value="court-order">Court Order</option>
+            <option value="trust-instrument">Trust Instrument</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="loadDocuments()">↺ Refresh</button>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:0.62rem;color:var(--muted)" id="docListCount"></span>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Document ID</th><th>Type</th><th>Title</th><th>Amount</th><th>Status</th><th>Issued</th><th>Minted</th></tr></thead>
+              <tbody id="docListBody"><tr><td colspan="7" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Document -->
+      <div class="tab-panel" id="docs-new">
+        <div style="max-width:660px">
+          <div class="row">
+            <div class="field"><label>Document Type</label>
+              <select id="newDocType">
+                <option value="bill-of-exchange">Bill of Exchange</option>
+                <option value="promissory-note">Promissory Note</option>
+                <option value="trust-bond">Trust Bond</option>
+                <option value="indemnity">Indemnity</option>
+                <option value="reserve-pledge">Reserve Pledge</option>
+                <option value="court-order">Court Order</option>
+                <option value="trust-instrument">Trust Instrument</option>
+              </select>
+            </div>
+            <div class="field"><label>Currency</label>
+              <select id="newDocCurrency"><option value="CIPR">CIPR</option><option value="USD">USD</option></select>
+            </div>
+          </div>
+          <div class="field"><label>Title</label><input type="text" id="newDocTitle" placeholder="Instrument title"></div>
+          <div class="row">
+            <div class="field"><label>Amount</label><input type="number" id="newDocAmount" placeholder="0.00"></div>
+            <div class="field"><label>Due Date (optional)</label><input type="date" id="newDocDue"></div>
+          </div>
+          <div class="section-divider">Parties</div>
+          <div class="row">
+            <div class="field"><label>Drawer</label><input type="text" id="newDocDrawer" placeholder="Maker / Drawer"></div>
+            <div class="field"><label>Drawee</label><input type="text" id="newDocDrawee" placeholder="Drawee / Obligor"></div>
+            <div class="field"><label>Payee</label><input type="text" id="newDocPayee" placeholder="Payee / Beneficiary"></div>
+          </div>
+          <div class="field"><label>Legal Anchor</label>
+            <textarea id="newDocAnchor" style="min-height:70px">UCC Article 3 — Negotiable Instruments. Subject to Delaware UCC-1 filing and all applicable statutes.</textarea>
+          </div>
+          <div class="field"><label>Memo (optional)</label><textarea id="newDocMemo" style="min-height:60px" placeholder="Additional notes…"></textarea></div>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <button class="btn btn-gold" onclick="createDocument()">Register Document</button>
+          </div>
+          <div class="card" style="margin-top:16px;display:none" id="newDocResult">
+            <div class="card-header"><span class="card-title">Document Created</span></div>
+            <div class="card-body" id="newDocResultBody"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail -->
+      <div class="tab-panel" id="docs-detail">
+        <div style="display:flex;gap:10px;margin-bottom:18px;max-width:400px">
+          <div class="field" style="flex:1"><label>Document ID</label><input type="text" id="detailDocId" placeholder="DOC-XXXXXXX"></div>
+          <div style="align-self:flex-end"><button class="btn btn-gold btn-sm" onclick="loadDocDetail()">Fetch</button></div>
+        </div>
+        <div id="docDetailPane" style="display:none">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Document Record</span><span class="badge badge-green" id="detailStatus">Active</span></div>
+              <div class="card-body" id="docDetailBody"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">CIPR Mint Receipt</span></div>
+              <div class="card-body" id="docMintBody"><div style="font-size:0.75rem;color:var(--muted)">No mint receipt — document not yet used for CIPR issuance.</div></div>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn btn-gold btn-sm" onclick="navigate('cipr')">Issue CIPR Against This Document →</button>
+            <button class="btn btn-danger btn-sm" onclick="retireDocument()">Retire Document</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BILL OF EXCHANGE ───────────────────────────────────── -->
+    <div class="screen" id="screen-boe">
+      <div class="screen-title">Bill of Exchange Composer</div>
+      <div class="screen-sub">Compose a UCC-anchored negotiable instrument with formal discharge evidence.</div>
+
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('boe','compose')">Compose Bill</div>
+        <div class="tab" onclick="switchTab('boe','discharge')">Discharge Lookup</div>
+      </div>
+
+      <div class="tab-panel active" id="boe-compose">
+        <div class="grid-2">
+          <div>
+            <div class="row"><div class="field"><label>Drawer (auto: Trustee address)</label><input type="text" id="boeDrawer" placeholder="Trustee address (auto-filled)"></div></div>
+            <div class="field"><label>Drawee</label><input type="text" id="boeDrawee" placeholder="Drawee / obligated party"></div>
+            <div class="field"><label>Payee</label><input type="text" id="boePayee" placeholder="Payee / beneficiary"></div>
+            <div class="row">
+              <div class="field"><label>Amount</label><input type="number" id="boeAmount" placeholder="0.00"></div>
+              <div class="field"><label>Currency</label><select id="boeCurrency"><option value="CIPR">CIPR</option><option value="USD">USD</option></select></div>
+            </div>
+            <div class="field"><label>Due Date (optional)</label><input type="date" id="boeDue"></div>
+            <div class="field"><label>UCC Tender Type</label>
+              <select id="boeUcc">
+                <option value="3-311">&sect;3-311 Accord &amp; Satisfaction</option>
+                <option value="3-603">&sect;3-603 Tender of Payment</option>
+              </select>
+            </div>
+            <div class="field"><label>Memo / Instrument Text (auto-generated if blank)</label><textarea id="boeMemo" style="min-height:70px" placeholder="Leave blank for auto-generation…"></textarea></div>
+            <button class="btn btn-gold" onclick="composeBill()">Compose Bill of Exchange</button>
+          </div>
+          <div id="boeResult" style="display:none">
+            <div class="section-divider">Instrument Record</div>
+            <div class="card" style="margin-bottom:12px"><div class="card-header"><span class="card-title">Formal Instrument</span></div><div class="card-body" id="boeInstrumentBody"></div></div>
+            <div class="card" style="margin-bottom:12px"><div class="card-header"><span class="card-title">Transaction Structure</span></div><div class="card-body" id="boeTxBody"></div></div>
+            <div class="card" style="margin-bottom:12px"><div class="card-header"><span class="card-title">Discharge Evidence</span></div><div class="card-body" id="boeDischargeBody"></div></div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-gold btn-sm" onclick="navigate('cipr')">Issue CIPR Against This Bill →</button>
+              <button class="btn btn-ghost btn-sm">Submit to Chain</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="boe-discharge">
+        <div style="max-width:460px">
+          <div class="field"><label>Transaction Hash</label><input type="text" id="dischargeTxHash" placeholder="0x…"></div>
+          <button class="btn btn-gold" onclick="lookupDischarge()" style="margin-bottom:16px">Lookup Discharge</button>
+        </div>
+        <div id="dischargeResult" style="display:none">
+          <div class="discharge-box" id="dischargeResultBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHAIN EXPLORER ─────────────────────────────────────── -->
+    <div class="screen" id="screen-chain">
+      <div class="screen-title">Chain Explorer</div>
+      <div class="screen-sub">Inspect the settled ledger, verify chain integrity, and mine pending transactions.</div>
+
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('chain','blocks')">Block List</div>
+        <div class="tab" onclick="switchTab('chain','cdetail')">Block Detail</div>
+        <div class="tab" onclick="switchTab('chain','integrity')">Integrity Check</div>
+        <div class="tab" onclick="switchTab('chain','mine')">Mine Block</div>
+      </div>
+
+      <div class="tab-panel active" id="chain-blocks">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt)" id="chainHeightLabel">—</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadChain()">↺ Refresh</button>
+        </div>
+        <div id="blockList"></div>
+      </div>
+
+      <div class="tab-panel" id="chain-cdetail">
+        <div style="display:flex;gap:10px;margin-bottom:18px;max-width:360px">
+          <div class="field" style="flex:1"><label>Block Number</label><input type="number" id="blockNum" placeholder="0" min="0"></div>
+          <div style="align-self:flex-end"><button class="btn btn-gold btn-sm" onclick="loadBlockDetail()">Fetch</button></div>
+        </div>
+        <div id="blockDetailPane" style="display:none">
+          <div class="card" style="margin-bottom:14px"><div class="card-header"><span class="card-title">Block Header</span></div><div class="card-body" id="blockDetailHeader"></div></div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Transactions</span></div>
+            <div class="tbl-wrap"><table><thead><tr><th>From</th><th>To</th><th>Amount</th><th>Memo</th><th>UCC</th></tr></thead><tbody id="blockTxBody"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="chain-integrity">
+        <button class="btn btn-gold" onclick="checkIntegrity()" style="margin-bottom:18px">Run Integrity Check</button>
+        <div id="integrityResult" style="display:none"><div class="card"><div class="card-body" id="integrityBody"></div></div></div>
+      </div>
+
+      <div class="tab-panel" id="chain-mine">
+        <div class="card" style="max-width:440px">
+          <div class="card-header"><span class="card-title">Mine Block</span></div>
+          <div class="card-body">
+            <div style="font-size:0.8rem;color:var(--muted-lt);margin-bottom:14px">Mining will settle <strong id="mineCount" style="color:var(--parchment)">—</strong> pending transactions into a new block.</div>
+            <div class="field"><label>Reward Address (optional — defaults to Trustee)</label><input type="text" id="mineReward" placeholder="Trustee address (auto)"></div>
+            <button class="btn btn-gold" onclick="mineBlock()">Mine Block</button>
+            <div id="mineResult" style="display:none;margin-top:14px" class="discharge-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MEMBER ROLL ─────────────────────────────────────────── -->
+    <div class="screen" id="screen-members">
+      <div class="screen-title">Member Roll</div>
+      <div class="screen-sub">Register and view Trust members — Trustees, Co-Trustees, Beneficiaries, Protectors, and Observers.</div>
+
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('mem','list')">Member List</div>
+        <div class="tab" onclick="switchTab('mem','register')">Register Member</div>
+        <div class="tab" onclick="switchTab('mem','mdetail')">Member Detail</div>
+      </div>
+
+      <div class="tab-panel active" id="mem-list">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt)" id="memberCountLabel">Loading…</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadMembers()">↺ Refresh</button>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Address</th><th>Role</th><th>Name / Entity</th><th>Added</th></tr></thead>
+            <tbody id="memberListBody"><tr><td colspan="4" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="mem-register">
+        <div style="max-width:480px">
+          <div class="field"><label>Wallet Address</label><input type="text" id="memAddr" placeholder="0x…"></div>
+          <div class="field"><label>Role</label>
+            <select id="memRole">
+              <option value="trustee">Trustee</option>
+              <option value="co-trustee">Co-Trustee</option>
+              <option value="beneficiary">Beneficiary</option>
+              <option value="protector">Protector</option>
+              <option value="observer">Observer</option>
+            </select>
+          </div>
+          <div class="field"><label>Legal Name / Entity Name</label><input type="text" id="memName" placeholder="Full legal name or entity"></div>
+          <div class="field"><label>Memo (optional notes)</label><textarea id="memMemo" style="min-height:60px" placeholder="Additional notes…"></textarea></div>
+          <button class="btn btn-gold" onclick="registerMember()">Register Member</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="mem-mdetail">
+        <div style="display:flex;gap:10px;margin-bottom:18px;max-width:420px">
+          <div class="field" style="flex:1"><label>Member Address</label><input type="text" id="memDetailAddr" placeholder="Wallet address"></div>
+          <div style="align-self:flex-end"><button class="btn btn-gold btn-sm" onclick="loadMemberDetail()">Fetch</button></div>
+        </div>
+        <div id="memberDetailPane" style="display:none">
+          <div class="card" style="max-width:500px">
+            <div class="card-header"><span class="card-title">Member Record</span><span class="badge badge-gold" id="memDetailRole">—</span></div>
+            <div class="card-body" id="memberDetailBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PUBLIC NETWORK MONITOR ─────────────────────────────── -->
+    <div class="screen" id="screen-network">
+      <div class="screen-title">Public Network Monitor</div>
+      <div class="screen-sub">Read-only view of network health, reserve status, and wallet balances. No auth required.</div>
+
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+        <button class="btn btn-ghost btn-sm" onclick="loadNetworkData()">↺ Refresh All</button>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:16px">
+        <div class="monitor-metric">
+          <div class="card-title" style="margin-bottom:10px">Network Info</div>
+          <div id="netInfo"><div style="font-size:0.75rem;color:var(--muted)">Loading…</div></div>
+        </div>
+        <div class="monitor-metric">
+          <div class="card-title" style="margin-bottom:10px">CIPR Reserve (Public)</div>
+          <div id="netReserve"><div style="font-size:0.75rem;color:var(--muted)">Loading…</div></div>
+        </div>
+        <div class="monitor-metric">
+          <div class="card-title" style="margin-bottom:10px">Wallet Balance Lookup</div>
+          <div class="field" style="margin-bottom:8px"><label>Address</label><input type="text" id="netBalAddr" placeholder="Wallet address"></div>
+          <button class="btn btn-gold btn-sm" onclick="lookupBalance()">Lookup</button>
+          <div id="netBalance" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Pending Transactions</span></div>
+          <div class="tbl-wrap"><table><thead><tr><th>From</th><th>To</th><th>Amount</th><th>Memo</th></tr></thead>
+          <tbody id="netPendingBody"><tr><td colspan="4" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Active Trust Lines</span></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Address</th><th>Balance</th><th>Currency</th><th>Frozen</th></tr></thead>
+          <tbody id="netTrustBody"><tr><td colspan="4" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /appShell -->
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Confirm Action</div>
+    <div class="confirm-body"  id="confirmBody">Are you sure?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-danger" id="confirmOk">Confirm</button>
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── CONFIG ──────────────────────────────────────────────── */
+const API = {
+  admin: 'http://localhost:3005',
+  auth:  'http://localhost:3003',
+  docs:  'http://localhost:3004',
+  pub:   'http://localhost:3001',
+};
+
+/* ── STATE ───────────────────────────────────────────────── */
+let token          = null;
+let trusteeAddress = '';
+let sessionTTL     = 0;
+let timerInterval  = null;
+let sessionInterval = null;
+let loginStep      = 'a';
+let storedNonce    = '';
+let storedSecret   = '';
+let globalFrozen   = false;
+
+/* ── HELPERS ─────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const v = id => $(id)?.value ?? '';
+function showToast(msg, dur = 3000) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function trunc(s, n = 16) { return s ? (s.length > n ? s.slice(0, n) + '…' : s) : '—'; }
+function fmt(n)    { return n !== undefined && n !== null ? Number(n).toLocaleString() : '—'; }
+function fmtDate(s){ return s ? new Date(s).toLocaleDateString() : '—'; }
+function detailRows(obj) {
+  return Object.entries(obj).map(([k, val]) =>
+    `<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val">${val ?? '—'}</span></div>`
+  ).join('');
+}
+
+/* ── AUTH FLOW ───────────────────────────────────────────── */
+async function loginFlow() {
+  if (loginStep === 'a')  await stepRequestChallenge();
+  else if (loginStep === 'c') enterApp();
+}
+
+async function stepRequestChallenge() {
+  const addr   = v('li-address').trim();
+  const secret = v('li-secret');
+  if (!addr || !secret) { showToast('Enter address and secret.'); return; }
+  trusteeAddress = addr;
+  storedSecret   = secret;
+  $('loginBtn').innerHTML = '<span class="spinner" style="border-top-color:var(--ink)"></span> Requesting…';
+  $('loginBtn').disabled  = true;
+
+  try {
+    const res  = await fetch(`${API.auth}/auth/challenge`);
+    const data = await res.json();
+    storedNonce           = data.nonce;
+    $('li-nonce').textContent = data.nonce;
+    $('ls-a').className = 'login-step';
+    $('ls-b').className = 'login-step active';
+    await computeAndVerify(addr, secret, data.nonce, data.ttlSeconds);
+  } catch (e) {
+    showToast('API offline — entering demo mode', 4000);
+    demoLogin(addr);
+  } finally {
+    $('loginBtn').textContent = 'Enter Portal';
+    $('loginBtn').disabled = false;
+  }
+}
+
+async function computeAndVerify(addr, secret, nonce, ttl) {
+  let remaining = ttl || 300;
+  const fill = $('timerFill');
+  const lbl  = $('timerLabel');
+  timerInterval = setInterval(() => {
+    remaining--;
+    fill.style.width = (remaining / (ttl || 300) * 100) + '%';
+    lbl.textContent  = `${remaining}s remaining`;
+    if (remaining <= 0) clearInterval(timerInterval);
+  }, 1000);
+
+  const enc  = new TextEncoder();
+  const key  = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig  = await crypto.subtle.sign('HMAC', key, enc.encode(nonce));
+  const proof = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+  try {
+    const res  = await fetch(`${API.auth}/auth/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address: addr, nonce, proof })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Verify failed');
+    token      = data.token;
+    sessionTTL = data.ttlSeconds || 3600;
+    clearInterval(timerInterval);
+    $('ls-b').className = 'login-step';
+    $('ls-c').className = 'login-step active';
+    $('li-exp').textContent = Math.floor(sessionTTL / 60) + ' min';
+    loginStep = 'c';
+  } catch (e) {
+    showToast('Verification failed: ' + e.message, 5000);
+    clearInterval(timerInterval);
+  }
+}
+
+function demoLogin(addr) {
+  token          = 'DEMO_TOKEN';
+  trusteeAddress = addr || 'demo.trustee.address';
+  sessionTTL     = 3600;
+  $('ls-a').className = 'login-step';
+  $('ls-c').className = 'login-step active';
+  $('li-exp').textContent = '60 min (demo)';
+  $('loginBtn').textContent = 'Enter Portal';
+  loginStep = 'c';
+}
+
+function enterApp() {
+  $('loginScreen').style.display = 'none';
+  $('appShell').classList.add('active');
+  $('sb-addr').textContent  = trusteeAddress || 'demo.trustee';
+  $('boeDrawer').value      = trusteeAddress || '';
+  startSessionTimer();
+  loadDashboard();
+  navigate('dashboard');
+  updateClock();
+  setInterval(updateClock, 30000);
+}
+
+/* ── SESSION ─────────────────────────────────────────────── */
+function startSessionTimer() {
+  let ttl = sessionTTL;
+  sessionInterval = setInterval(() => {
+    ttl--;
+    $('sb-ttl').textContent = ttl > 0 ? `${Math.floor(ttl / 60)}m ${ttl % 60}s` : 'Expired';
+    if (ttl <= 600 && ttl > 0) $('refreshBanner').classList.add('visible');
+    if (ttl <= 0) { showToast('Session expired — please log in again.', 5000); logout(); }
+  }, 1000);
+}
+
+async function refreshSession() {
+  try {
+    const res  = await authedFetch(`${API.auth}/auth/refresh`, { method: 'POST' });
+    const data = await res.json();
+    token      = data.token;
+    sessionTTL = data.ttlSeconds || 3600;
+    $('refreshBanner').classList.remove('visible');
+    showToast('Session refreshed.');
+  } catch (_) {
+    showToast('Refresh failed — using current session.');
+    $('refreshBanner').classList.remove('visible');
+  }
+}
+
+async function logout() {
+  try { await authedFetch(`${API.auth}/auth/logout`, { method: 'DELETE' }); } catch (_) {}
+  token = null;
+  clearInterval(sessionInterval);
+  $('appShell').classList.remove('active');
+  $('loginScreen').style.display = 'flex';
+  loginStep = 'a';
+  ['ls-a', 'ls-b', 'ls-c'].forEach(id => $(id).className = 'login-step');
+  $('ls-a').className = 'login-step active';
+  $('loginBtn').textContent = 'Request Challenge';
+}
+
+/* ── API HELPERS ─────────────────────────────────────────── */
+function authedFetch(url, opts = {}) {
+  return fetch(url, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...(opts.headers || {}) }
+  });
+}
+
+async function apiCall(method, path, body, successMsg, service = 'admin') {
+  const base = service === 'public' ? API.pub : API.admin;
+  try {
+    const res  = await authedFetch(base + path, { method, body: body ? JSON.stringify(body) : undefined });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+    showToast(successMsg || 'Success');
+    return data;
+  } catch (e) {
+    showToast('Error: ' + e.message, 5000);
+    throw e;
+  }
+}
+
+/* ── NAVIGATION ──────────────────────────────────────────── */
+const screenTitles = {
+  dashboard: 'Dashboard', cipr: 'CIPR Issuance Console',
+  documents: 'Document Register', boe: 'Bill of Exchange Composer',
+  chain: 'Chain Explorer', members: 'Member Roll', network: 'Public Network Monitor'
+};
+
+function navigate(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  $(`screen-${screen}`)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    const txt = n.textContent.trim().toLowerCase();
+    const title = (screenTitles[screen] || screen).toLowerCase();
+    if (txt.startsWith(title.slice(0, 5))) n.classList.add('active');
+  });
+  $('topbarTitle').textContent = screenTitles[screen] || screen;
+  if (screen === 'chain')     loadChain();
+  if (screen === 'documents') loadDocuments();
+  if (screen === 'members')   loadMembers();
+  if (screen === 'network')   loadNetworkData();
+  if (screen === 'cipr')      loadTrustLines();
+}
+
+/* ── TAB SWITCHING ───────────────────────────────────────── */
+function switchTab(screen, tab) {
+  const allPanels = document.querySelectorAll(`#screen-${screen} .tab-panel`);
+  allPanels.forEach(p => p.classList.remove('active'));
+  $(`${screen}-${tab}`)?.classList.add('active');
+  const tabs = document.querySelectorAll(`#screen-${screen} .tab-bar .tab`);
+  const tabLabels = {
+    issue:'issue', trustset:'trust', transfer:'transfer', burn:'burn',
+    freeze:'freeze', trustlines:'trust l',
+    list:'all', new:'enter', detail:'document d',
+    compose:'compose', discharge:'discharge',
+    blocks:'block l', cdetail:'block d', integrity:'integrity', mine:'mine',
+    register:'register', mdetail:'member d',
+  };
+  const match = (tabLabels[tab] || tab).toLowerCase();
+  tabs.forEach(t => {
+    if (t.textContent.toLowerCase().includes(match.split(' ')[0])) t.classList.add('active');
+    else t.classList.remove('active');
+  });
+}
+
+/* ── CLOCK ───────────────────────────────────────────────── */
+function updateClock() {
+  $('topbarTime').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+/* ── DASHBOARD ───────────────────────────────────────────── */
+function loadDashboard() {
+  Promise.allSettled([loadChainStatus(), loadReserve(), loadDocSummary(), loadMemberSummary(), loadAlerts(), loadPending()]);
+}
+
+async function loadChainStatus() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/chain/valid`);
+    const d   = await res.json();
+    $('chainHeight').textContent = fmt(d.height);
+    $('chainBadge').textContent  = d.isValid ? 'Valid' : 'FAILURE';
+    $('chainBadge').className    = `badge ${d.isValid ? 'badge-green' : 'badge-red'}`;
+  } catch (_) { $('chainHeight').textContent = 'offline'; }
+}
+
+async function loadReserve() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/cipr/reserve`);
+    const d   = await res.json();
+    const ratio = parseFloat(d.reserveRatio) || 0;
+    $('reserveRatio').textContent = ratio.toFixed(4);
+    $('reserveBadge').textContent = ratio >= 1 ? 'Healthy' : 'LOW';
+    $('reserveBadge').className   = `badge ${ratio >= 1 ? 'badge-green' : 'badge-red'}`;
+    const pct = Math.min(ratio * 100, 100);
+    $('gaugeBar').style.width      = pct + '%';
+    $('gaugeBar').style.background = ratio >= 1 ? 'var(--green)' : ratio >= 0.8 ? 'var(--amber)' : 'var(--red)';
+    globalFrozen = !!d.globalFreeze;
+    if (globalFrozen) $('globalFreezeWarn').style.display = 'block';
+    updateFreezeUI();
+  } catch (_) { $('reserveRatio').textContent = 'offline'; }
+}
+
+async function loadDocSummary() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/documents`);
+    const d   = await res.json();
+    $('docTotal').textContent = fmt(d.total);
+    const active  = (d.documents || []).filter(x => x.status === 'active').length;
+    const retired = (d.documents || []).filter(x => x.status === 'retired').length;
+    $('docActive').textContent  = `${active} Active`;
+    $('docRetired').textContent = `${retired} Retired`;
+  } catch (_) { $('docTotal').textContent = '—'; }
+}
+
+async function loadMemberSummary() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/members`);
+    const d   = await res.json();
+    $('memberCount').textContent = fmt(d.count);
+  } catch (_) { $('memberCount').textContent = '—'; }
+}
+
+async function loadAlerts() {
+  try {
+    const res    = await authedFetch(`${API.admin}/admin/dashboard`);
+    const d      = await res.json();
+    const alerts = d.alerts || [];
+    if (alerts.length) {
+      $('alertBadge').style.display = 'flex';
+      $('alertBadge').textContent   = alerts.length;
+      $('alertCount').style.display = 'flex';
+      $('alertCount').textContent   = alerts.length;
+      $('globalAlertDot').classList.add('active');
+      $('alertList').innerHTML = alerts.map(a => `
+        <div class="alert-item ${a.severity === 'CRITICAL' ? 'alert-critical' : 'alert-warning'}">
+          <span class="${a.severity === 'CRITICAL' ? 'alert-dot-c' : 'alert-dot-w'}">●</span>
+          <div><div class="alert-msg">${a.message}</div>
+          <div class="alert-meta">${a.severity} · ${fmtDate(a.timestamp)}</div></div>
+        </div>`).join('');
+    } else {
+      $('alertList').innerHTML = `<div style="text-align:center;padding:20px;font-size:0.78rem;color:var(--muted)">✓ No alerts — all systems nominal</div>`;
+    }
+  } catch (_) {
+    $('alertList').innerHTML = `
+      <div class="alert-item alert-info">
+        <span class="alert-dot-i">●</span>
+        <div><div class="alert-msg">API nodes offline — running in demo mode</div>
+        <div class="alert-meta">INFO · ${new Date().toLocaleDateString()}</div></div>
+      </div>`;
+  }
+}
+
+async function loadPending() {
+  try {
+    const res = await fetch(`${API.pub}/api/transactions/pending`);
+    const d   = await res.json();
+    const txs = d.pendingTransactions || [];
+    $('pendingCount').textContent = txs.length;
+    $('mineCount').textContent    = txs.length;
+    $('pendingList').innerHTML = txs.length
+      ? txs.slice(0, 5).map(tx => `
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-s);font-size:0.75rem;color:var(--muted-lt)">
+            ${trunc(tx.from, 10)} → ${trunc(tx.to, 10)} · <span style="color:var(--parchment)">${fmt(tx.amount)} CIPR</span>
+          </div>`).join('')
+      : '<div style="font-size:0.75rem;color:var(--muted)">No pending transactions</div>';
+  } catch (_) {
+    $('pendingCount').textContent = '0 (offline)';
+    $('pendingList').innerHTML    = '<div style="font-size:0.75rem;color:var(--muted)">Offline</div>';
+  }
+}
+
+/* ── CIPR ────────────────────────────────────────────────── */
+async function loadTrustLines() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/cipr/trustlines`);
+    const d   = await res.json();
+    $('tlCount').textContent = `${d.count || 0} trust lines`;
+    const rows = (d.trustLines || []).map(tl => `<tr>
+      <td class="mono-sm">${trunc(tl.address, 20)}</td><td>${fmt(tl.balance)}</td>
+      <td>${fmt(tl.limit)}</td><td>${tl.currency || 'CIPR'}</td>
+      <td><span class="badge ${tl.frozen ? 'badge-red' : 'badge-green'}">${tl.frozen ? 'Frozen' : 'Active'}</span></td>
+    </tr>`).join('');
+    $('tlBody').innerHTML = rows || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">No trust lines</td></tr>';
+  } catch (_) {
+    $('tlBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Offline</td></tr>';
+  }
+}
+
+function updateFreezeUI() {
+  const toggle = $('globalFreezeToggle');
+  const status = $('globalFreezeStatus');
+  if (toggle) toggle.className = 'freeze-toggle' + (globalFrozen ? ' frozen' : '');
+  if (status) status.textContent = globalFrozen ? 'FROZEN — All payments halted' : 'Not Frozen';
+}
+
+function toggleGlobalFreeze() {
+  const action = globalFrozen ? 'unfreeze' : 'freeze';
+  const msg    = globalFrozen
+    ? 'Lift the global freeze? CIPR payments will resume.'
+    : '⚠ FREEZE ALL CIPR? This halts ALL payments on the network.';
+  confirmAction('Global Freeze Toggle', msg, async () => {
+    try {
+      await apiCall('POST', '/admin/cipr/globalfreeze', { action }, `Global ${action} applied`);
+      globalFrozen = !globalFrozen;
+      updateFreezeUI();
+      $('globalFreezeWarn').style.display = globalFrozen ? 'block' : 'none';
+    } catch (_) {}
+  });
+}
+
+function issueLinked() {
+  apiCall('POST', '/admin/cipr/issue', {
+    documentId:         v('issueDocId'),
+    destinationAddress: v('issueDest'),
+    amount:             v('issueAmount'),
+    memo:               v('issueMemo'),
+  }, 'CIPR issued successfully');
+}
+
+function issueRaw() {
+  apiCall('POST', '/admin/cipr/issue', {
+    destinationAddress: v('issueRawDest'),
+    reserveReference:   v('issueRawRef'),
+    amount:             v('issueRawAmt'),
+    memo:               v('issueRawMemo'),
+  }, 'Raw CIPR issued');
+}
+
+function submitTrustSet() {
+  apiCall('POST', '/api/cipr/trustset', { holderAddress: v('tsHolder'), limit: v('tsLimit') }, 'TrustSet submitted', 'public');
+}
+
+function executeTransfer() {
+  apiCall('POST', '/api/cipr/transfer', {
+    fromAddress: v('tfFrom'), toAddress: v('tfTo'),
+    amount: v('tfAmt'), memo: v('tfMemo'),
+  }, 'Transfer submitted', 'public');
+}
+
+function burnSettle() {
+  confirmAction('Burn CIPR', 'This action is irreversible and will settle the obligation. Continue?', () =>
+    apiCall('POST', '/admin/cipr/burn', {
+      holderAddress: v('burnHolder'),
+      amount:        v('burnAmt'),
+      documentId:    v('burnDocId'),
+      memo:          v('burnMemo'),
+    }, 'Burn executed')
+  );
+}
+
+function freezeAddress(action) {
+  apiCall('POST', '/admin/cipr/freeze', { holderAddress: v('freezeAddr'), action }, `Trust line ${action}d`);
+}
+
+/* ── DOCUMENTS ───────────────────────────────────────────── */
+async function loadDocuments() {
+  const status = v('docFilterStatus');
+  const type   = v('docFilterType');
+  let url = `${API.admin}/admin/documents?status=${status}`;
+  if (type) url += `&type=${type}`;
+  try {
+    const res = await authedFetch(url);
+    const d   = await res.json();
+    $('docListCount').textContent = `${d.filtered || d.total || 0} documents`;
+    const rows = (d.documents || []).map(doc => `<tr onclick="openDocDetail('${doc.documentId}')">
+      <td class="mono-sm">${trunc(doc.documentId, 18)}</td>
+      <td><span class="badge badge-blue">${doc.type || '—'}</span></td>
+      <td style="color:var(--parchment)">${doc.title || '—'}</td>
+      <td>${fmt(doc.amount)} ${doc.currency || ''}</td>
+      <td><span class="badge ${doc.status === 'active' ? 'badge-green' : 'badge-amber'}">${doc.status || '—'}</span></td>
+      <td>${fmtDate(doc.dateIssued)}</td>
+      <td>${doc.ciprMintReceipt ? '<span class="badge badge-green">✓</span>' : '—'}</td>
+    </tr>`).join('');
+    $('docListBody').innerHTML = rows || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">No documents</td></tr>';
+  } catch (_) {
+    $('docListBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Offline</td></tr>';
+  }
+}
+
+function openDocDetail(id) {
+  navigate('documents');
+  switchTab('docs', 'detail');
+  $('detailDocId').value = id;
+  loadDocDetail();
+}
+
+async function loadDocDetail() {
+  const id = v('detailDocId');
+  if (!id) { showToast('Enter a Document ID.'); return; }
+  try {
+    const res = await authedFetch(`${API.admin}/admin/document/${id}`);
+    if (!res.ok) throw new Error('Not found');
+    const d   = await res.json();
+    const doc = d.document || d;
+    $('detailStatus').textContent = doc.status || '—';
+    $('detailStatus').className   = `badge ${doc.status === 'active' ? 'badge-green' : 'badge-amber'}`;
+    $('docDetailBody').innerHTML  = detailRows({
+      'Document ID': doc.documentId, 'Type': doc.type, 'Title': doc.title,
+      'Amount': `${fmt(doc.amount)} ${doc.currency || ''}`,
+      'Due Date': fmtDate(doc.dueDate), 'Legal Anchor': doc.legalAnchor,
+      'Drawer': doc.parties?.drawer, 'Drawee': doc.parties?.drawee, 'Payee': doc.parties?.payee,
+    });
+    $('docMintBody').innerHTML = doc.ciprMintReceipt
+      ? detailRows(doc.ciprMintReceipt)
+      : '<div style="font-size:0.75rem;color:var(--muted)">No mint receipt yet.</div>';
+    $('docDetailPane').style.display = 'block';
+  } catch (_) {
+    showToast('Document not found.'); $('docDetailPane').style.display = 'none';
+  }
+}
+
+async function createDocument() {
+  const payload = {
+    documentType: v('newDocType'), title: v('newDocTitle'),
+    amount: parseFloat(v('newDocAmount')), currency: v('newDocCurrency'),
+    parties: { drawer: v('newDocDrawer'), drawee: v('newDocDrawee'), payee: v('newDocPayee') },
+    dueDate: v('newDocDue') || undefined, legalAnchor: v('newDocAnchor'),
+    memo: v('newDocMemo') || undefined,
+  };
+  try {
+    const data = await apiCall('POST', '/admin/document', payload, 'Document registered');
+    const id   = data.documentId || data.document?.documentId;
+    $('newDocResult').style.display = 'block';
+    $('newDocResultBody').innerHTML = `
+      <div style="text-align:center;margin-bottom:14px">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--gold);margin-bottom:6px">ASSIGNED DOCUMENT ID</div>
+        <div style="font-family:var(--mono);font-size:1rem;color:var(--gold-lt);word-break:break-all">${id}</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-gold btn-sm" onclick="navigator.clipboard.writeText('${id}').then(()=>showToast('Copied!'))">Copy ID</button>
+        <button class="btn btn-ghost btn-sm" onclick="openDocDetail('${id}')">View Detail →</button>
+      </div>`;
+  } catch (_) {}
+}
+
+async function retireDocument() {
+  const id = v('detailDocId');
+  confirmAction('Retire Document', `Retire document ${trunc(id, 16)}? This cannot be undone.`, async () => {
+    try {
+      await authedFetch(`${API.docs}/documents/${id}/retire`, {
+        method: 'PATCH', body: JSON.stringify({ memo: 'Retired via admin portal' })
+      });
+      showToast('Document retired.'); loadDocDetail();
+    } catch (_) { showToast('Error retiring document.'); }
+  });
+}
+
+/* ── BILL OF EXCHANGE ────────────────────────────────────── */
+async function composeBill() {
+  const payload = {
+    drawer: v('boeDrawer') || trusteeAddress, drawee: v('boeDrawee'), payee: v('boePayee'),
+    amount: parseFloat(v('boeAmount')), currency: v('boeCurrency'),
+    dueDate: v('boeDue') || undefined, uccTender: v('boeUcc'),
+    memo: v('boeMemo') || undefined,
+  };
+  try {
+    const data = await apiCall('POST', '/admin/bill-of-exchange', payload, 'Bill composed');
+    const boe  = data.billOfExchange || {};
+    $('boeResult').style.display = 'block';
+    $('boeInstrumentBody').innerHTML = detailRows({ 'Document ID': data.documentId, 'Legal Anchor': data.document?.legalAnchor, 'Instrument Text': boe.instrumentText });
+    $('boeTxBody').innerHTML         = detailRows(boe.transactionStructure || {});
+    $('boeDischargeBody').innerHTML  = detailRows(boe.dischargeEvidence   || {});
+  } catch (_) {
+    const demoId = 'BOE-' + Date.now().toString(36).toUpperCase();
+    $('boeResult').style.display = 'block';
+    $('boeInstrumentBody').innerHTML = detailRows({ 'Document ID': demoId, 'Legal Anchor': 'UCC §3-311 / §3-603', 'Instrument Text': 'Demo mode — API offline' });
+    $('boeTxBody').innerHTML         = detailRows({ 'From': v('boeDrawer') || trusteeAddress, 'To': v('boePayee'), 'Amount': v('boeAmount') + ' ' + v('boeCurrency'), 'UCC Tender': '§' + v('boeUcc') });
+    $('boeDischargeBody').innerHTML  = detailRows({ 'Status': 'Demo — not on chain' });
+  }
+}
+
+async function lookupDischarge() {
+  const hash = v('dischargeTxHash');
+  if (!hash) { showToast('Enter a transaction hash.'); return; }
+  try {
+    const res = await authedFetch(`${API.admin}/admin/discharge/${hash}`);
+    const d   = await res.json();
+    $('dischargeResult').style.display = 'block';
+    $('dischargeResultBody').innerHTML = d.found
+      ? detailRows(d.dischargeEvidence || {})
+      : `<div style="color:var(--amber)">Transaction not yet settled — mine pending transactions first.</div>`;
+  } catch (_) {
+    $('dischargeResult').style.display = 'block';
+    $('dischargeResultBody').innerHTML = '<div style="color:var(--muted)">Offline</div>';
+  }
+}
+
+/* ── CHAIN EXPLORER ──────────────────────────────────────── */
+async function loadChain() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/chain`);
+    const d   = await res.json();
+    $('chainHeightLabel').textContent = `Block height: ${d.height}`;
+    const chain = (d.chain || []).slice().reverse();
+    $('blockList').innerHTML = chain.map(b => `
+      <div class="block-card" onclick="loadBlockByIndex(${b.index})">
+        <div class="block-card-top"><span class="block-index">Block #${b.index}</span><span class="block-hash">${trunc(b.hash, 22)}</span></div>
+        <div class="block-meta">
+          <div class="block-meta-item">Txs: <span>${(b.transactions || []).length}</span></div>
+          <div class="block-meta-item">Time: <span>${fmtDate(b.timestamp)}</span></div>
+          <div class="block-meta-item">Prev: <span>${trunc(b.previousHash, 14)}</span></div>
+        </div>
+      </div>`).join('') || '<div style="color:var(--muted)">No blocks</div>';
+  } catch (_) { $('blockList').innerHTML = '<div style="color:var(--muted)">Offline</div>'; }
+}
+
+function loadBlockByIndex(idx) {
+  switchTab('chain', 'cdetail');
+  $('blockNum').value = idx;
+  loadBlockDetail();
+}
+
+async function loadBlockDetail() {
+  const num = v('blockNum');
+  try {
+    const res = await fetch(`${API.pub}/api/blocks/${num}`);
+    const d   = await res.json();
+    $('blockDetailPane').style.display = 'block';
+    $('blockDetailHeader').innerHTML   = detailRows({
+      'Index': d.index, 'Hash': d.hash, 'Previous Hash': d.previousHash,
+      'Nonce': d.nonce, 'Difficulty': d.difficulty, 'Timestamp': fmtDate(d.timestamp),
+    });
+    const txs = d.transactions || [];
+    $('blockTxBody').innerHTML = txs.length
+      ? txs.map(tx => `<tr><td class="mono-sm">${trunc(tx.from, 14)}</td><td class="mono-sm">${trunc(tx.to, 14)}</td><td>${fmt(tx.amount)}</td><td>${tx.memo || '—'}</td><td>${tx.uccTender || '—'}</td></tr>`).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">No transactions in this block</td></tr>';
+  } catch (_) { showToast('Block not found.'); }
+}
+
+async function checkIntegrity() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/chain/valid`);
+    const d   = await res.json();
+    $('integrityResult').style.display = 'block';
+    $('integrityBody').innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+        <div style="font-size:2rem">${d.isValid ? '✓' : '✗'}</div>
+        <div>
+          <div style="font-size:1rem;color:var(--parchment);margin-bottom:3px">${d.isValid ? 'Chain Integrity Verified' : 'INTEGRITY FAILURE'}</div>
+          <div style="font-size:0.75rem;color:var(--muted)">${d.message || ''}</div>
+        </div>
+      </div>
+      ${detailRows({ 'Height': d.height, 'Status': d.isValid ? 'Valid' : 'INVALID' })}`;
+  } catch (_) { showToast('Could not check integrity — API offline.'); }
+}
+
+async function mineBlock() {
+  confirmAction('Mine Block', 'Settle pending transactions into a new block?', async () => {
+    try {
+      const data = await apiCall('POST', '/admin/chain/mine', { rewardAddress: trusteeAddress }, 'Block mined');
+      $('mineResult').style.display = 'block';
+      $('mineResult').innerHTML = detailRows({
+        'Block Hash': data.blockHash, 'Block Index': data.blockIndex,
+        'Transactions': data.txCount, 'Reward Address': data.rewardAddress,
+      });
+      showToast(`Block #${data.blockIndex} mined!`);
+      loadPending();
+    } catch (_) {}
+  });
+}
+
+/* ── MEMBERS ─────────────────────────────────────────────── */
+const roleClass = {
+  trustee: 'role-trustee', 'co-trustee': 'role-co-trustee',
+  beneficiary: 'role-beneficiary', protector: 'role-protector', observer: 'role-observer',
+};
+
+async function loadMembers() {
+  try {
+    const res = await authedFetch(`${API.admin}/admin/members`);
+    const d   = await res.json();
+    $('memberCountLabel').textContent = `${d.count || 0} registered members`;
+    const rows = (d.members || []).map(m => `<tr>
+      <td class="mono-sm">${trunc(m.address, 20)}</td>
+      <td><span class="${roleClass[m.role] || ''}" style="font-weight:500">${m.role || '—'}</span></td>
+      <td style="color:var(--parchment)">${m.name || '—'}</td>
+      <td>${fmtDate(m.dateAdded)}</td>
+    </tr>`).join('');
+    $('memberListBody').innerHTML = rows || '<tr><td colspan="4" style="text-align:center;color:var(--muted)">No members registered</td></tr>';
+  } catch (_) {
+    $('memberListBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Offline</td></tr>';
+  }
+}
+
+async function registerMember() {
+  const payload = { address: v('memAddr'), role: v('memRole'), name: v('memName'), memo: v('memMemo') || undefined };
+  try {
+    await apiCall('POST', '/admin/members', payload, 'Member registered');
+    loadMembers();
+    switchTab('mem', 'list');
+  } catch (_) {}
+}
+
+async function loadMemberDetail() {
+  const addr = v('memDetailAddr');
+  if (!addr) { showToast('Enter an address.'); return; }
+  try {
+    const res = await authedFetch(`${API.admin}/admin/members/${addr}`);
+    const d   = await res.json();
+    const m   = d.member || d;
+    $('memDetailRole').textContent   = m.role || '—';
+    $('memberDetailBody').innerHTML  = detailRows({
+      'Address': m.address, 'Role': m.role, 'Name': m.name, 'Added': fmtDate(m.dateAdded), 'Memo': m.memo || '—',
+    });
+    $('memberDetailPane').style.display = 'block';
+  } catch (_) { showToast('Member not found.'); }
+}
+
+/* ── NETWORK MONITOR ─────────────────────────────────────── */
+async function loadNetworkData() {
+  try {
+    const [infoRes, reserveRes, pendRes, tlRes] = await Promise.all([
+      fetch(`${API.pub}/api/info`),
+      fetch(`${API.pub}/api/cipr/reserve`),
+      fetch(`${API.pub}/api/transactions/pending`),
+      fetch(`${API.pub}/api/cipr/trustlines`),
+    ]);
+    const info    = await infoRes.json();
+    const reserve = await reserveRes.json();
+    const pend    = await pendRes.json();
+    const tl      = await tlRes.json();
+
+    $('netInfo').innerHTML    = detailRows({ 'Chain ID': info.chainId, 'Network': info.networkName, 'Currency': info.currencySymbol, 'Auto Mining': info.autoMining ? 'Yes' : 'No' });
+    $('netReserve').innerHTML = detailRows({ 'Circulating': fmt(reserve.circulatingSupply), 'Reserved': fmt(reserve.totalReserved), 'Ratio': parseFloat(reserve.reserveRatio || 0).toFixed(4), 'Frozen': reserve.globalFreeze ? '⚠ YES' : 'No' });
+
+    const txs = pend.pendingTransactions || [];
+    $('netPendingBody').innerHTML = txs.length
+      ? txs.map(t => `<tr><td class="mono-sm">${trunc(t.from, 12)}</td><td class="mono-sm">${trunc(t.to, 12)}</td><td>${fmt(t.amount)}</td><td>${t.memo || '—'}</td></tr>`).join('')
+      : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">None</td></tr>';
+
+    const lines = tl.trustLines || [];
+    $('netTrustBody').innerHTML = lines.length
+      ? lines.map(l => `<tr><td class="mono-sm">${trunc(l.address, 14)}</td><td>${fmt(l.balance)}</td><td>${l.currency || 'CIPR'}</td><td>${l.frozen ? '<span class="badge badge-red">Frozen</span>' : '<span class="badge badge-green">Active</span>'}</td></tr>`).join('')
+      : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">None</td></tr>';
+  } catch (_) {
+    ['netInfo', 'netReserve'].forEach(id => $(id).innerHTML = '<div style="font-size:0.75rem;color:var(--muted)">Offline</div>');
+  }
+}
+
+async function lookupBalance() {
+  const addr = v('netBalAddr');
+  if (!addr) { showToast('Enter an address.'); return; }
+  try {
+    const res = await fetch(`${API.pub}/api/wallet/balance/${addr}`);
+    const d   = await res.json();
+    $('netBalance').innerHTML = `<div style="font-family:var(--mono);font-size:0.8rem;color:var(--gold-lt)">${fmt(d.balance)} CIPR</div>`;
+  } catch (_) { $('netBalance').innerHTML = '<div style="color:var(--muted);font-size:0.75rem">Offline</div>'; }
+}
+
+/* ── CONFIRM MODAL ───────────────────────────────────────── */
+let pendingConfirm = null;
+function confirmAction(title, body, fn) {
+  $('confirmTitle').textContent = title;
+  $('confirmBody').textContent  = body;
+  pendingConfirm = fn;
+  $('confirmOk').onclick = () => { closeConfirm(); if (pendingConfirm) pendingConfirm(); };
+  $('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { $('confirmOverlay').classList.remove('open'); pendingConfirm = null; }
+$('confirmOverlay').addEventListener('click', e => { if (e.target === $('confirmOverlay')) closeConfirm(); });
+
+/* ── INIT ────────────────────────────────────────────────── */
+updateClock();
+</script>
+</body>
+</html>
