@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal Login — Massey &amp; Rosupo Co.</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:  #1a2e4a;
+    --accent:   #284a68;
+    --secondary:#4a5c7a;
+    --gold:     #b89f6b;
+    --gold-lt:  #cdb07e;
+    --border:   #e0e6ed;
+    --light:    #f9fafc;
+    --bg:       #f5f7fa;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--bg);
+    color: var(--primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--primary);
+    padding: 10px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+  }
+  .topbar a { color: var(--gold); text-decoration: none; font-size: 0.8rem; }
+  .topbar a:hover { text-decoration: underline; }
+
+  /* ── MAIN ── */
+  .page-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+  }
+
+  .login-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(26,46,74,0.08);
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    padding: 36px 40px 30px;
+    text-align: center;
+    color: white;
+  }
+
+  .card-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .logo-mark {
+    background: var(--gold);
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+
+  .logo-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .card-sub {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .card-body {
+    padding: 36px 40px;
+  }
+
+  /* ── FORM ── */
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    margin-bottom: 7px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: var(--primary);
+    background: var(--light);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .field input:focus {
+    border-color: var(--gold);
+    background: white;
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 13px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 8px;
+  }
+
+  .btn-login:hover { background: var(--accent); transform: translateY(-1px); }
+  .btn-login:disabled { background: var(--secondary); cursor: not-allowed; transform: none; }
+
+  .error-msg {
+    display: none;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 18px;
+  }
+
+  .loading-state {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+    color: var(--secondary);
+    font-size: 0.9rem;
+  }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card-footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 40px;
+    text-align: center;
+    background: var(--light);
+    font-size: 0.82rem;
+    color: var(--secondary);
+  }
+
+  .card-footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .card-footer a:hover { color: var(--gold); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    background: var(--primary);
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    font-size: 0.75rem;
+    padding: 18px 40px;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <span>Massey &amp; Rosupo Co. &mdash; Secure Client Portal</span>
+  <a href="index.html">&#8592; Return to main site</a>
+</div>
+
+<!-- Login card -->
+<div class="page-wrap">
+  <div class="login-card">
+
+    <div class="card-header">
+      <div class="card-logo">
+        <span class="logo-mark">MR</span>
+        <span class="logo-name">Massey &amp; Rosupo Co.</span>
+      </div>
+      <div class="card-title">Client Portal</div>
+      <div class="card-sub">Document &amp; Administration Access</div>
+    </div>
+
+    <div class="card-body">
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div id="loginForm">
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
+                 onkeydown="if(event.key==='Enter') login()">
+        </div>
+        <button class="btn-login" id="loginBtn" onclick="login()">Sign In to Portal</button>
+      </div>
+
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        Verifying credentials&hellip;
+      </div>
+
+    </div>
+
+    <div class="card-footer">
+      <span>Trustee access? <a href="admin-portal.html">Trustee Login (HMAC) &rarr;</a></span>
+      <hr class="divider">
+      <span>Access is restricted to authorized parties. Contact your administrator if you need credentials.</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="page-footer">
+  &copy; <span id="year"></span> Massey &amp; Rosupo Co. &mdash; All access is logged and monitored.
+</div>
+
+<script type="module">
+  import { initializeApp }                      from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword,
+           onAuthStateChanged }                 from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+    authDomain:        "masseyrosupo.firebaseapp.com",
+    projectId:         "masseyrosupo",
+    storageBucket:     "masseyrosupo.firebasestorage.app",
+    messagingSenderId: "335180500143",
+    appId:             "1:335180500143:web:12b7e6f3778ad706cc585a",
+    measurementId:     "G-TLVDZ69BVC"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // If already logged in, skip straight to dashboard
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = 'MainAccessDash.html';
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  window.login = async function () {
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('errorMsg');
+    const loginBtn = document.getElementById('loginBtn');
+
+    errorMsg.style.display = 'none';
+
+    if (!email || !password) {
+      errorMsg.textContent = 'Please enter your email and password.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('loginForm').style.display    = 'none';
+    document.getElementById('loadingState').style.display = 'block';
+    loginBtn.disabled = true;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged will redirect to MainAccessDash.html
+    } catch (err) {
+      document.getElementById('loginForm').style.display    = 'block';
+      document.getElementById('loadingState').style.display = 'none';
+      loginBtn.disabled = false;
+      errorMsg.textContent = getErrorMessage(err);
+      errorMsg.style.display = 'block';
+    }
+  };
+
+  function getErrorMessage(err) {
+    switch (err.code) {
+      case 'auth/invalid-email':        return 'Invalid email address format.';
+      case 'auth/user-not-found':       return 'No account found with that email.';
+      case 'auth/wrong-password':       return 'Incorrect password. Please try again.';
+      case 'auth/user-disabled':        return 'This account has been disabled.';
+      case 'auth/too-many-requests':    return 'Too many failed attempts. Please wait and try again.';
+      case 'auth/invalid-credential':   return 'Invalid credentials. Please check your email and password.';
+      default:                          return 'Sign-in failed. Please try again.';
+    }
+  }
+</script>
+</body>
+</html>
