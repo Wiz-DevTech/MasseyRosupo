@@ -1,0 +1,84 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Deploy — MasseyRosupo → GitHub Pages (masseyrosupo.com)
+#
+# GitHub Pages source must be set to "GitHub Actions" in repo Settings → Pages.
+# (Already live — CNAME: masseyrosupo.com)
+#
+# At build time, injects the production CipherNex API config into js/config.js
+# so the deployed site calls wisdomignited.com subdomains, not localhost.
+#
+# REQUIRED REPOSITORY SECRETS (Settings → Secrets → Actions):
+#   CIPHERNEX_API_HOST    — base API host, e.g. http://37.27.214.143
+#                           (used until Cloudflare DNS subdomains are active)
+#   CIPHERNEX_CONFIG_JSON — optional: full JSON object to override per-service
+#                           e.g. {"auth":"https://api.wisdomignited.com","admin":"https://admin.wisdomignited.com"}
+# ─────────────────────────────────────────────────────────────────────────────
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject production API config into js/config.js
+        run: |
+          API_HOST="${{ secrets.CIPHERNEX_API_HOST }}"
+          CONFIG_JSON="${{ secrets.CIPHERNEX_CONFIG_JSON }}"
+
+          if [ -z "$API_HOST" ] && [ -z "$CONFIG_JSON" ]; then
+            echo "⚠️  Neither CIPHERNEX_API_HOST nor CIPHERNEX_CONFIG_JSON secret is set."
+            echo "   Admin portal will fall back to localhost — it will not work on the live site."
+            echo "   Add CIPHERNEX_API_HOST = http://37.27.214.143 in repo Settings → Secrets."
+          fi
+
+          if [ -n "$API_HOST" ]; then
+            echo "✅ Injecting CIPHERNEX_API_HOST: $API_HOST"
+            sed -i "s|window.CIPHERNEX_API_HOST = '.*'|window.CIPHERNEX_API_HOST = '${API_HOST}'|g" js/config.js
+          fi
+
+          if [ -n "$CONFIG_JSON" ]; then
+            echo "✅ Injecting CIPHERNEX_CONFIG: $CONFIG_JSON"
+            sed -i "s|window.CIPHERNEX_CONFIG = null|window.CIPHERNEX_CONFIG = ${CONFIG_JSON}|g" js/config.js
+          fi
+
+          echo "── Final js/config.js API lines ──"
+          grep "CIPHERNEX_API_HOST\|CIPHERNEX_CONFIG\b" js/config.js
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

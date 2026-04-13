@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PR Check — MasseyRosupo Frontend
+# Runs on every PR to main. Fails if hardcoded API ports are in any HTML file.
+# ─────────────────────────────────────────────────────────────────────────────
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          for f in index.html admin-portal.html portal-login.html MainAccessDash.html js/config.js js/script.js css/styles.css; do
+            [ -f "$f" ] && echo "✅ $f" || { echo "❌ MISSING: $f"; exit 1; }
+          done
+
+      - name: No hardcoded localhost API ports in HTML
+        run: |
+          bad=0
+          for port in 3001 3003 3004 3005; do
+            hits=$(grep -rn "localhost:${port}" --include="*.html" . || true)
+            [ -n "$hits" ] && { echo "❌ localhost:${port} found:"; echo "$hits"; bad=1; }
+          done
+          [ $bad -eq 0 ] && echo "✅ No hardcoded localhost API ports" || exit 1
+
+      - name: config.js defines CIPHERNEX_API_HOST
+        run: |
+          grep -q "CIPHERNEX_API_HOST" js/config.js && echo "✅ CIPHERNEX_API_HOST defined" || { echo "❌ CIPHERNEX_API_HOST missing"; exit 1; }
+
+      - name: admin-portal.html loads config.js
+        run: |
+          grep -q "js/config.js" admin-portal.html && echo "✅ config.js loaded" || { echo "❌ config.js not loaded in admin-portal.html"; exit 1; }
+
+      - name: Warn if config.js still on localhost
+        run: |
+          grep -q "http://localhost" js/config.js && echo "⚠️  config.js still points at localhost — fine for dev, update secret before merging to prod" || echo "✅ config.js not on localhost"
+        continue-on-error: true
