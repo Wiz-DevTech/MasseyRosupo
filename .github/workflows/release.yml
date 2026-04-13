@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body: |
+            ## masseyrosupo.com — ${{ github.ref_name }}
+
+            **Live at:** https://masseyrosupo.com
+
+            ### What's in this release
+            - Admin portal (`admin-portal.html`) — Trustee console with configurable CipherNex API endpoints
+            - Client portal login via Firebase Auth (`portal-login.html`)
+            - Client dashboards — entity filing, document status, ledger access
+            - `js/config.js` — single file to switch environments (local dev → production)
+            - GitHub Actions: PR check blocks hardcoded localhost ports; Pages deploy injects production API host
+
+            ### Backend
+            | Service | Host |
+            |---|---|
+            | CipherNex node | Hetzner `37.27.214.143` |
+            | API subdomain | `api.wisdomignited.com` (pending DNS) |
+            | Admin subdomain | `admin.wisdomignited.com` (pending DNS) |
+
+            ### Auth
+            - Client portal: Firebase Email/Password (`masseyrosupo` project)
+            - Trustee admin: HMAC-SHA256 challenge-response → JWT (CipherNex AuthService)
+          draft: false
+          prerelease: false
