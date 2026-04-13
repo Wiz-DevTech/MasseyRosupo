@@ -6,6 +6,8 @@
 <title>Massey &amp; Rosupo — Trustee Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- CipherNex endpoint config — edit js/config.js to switch environments -->
+<script src="js/config.js"></script>
 <style>
 /* ─── TOKENS ──────────────────────────────────────────────── */
 :root {
@@ -996,13 +998,23 @@ tr:hover td { background: rgba(255,255,255,0.015); color: var(--parchment); }
 </div>
 
 <script>
-/* ── CONFIG ──────────────────────────────────────────────── */
-const API = {
-  admin: 'http://localhost:3005',
-  auth:  'http://localhost:3003',
-  docs:  'http://localhost:3004',
-  pub:   'http://localhost:3001',
-};
+/* ── CONFIG ──────────────────────────────────────────────────────────────────
+ * Backend endpoints resolved from js/config.js (loaded in <head> above).
+ * Production: admin.wisdomignited.com / api.wisdomignited.com via Cloudflare
+ * Local dev:  falls back to http://localhost automatically.
+ * ──────────────────────────────────────────────────────────────────────────── */
+(function () {
+  const host = window.CIPHERNEX_API_HOST || 'http://localhost';
+  const defaults = {
+    admin: host + ':3005',
+    auth:  host + ':3003',
+    docs:  host + ':3004',
+    pub:   host + ':3001',
+  };
+  window.CIPHERNEX_API = Object.assign(defaults, window.CIPHERNEX_CONFIG || {});
+})();
+
+const API = window.CIPHERNEX_API;
 
 /* ── STATE ───────────────────────────────────────────────── */
 let token          = null;
