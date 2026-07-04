@@ -19,7 +19,7 @@ Administrative corporate body of the **CipherNex** trust infrastructure.
 
 ---
 
-## Backend (CipherNex Node — Hetzner `37.27.214.143`)
+## Backend (CipherNex Node —`)
 
 | Service | Port | Cloudflare subdomain |
 |---|---|---|
@@ -36,7 +36,7 @@ Administrative corporate body of the **CipherNex** trust infrastructure.
 Edit **`js/config.js`** to switch environments (local dev only — CI injects production values).
 
 The GitHub Actions deploy workflow reads two secrets:
-- `CIPHERNEX_API_HOST` — base host (e.g. `http://37.27.214.143`)
+- `CIPHERNEX_API_HOST` — base host 
 - `CIPHERNEX_CONFIG_JSON` — optional per-service overrides once subdomains are live:
   ```json
   {"auth":"https://api.wisdomignited.com","admin":"https://admin.wisdomignited.com","docs":"https://api.wisdomignited.com","pub":"https://api.wisdomignited.com"}
@@ -56,4 +56,4 @@ The integration hook is in `js/config.js` as `window.CIPHERNEX_MEMBER_API`.
 | Portal | Mechanism |
 |---|---|
 | Client portal | Firebase Email/Password (project: `masseyrosupo`) |
-| Trustee admin | HMAC-SHA256 challenge-response → JWT (CipherNex AuthService :3003) |
+| Trustee admin | HMAC-SHA256 challenge-response → JWT () |
