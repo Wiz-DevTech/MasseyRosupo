@@ -3,66 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Massey &amp; Rosupo — Trustee Portal</title>
+  <title>Massey &amp; Rosupo — Trustee Admin Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root { --ink:#0d0f14; --gold:#a89464; --gold-lt:#c8ae7e; --cream:#faf8f4; }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:linear-gradient(180deg,#1c1f28,#0d0f14); color:var(--cream);
-           font-family:'Cormorant Garamond',serif; min-height:100vh; display:flex;
-           align-items:center; justify-content:center; flex-direction:column; gap:14px; }
-    .mark { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.28em;
-            text-transform:uppercase; color:var(--gold); }
-    .name { font-size:22px; letter-spacing:.06em; color:var(--cream); }
-    .sub { font-style:italic; color:var(--gold-lt); font-size:14px; }
-    .spin { width:26px; height:26px; border:2px solid rgba(168,148,100,.25);
-            border-top-color:var(--gold); border-radius:50%; animation:r 1s linear infinite; }
-    @keyframes r { to { transform:rotate(360deg); } }
+    :root {
+      --ink:        #0d0f14;
+      --ink-soft:   #15171e;
+      --gold:       #a89464;
+      --gold-lt:    #c8ae7e;
+      --parchment:  #f5f0e8;
+      --cream:      #faf8f4;
+      --muted:      #5a5f74;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      /* Subtle, softer background — ink base with a faint gold vignette */
+      background:
+        radial-gradient(820px 460px at 50% -8%, rgba(168,148,100,0.10), transparent 58%),
+        linear-gradient(180deg, #15171e 0%, #0d0f14 100%);
+      color: var(--cream);
+      font-family: 'Cormorant Garamond', serif;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 18px;
+      padding: 28px;
+    }
+    .mark {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      letter-spacing: .30em; text-transform: uppercase; color: var(--gold);
+    }
+    .name {
+      font-size: 26px; letter-spacing: .06em; color: var(--cream);
+      font-weight: 600; text-align: center;
+    }
+    .label {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: .26em; text-transform: uppercase; color: var(--gold-lt);
+      text-align: center; margin-top: -6px;
+    }
+    .rule {
+      height: 1px; width: 64%; margin: 4px auto 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    /* Sign In button — themed gold outline → fill on hover (kept from M&R theme) */
+    .signin {
+      margin-top: 10px;
+      font-family: 'Cormorant Garamond', serif; font-weight: 600;
+      font-size: 16px; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--gold-lt);
+      background: rgba(168,148,100,0.12);
+      border: 1px solid var(--gold);
+      border-radius: 2px;
+      padding: 12px 30px;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .signin:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+    .return {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      letter-spacing: .10em; color: var(--muted); text-decoration: none;
+      margin-top: 4px; transition: color .15s ease;
+    }
+    .return:hover { color: var(--gold); }
+    .ciphernex {
+      position: fixed; bottom: 18px;
+      font-family: 'DM Mono', monospace; font-size: 9px;
+      letter-spacing: .22em; text-transform: uppercase; color: rgba(168,148,100,0.55);
+    }
   </style>
 </head>
 <body>
   <div class="mark">M&amp;R</div>
   <div class="name">MASSEY &amp; ROSUPO CO.</div>
-  <div class="sub">Delaware Holding Company</div>
-  <div class="spin"></div>
-  <div class="sub" id="msg">Redirecting to secure Trustee sign-in…</div>
+  <div class="label">Trustee Admin Portal</div>
+  <div class="rule"></div>
+
+  <button class="signin" id="signin">Sign In</button>
+  <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
+
+  <div class="ciphernex">CipherNex Federation · Secure Trustee Access</div>
 
   <script>
-    // Redirect to the CipherNex Keycloak Trustee Login (Authorization Code + PKCE).
-    (function () {
+    // Authorization Code + PKCE redirect to the CipherNex Keycloak Trustee Login.
+    function goKeycloak() {
       var KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
       var CLIENT   = "massey-admin";
-      var REDIRECT = window.location.origin + "/"; // bounce back to site root after login
-
+      var REDIRECT = window.location.origin + "/";
       function b64url(buf) {
         return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
           .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
       }
       function rand(n) { return b64url(crypto.getRandomValues(new Uint8Array(n))); }
-
-      try {
-        var verifier = rand(32);
-        crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))
-          .then(function (h) {
-            var challenge = b64url(h);
-            var state = rand(16);
-            sessionStorage.setItem("mr_pkce_v", verifier);
-            var url = KC_AUTH + "?" + new URLSearchParams({
-              client_id: CLIENT,
-              response_type: "code",
-              scope: "openid",
-              redirect_uri: REDIRECT,
-              state: state,
-              code_challenge: challenge,
-              code_challenge_method: "S256"
-            }).toString();
-            window.location.href = url;
-          });
-      } catch (e) {
-        document.getElementById("msg").textContent = "Redirect failed — please reload.";
-      }
-    })();
+      var verifier = rand(32);
+      crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)).then(function (h) {
+        var challenge = b64url(h);
+        var state = rand(16);
+        sessionStorage.setItem("mr_pkce_v", verifier);
+        window.location.href = KC_AUTH + "?" + new URLSearchParams({
+          client_id: CLIENT,
+          response_type: "code",
+          scope: "openid",
+          redirect_uri: REDIRECT,
+          state: state,
+          code_challenge: challenge,
+          code_challenge_method: "S256"
+        }).toString();
+      });
+    }
+    document.getElementById("signin").addEventListener("click", goKeycloak);
   </script>
 </body>
 </html>
