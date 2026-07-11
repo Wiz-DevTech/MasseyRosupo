@@ -645,6 +645,8 @@
     <li><a href="#overview">Overview</a></li>
     <li><a href="#structure">Structure</a></li>
     <li><a href="#governance">Governance</a></li>
+    <li><a href="#operations">Operations</a></li>
+    <li><a href="#arbitration">Arbitration</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="portal-login.html" class="nav-cta" style="background:var(--secondary);margin-right:6px">Client Portal</a></li>
     <li><a href="admin-portal.html" class="nav-cta">Trustee Login</a></li>
@@ -876,6 +878,81 @@
         <li class="ucc-item"><span class="ucc-item-icon">▸</span>Binding arbitration clauses for dispute resolution outside litigation</li>
         <li class="ucc-item"><span class="ucc-item-icon">▸</span>Registered agent services maintained in Dover, Delaware at all times</li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<!-- OPERATIONS — CipherNex node operations, ledger & reserve management -->
+<section id="operations">
+  <div class="section-label" style="color:var(--gold)">CipherNex Operations</div>
+  <h2 class="section-title">Operations &amp; Ledger Management</h2>
+  <p class="section-sub">
+    Massey &amp; Rosupo Co. operates the CipherNex Node — administering UCC filings,
+    CIPR reserve tracking, instrument registration, and inter-entity ledger operations
+    across the trust infrastructure. Verified operations are executed through the
+    trustee console and surfaced via the WisdomIgnited member API.
+  </p>
+
+  <div class="gov-grid">
+    <div class="instrument-list">
+      <a class="instrument-item" href="EntDash.html">
+        <div>
+          <div class="instrument-name">Entity Operations</div>
+          <div class="instrument-code">member-entity &middot; status &amp; lifecycle</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </a>
+      <a class="instrument-item" href="SecureMainDash.html">
+        <div>
+          <div class="instrument-name">Ledger &amp; Reserve Operations</div>
+          <div class="instrument-code">CIPR &middot; reserve tracking &middot; filings</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </a>
+      <a class="instrument-item" href="MainAccessDash.html">
+        <div>
+          <div class="instrument-name">Document &amp; Filing Operations</div>
+          <div class="instrument-code">document ID &middot; registration &middot; discharge</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </a>
+      <a class="instrument-item" href="LitDash.html">
+        <div>
+          <div class="instrument-name">Litigation &amp; Compliance Ops</div>
+          <div class="instrument-code"> Article 9 &middot; UCC &sect;3 &amp; &sect;9 matters</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </a>
+    </div>
+    <div class="instrument-list">
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">WisdomIgnited Member Link</div>
+          <div class="instrument-code">status sync &middot; api.wisdomignited.com</div>
+        </div>
+        <span class="instrument-arrow">↗</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">AdminGateway</div>
+          <div class="instrument-code">:3005 &middot; trustee console endpoint</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">DocumentService</div>
+          <div class="instrument-code">:3004 &middot; document registry</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">PublicAPI</div>
+          <div class="instrument-code">:3001 &middot; public inquiry</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
     </div>
   </div>
 </section>
@@ -1163,6 +1240,68 @@
   </div>
 </section>
 
+<!-- ARBITRATION — binding arbitration & dispute resolution -->
+<section id="arbitration">
+  <div class="section-label" style="color:var(--gold)">Dispute Resolution</div>
+  <h2 class="section-title">Arbitration &amp; Binding Resolution</h2>
+  <p class="section-sub">
+    Massey &amp; Rosupo Co. administers binding arbitration as the primary mechanism for
+    dispute resolution across member instruments — outside litigation, per the governing
+    arbitration clauses embedded in each registered instrument. Cases are filed, tracked,
+    and awarded through the trustee console, with full integration to the WisdomIgnited
+    legal &amp; litigation APIs.
+  </p>
+
+  <div class="gov-grid">
+    <div class="instrument-list">
+      <a class="instrument-item" href="LitDash.html">
+        <div>
+          <div class="instrument-name">File Arbitration</div>
+          <div class="instrument-code">claim &middot; respondent &middot; clause reference</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </a>
+      <a class="instrument-item" href="LitDash.html">
+        <div>
+          <div class="instrument-name">Case Tracking</div>
+          <div class="instrument-code">filed &middot; pending &middot; awarded &middot; closed</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </a>
+      <a class="instrument-item" href="LitDash.html">
+        <div>
+          <div class="instrument-name">Award &amp; Enforcement</div>
+          <div class="instrument-code">award issuance &middot; settlement</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </a>
+    </div>
+    <div class="instrument-list">
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Binding Clause Library</div>
+          <div class="instrument-code">per-instrument &middot; Delaware DGCL</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">WisdomIgnited Legal API</div>
+          <div class="instrument-code">api.wisdomignited.com &middot; litigation sync</div>
+        </div>
+        <span class="instrument-arrow">↗</span>
+      </div>
+      <div class="instrument-item">
+        <div>
+          <div class="instrument-name">Registered Agent</div>
+          <div class="instrument-code">8 The Green, Ste #22026, Dover DE</div>
+        </div>
+        <span class="instrument-arrow">→</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
 <section id="contact">
   <div class="section-label">Verified Inquiries</div>
@@ -1200,7 +1339,7 @@
         <div class="contact-icon">💡</div>
         <div>
           <div class="contact-dt">Ledger Infrastructure</div>
-          <div class="contact-dd">CipherNex Node &middot; AdminGateway :3005<br>DocumentService :3004 &middot; PublicAPI :3001</div>
+          <div class="contact-dd">CipherNex Node &middot; M&amp;R Backend :3019<br>Operations &amp; Arbitration APIs &middot; Keycloak SSO</div>
         </div>
       </div>
     </div>
@@ -1252,6 +1391,8 @@
         <li><a href="#overview">Overview</a></li>
         <li><a href="#structure">Corporate Structure</a></li>
         <li><a href="#governance">Governance</a></li>
+        <li><a href="#operations">Operations</a></li>
+        <li><a href="#arbitration">Arbitration</a></li>
         <li><a href="#ledger">Ledger Registration</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
@@ -1290,7 +1431,7 @@
 
 <script>
   /* ── CONFIG ─────────────────────────────────────────────────── */
-  const API_ADMIN = 'http://localhost:3005';
+  const API_ADMIN = window.CIPHERNEX_API_HOST || 'https://masseyrosupo.com/api';
 
   /* ── STATE ──────────────────────────────────────────────────── */
   let currentStep    = 1;

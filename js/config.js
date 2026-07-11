@@ -23,8 +23,11 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// ── API host — edit this one line to switch environments ──────────────────────
-window.CIPHERNEX_API_HOST = 'http://localhost'; // overridden at deploy time by CI
+// ── API host — M&R backend (Express + SQLite, /opt/masseyrosupo.com/backend) ──
+// Deployed on the M&R server; serves /api/auth/oidc-callback, /api/operations,
+// /api/arbitration, /api/forms, /api/filings, /api/contact.
+window.CIPHERNEX_API_HOST = 'https://masseyrosupo.com/api'; // overridden at deploy time by CI/server config
+
 
 // ── Individual endpoint overrides (optional) ─────────────────────────────────
 // Leave as null to derive all endpoints from CIPHERNEX_API_HOST above.
