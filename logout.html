@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Massey &amp; Rosupo — Signing Out</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:        #0d0f14;
+      --gold:       #a89464;
+      --gold-lt:    #c8ae7e;
+      --cream:      #faf8f4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(820px 460px at 50% -8%, rgba(168,148,100,0.10), transparent 58%),
+        linear-gradient(180deg, #15171e 0%, #0d0f14 100%);
+      color: var(--cream);
+      font-family: 'Cormorant Garamond', serif;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; padding: 28px;
+    }
+    .mark { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.30em; text-transform:uppercase; color:var(--gold); }
+    .name { font-size:24px; letter-spacing:.06em; color:var(--cream); font-weight:600; text-align:center; }
+    .msg { font-style:italic; color:var(--gold-lt); font-size:15px; text-align:center; }
+    .spin { width:24px; height:24px; border:2px solid rgba(168,148,100,.25); border-top-color:var(--gold); border-radius:50%; animation:r 1s linear infinite; }
+    @keyframes r { to { transform:rotate(360deg); } }
+    .return { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.10em; color:var(--gold-lt); text-decoration:none; }
+    .return:hover { color:var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="mark">M&amp;R</div>
+  <div class="name">MASSEY &amp; ROSUPO CO.</div>
+  <div class="spin"></div>
+  <div class="msg" id="msg">Signing you out of the Trustee portal…</div>
+  <a class="return" href="https://masseyrosupo.com/">← Return to main page</a>
+
+  <script>
+    // Clear any local trustee session state, then best-effort Keycloak global logout.
+    try { sessionStorage.clear(); } catch (e) {}
+    var KC_LOGOUT = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/logout"
+      + "?post_logout_redirect_uri=" + encodeURIComponent("https://masseyrosupo.com/");
+    // Best-effort: attempt KC global logout; if it fails (Keycloak 24 quirk), just go home.
+    var done = false;
+    function goHome() { if (done) return; done = true; window.location.href = "https://masseyrosupo.com/"; }
+    fetch(KC_LOGOUT, { method: "GET", mode: "no-cors", credentials: "include" })
+      .catch(function () { /* ignore network/400 */ })
+      .finally(function () { setTimeout(goHome, 1200); });
+    // Hard fallback in case fetch hangs.
+    setTimeout(goHome, 3000);
+  </script>
+</body>
+</html>
