@@ -101,6 +101,11 @@
     transition: background 0.2s, color 0.2s !important;
   }
   .nav-cta:hover { background: var(--gold-lt) !important; color: var(--ink) !important; }
+  .nav-toggle { display: none; flex-direction: column; justify-content: center; gap: 4px; width: 40px; height: 40px; background: transparent; border: 1px solid var(--border); border-radius: var(--r); cursor: pointer; padding: 9px; }
+  .nav-toggle span { display: block; height: 2px; width: 100%; background: var(--gold); border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
   /* ─── HERO ──────────────────────────────────────────────────────── */
   .hero {
@@ -607,7 +612,19 @@
   }
   @media (max-width: 640px) {
     nav { padding: 0 20px; }
-    .nav-links { display: none; }
+    .nav-toggle { display: flex; }
+    .nav-links {
+      display: none;
+      position: absolute; top: 72px; left: 0; right: 0;
+      flex-direction: column; align-items: flex-start; gap: 0;
+      background: rgba(250,248,244,0.98); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border); padding: 8px 20px 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+    .nav-links.open { display: flex; }
+    .nav-links li { width: 100%; padding: 10px 0; border-bottom: 1px solid var(--border-s); }
+    .nav-links li:last-child { border-bottom: none; }
+    .nav-links .nav-cta { margin: 0 !important; display: inline-block; }
     .hero { padding: 50px 24px; }
     #overview, #structure, #governance, #ledger, #contact, footer { padding-left: 24px; padding-right: 24px; }
     .structure-layout { grid-template-columns: 1fr; }
@@ -641,7 +658,7 @@
     <span class="nav-brand-name">Massey &amp; Rosupo Co.</span>
     <span class="nav-brand-sub">Delaware Holding Company</span>
   </div>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="#overview">Overview</a></li>
     <li><a href="#structure">Structure</a></li>
     <li><a href="#governance">Governance</a></li>
@@ -653,6 +670,9 @@
     <li><a href="admin-portal.html" class="nav-cta">Trustee Login</a></li>
     <li><a href="logout.html" class="nav-cta" style="background:var(--ink-mid);border:1px solid var(--border);margin-left:6px">Sign Out</a></li>
   </ul>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Menu" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -1436,13 +1456,40 @@
 </footer>
 
 <script>
-  /* ── Arbitration router ───────────────────────────────────────
-     Arbitration is TRUSTEE-ONLY. Always route to the trustee-gated
-     case manager (arbitration.html, massey-admin). Non-trustees are
-     shown the "Trustee Access Required" gate by that page itself. */
+  /* ── Arbitration role router ────────────────────────────────────
+     Trustees -> full case manager (arbitration.html, massey-admin).
+     Clients/beneficiaries -> read-only "my cases" dashboard
+     (client-arbitration.html, massey-client). No token -> client dash
+     (it will prompt sign-in). */
   function goArbitration() {
-    location.href = 'arbitration.html';
+    const t = localStorage.getItem('mrToken');
+    let isTrustee = false;
+    if (t) {
+      try {
+        const p = JSON.parse(atob(t.split('.')[1]));
+        const roles = (p.realm_access && p.realm_access.roles) || [];
+        isTrustee = roles.includes('trustee');
+      } catch (e) {}
+    }
+    location.href = isTrustee ? 'arbitration.html' : 'client-arbitration.html';
   }
+
+  /* ── Mobile nav toggle ────────────────────────────────────────── */
+  function toggleNav() {
+    const t = document.getElementById('nav-toggle');
+    const l = document.getElementById('nav-links');
+    if (t) t.classList.toggle('open');
+    if (l) l.classList.toggle('open');
+  }
+  /* Close the mobile menu after tapping any nav link. */
+  document.querySelectorAll('#nav-links a').forEach(a => {
+    a.addEventListener('click', () => {
+      const t = document.getElementById('nav-toggle');
+      const l = document.getElementById('nav-links');
+      if (t) t.classList.remove('open');
+      if (l) l.classList.remove('open');
+    });
+  });
 
   /* ── CONFIG ─────────────────────────────────────────────────── */
   const API_ADMIN = window.CIPHERNEX_API_HOST || 'https://masseyrosupo.com/api';
