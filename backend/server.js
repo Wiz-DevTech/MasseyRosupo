@@ -241,13 +241,20 @@ app.post("/api/operations", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) =>
 });
 
 // ── Arbitration API ──────────────────────────────────────────────────────────
-// Binding arbitration is a TRUSTEE-ONLY M&R governance instrument. All access
-// requires the `trustee` realm role (massey-admin). Cases are filed and viewed
-// only by trustees; account association (owner_sub) is still stamped for audit.
-app.get("/api/arbitration", requireRole(KC_REQUIRED_ROLE_TRUSTEE), async (req, res) => {
+// Trustee-only governance instrument. Filing + status updates require the
+// `trustee` realm role. Viewing (GET) is open to any authenticated account and
+// is scope-limited: a trustee sees every case; a beneficiary (client) sees only
+// the cases associated with their own account (owner_sub). This powers the
+// read-only beneficiary "my cases" dashboard while keeping filing trustee-gated.
+app.get("/api/arbitration", auth, async (req, res) => {
   try {
-    const rows = db.prepare("SELECT * FROM arbitrations ORDER BY created_at DESC").all();
-    return res.json({ cases: rows, scope: "trustee:all", upstream: [] });
+    const roles = (req.user?.realm_access && req.user.realm_access.roles) || [];
+    const isTrustee = roles.includes(KC_REQUIRED_ROLE_TRUSTEE);
+    const rows = isTrustee
+      ? db.prepare("SELECT * FROM arbitrations ORDER BY created_at DESC").all()
+      : db.prepare("SELECT * FROM arbitrations WHERE owner_sub = ? ORDER BY created_at DESC")
+          .all(req.user?.sub || "");
+    return res.json({ cases: rows, scope: isTrustee ? "trustee:all" : "client:own", upstream: [] });
   } catch (e) {
     return res.status(500).json({ error: "list failed", detail: e.message });
   }

@@ -1435,22 +1435,12 @@
 </footer>
 
 <script>
-  /* ── Arbitration role router ────────────────────────────────────
-     Trustees -> full case manager (arbitration.html, massey-admin).
-     Clients/beneficiaries -> read-only "my cases" dashboard
-     (client-arbitration.html, massey-client). No token -> client dash
-     (it will prompt sign-in). */
+  /* ── Arbitration router ───────────────────────────────────────
+     Arbitration is TRUSTEE-ONLY. Always route to the trustee-gated
+     case manager (arbitration.html, massey-admin). Non-trustees are
+     shown the "Trustee Access Required" gate by that page itself. */
   function goArbitration() {
-    const t = localStorage.getItem('mrToken');
-    let isTrustee = false;
-    if (t) {
-      try {
-        const p = JSON.parse(atob(t.split('.')[1]));
-        const roles = (p.realm_access && p.realm_access.roles) || [];
-        isTrustee = roles.includes('trustee');
-      } catch (e) {}
-    }
-    location.href = isTrustee ? 'arbitration.html' : 'client-arbitration.html';
+    location.href = 'arbitration.html';
   }
 
   /* ── CONFIG ─────────────────────────────────────────────────── */
