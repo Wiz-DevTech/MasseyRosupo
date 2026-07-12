@@ -28,6 +28,10 @@ META = f'  <meta name="x-page-version" content="{HASH}">'
 SCRIPT = f'  <script src="partials/cache-bust.js?v={HASH}"></script>'
 BLOCK = "<!-- CACHE-BUST start -->\n" + META + "\n" + SCRIPT + "\n  <!-- CACHE-BUST end -->"
 
+# Also version every partials/*.js include so browsers fetch the fresh script
+# (otherwise a cached old keycloak-gate.js/site-nav.js keeps stale behaviour).
+PARTIAL_RE = re.compile(r'(<script src="partials/[^"]+\.js)(?:\?v=[0-9a-f]+)?("></script>)')
+
 # Remove any existing CACHE-BUST block (idempotent)
 re_block = re.compile(r"  <!-- CACHE-BUST start -->.*?<!-- CACHE-BUST end -->\n", re.S)
 
@@ -38,8 +42,11 @@ for fn in sorted(os.listdir(ROOT)):
     p = os.path.join(ROOT, fn)
     s = open(p, encoding="utf-8").read()
     s2 = re_block.sub("", s)
+    # Version all partials/*.js includes (strip old ?v, add new) so stale cached
+    # gate/nav scripts can never keep old behaviour.
+    s2 = PARTIAL_RE.sub(rf'\1?v={HASH}\2', s2)
     if s2 != s:
-        pass  # stripped old
+        pass  # stripped old / versioned partials
     # Inject right after <head> (or after <meta charset> if no <head> tag, fallback to top)
     if "<head>" in s2:
         s2 = s2.replace("<head>", "<head>\n" + BLOCK, 1)
