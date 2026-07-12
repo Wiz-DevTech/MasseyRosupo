@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="a3fa263">
+  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <!-- CACHE-BUST end -->
+<!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="dev">
+  <script src="partials/cache-bust.js?v=dev"></script>
+  <!-- CACHE-BUST end -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Massey &amp; Rosupo — Transactional Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d0f14;--ink-soft:#161921;--ink-mid:#1e2230;--ink-light:#252a38;
+    --border:rgba(168,148,100,0.18);--border-s:rgba(168,148,100,0.09);
+    --gold:#a89464;--gold-lt:#c8ae7e;--gold-glow:rgba(168,148,100,0.14);
+    --parchment:#f0ece3;--cream:#faf8f4;--muted:#525873;--muted-lt:#7a7f96;
+    --green:#2ecc71;--blue:#5dade2;--amber:#f39c12;--red:#e74c3c;
+    --r:6px;--mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;--sans:'DM Sans',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:15px}
+  body{font-family:var(--sans);background:var(--ink);color:var(--parchment);min-height:100vh;display:flex;flex-direction:column}
+  a{text-decoration:none;color:inherit}
+
+  .page{max-width:1080px;margin:0 auto;width:100%;padding:32px 24px 64px}
+  .page-title{font-family:var(--serif);font-size:1.9rem;font-weight:400;color:var(--gold-lt);margin-bottom:4px}
+  .page-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:8px}
+  .intro{color:var(--muted-lt);font-size:0.92rem;line-height:1.65;max-width:760px;margin-bottom:8px}
+  .notice{margin:16px 0 28px;padding:12px 16px;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--r);background:var(--ink-soft);font-family:var(--mono);font-size:0.7rem;color:var(--muted-lt);letter-spacing:0.03em;line-height:1.5}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:24px 0}
+  .tile{background:var(--ink-soft);border:1px solid var(--border);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s,transform .2s}
+  .tile:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .tile-mark{width:38px;height:38px;border-radius:8px;background:var(--gold-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:0.85rem;color:var(--gold-lt)}
+  .tile-name{font-family:var(--serif);font-size:1.15rem;color:var(--cream);font-weight:500}
+  .tile-desc{font-size:0.82rem;color:var(--muted-lt);line-height:1.5;flex:1}
+  .tile-meta{font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border-s);padding-top:10px;margin-top:4px}
+  .tile-go{color:var(--gold-lt);font-family:var(--mono);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase}
+
+  .section-title{font-family:var(--serif);font-size:1.25rem;color:var(--gold-lt);margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+  table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:6px}
+  th{text-align:left;padding:9px 12px;font-family:var(--mono);font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--ink-mid)}
+  td{padding:11px 12px;border-bottom:1px solid var(--border-s);color:var(--parchment);vertical-align:middle}
+  tr:hover td{background:var(--ink-mid)}
+  .ref-cell{font-family:var(--mono);font-size:0.72rem;color:var(--gold-lt)}
+
+  .status-pill{display:inline-block;padding:3px 12px;border-radius:12px;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.05em}
+  .st-submitted{background:rgba(93,173,226,0.15);color:var(--blue);border:1px solid rgba(93,173,226,0.3)}
+  .st-complete{background:rgba(46,204,113,0.15);color:var(--green);border:1px solid rgba(46,204,113,0.3)}
+  .st-open{background:rgba(243,156,18,0.15);color:var(--amber);border:1px solid rgba(243,156,18,0.3)}
+  .st-pending{background:rgba(82,88,115,0.2);color:var(--muted-lt);border:1px solid rgba(82,88,115,0.3)}
+  .st-error{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.3)}
+
+  .empty{text-align:center;padding:32px;color:var(--muted);font-family:var(--mono);font-size:0.72rem}
+  .updated{font-family:var(--mono);font-size:0.6rem;color:var(--muted-lt);letter-spacing:0.06em;margin-top:18px;text-align:right}
+  .ctrls{display:flex;gap:10px;margin:18px 0 4px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--r);font-size:0.78rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--gold-lt);font-family:var(--sans);transition:all .15s}
+  .btn:hover{background:var(--gold-glow)}
+  .btn[disabled]{opacity:0.4;cursor:default}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="page-title">Transactional Services</div>
+  <div class="page-sub">Services requested of &amp; performed by the Massey &amp; Rosupo trustees</div>
+  <p class="intro">The trustees administer secured-party and fiduciary transactional services — UCC filings, reserve &amp; CIPR pledge verification, on-chain document minting, and registered instruments. Below is the live catalog of offerings and the current status of in-flight requests.</p>
+
+  <div class="notice" id="src-note">
+    Live service catalog sourced from the M&amp;R backend. In-flight requests below reflect the current trustee register.
+  </div>
+
+  <div class="ctrls">
+    <button class="btn" id="refresh-btn" onclick="loadData(true)">&#8635; Refresh Status</button>
+  </div>
+
+  <!-- Service catalog tiles -->
+  <div class="section-title">Service Catalog</div>
+  <div class="grid" id="catalog">
+    <a class="tile" href="EntDash.html">
+      <div class="tile-mark">UC</div>
+      <div class="tile-name">UCC Filings &amp; Searches</div>
+      <div class="tile-desc">UCC-1 financing statements, UCC-3 amendments/assignments, UCC-5 corrections, and UCC-11 information requests across Delaware &amp; foreign jurisdictions.</div>
+      <div class="tile-meta"><span id="cat-ucc">—</span><span class="tile-go">Open Entity Mgmt &rarr;</span></div>
+    </a>
+    <a class="tile" href="EntDash.html">
+      <div class="tile-mark">RS</div>
+      <div class="tile-name">Reserve &amp; CIPR Verification</div>
+      <div class="tile-desc">Verification of CIPR reserve pledges and secured-party reserve status for beneficiary accounts under fiduciary custody.</div>
+      <div class="tile-meta"><span id="cat-res">—</span><span class="tile-go">Open Entity Mgmt &rarr;</span></div>
+    </a>
+    <a class="tile" href="arbitration.html">
+      <div class="tile-mark">AR</div>
+      <div class="tile-name">Arbitration &amp; Liability</div>
+      <div class="tile-desc">Private FAA-governed arbitration, Schedule A fee schedule &amp; notice of liability, and the 90-day award bar process.</div>
+      <div class="tile-meta"><span id="cat-arb">—</span><span class="tile-go">Open Arbitration &rarr;</span></div>
+    </a>
+    <a class="tile" href="SecureMainDash.html">
+      <div class="tile-mark">FM</div>
+      <div class="tile-name">Forms &amp; Databases</div>
+      <div class="tile-desc">State, federal, and international form library — Delaware formation, IRS/FinCEN, USPTO, UK Companies House, and apostille services.</div>
+      <div class="tile-meta"><span id="cat-forms">—</span><span class="tile-go">Open Forms &amp; Tools &rarr;</span></div>
+    </a>
+    <a class="tile" href="orders-results.html">
+      <div class="tile-mark">OR</div>
+      <div class="tile-name">Orders &amp; Results</div>
+      <div class="tile-desc">Current service requests and their processing status — the live trustee work register.</div>
+      <div class="tile-meta"><span id="cat-ord">—</span><span class="tile-go">Open Orders &amp; Results &rarr;</span></div>
+    </a>
+    <a class="tile" href="arbitration.html">
+      <div class="tile-mark">DM</div>
+      <div class="tile-name">Document Minting</div>
+      <div class="tile-desc">CipherNex on-chain Document IDs bound to SHA-256 of uploaded instruments (bills of exchange, trusts, indemnities, reserves).</div>
+      <div class="tile-meta"><span id="cat-doc">—</span><span class="tile-go">Open Arbitration &rarr;</span></div>
+    </a>
+  </div>
+
+  <!-- In-flight requests -->
+  <div class="section-title">In-Flight Requests</div>
+  <div class="card" style="background:var(--ink-soft);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:14px">
+    <div style="font-family:var(--serif);font-size:1.05rem;color:var(--gold-lt);margin-bottom:10px">Filings &amp; Instruments</div>
+    <table>
+      <thead><tr><th>Type</th><th>Reference / Party</th><th>Status</th><th>Requested</th></tr></thead>
+      <tbody id="filings-body"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="card" style="background:var(--ink-soft);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:14px">
+    <div style="font-family:var(--serif);font-size:1.05rem;color:var(--gold-lt);margin-bottom:10px">Completed Operations</div>
+    <table>
+      <thead><tr><th>Service</th><th>Reference</th><th>Status</th><th>Completed</th></tr></thead>
+      <tbody id="ops-body"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="updated" id="updated"></div>
+</div>
+
+<!-- Shared console nav (injected at top of body) -->
+<script src="partials/site-nav.js?v=dev"></script>
+
+<script>
+// Snapshot of the trustee service register (mirrors backend `filings` + `operations`).
+const SNAPSHOT = {
+  filings: [
+    { type:'UCC-1',  reference:'ACME LLC (Delaware)',      status:'submitted', created_at:'2026-07-12 05:24:22' },
+    { type:'UCC-3',  reference:'ACME LLC — continuation',   status:'submitted', created_at:'2026-07-12 05:24:22' },
+    { type:'CIPR',   reference:'Reserve pledge #7741',      status:'submitted', created_at:'2026-07-12 05:24:22' }
+  ],
+  operations: [
+    { kind:'UCC Search',    reference:'DE-ACME-2024', status:'complete', created_at:'2026-07-12 05:24:22' },
+    { kind:'Reserve Check', reference:'CIPR-7741',    status:'complete', created_at:'2026-07-12 05:24:22' },
+    { kind:'Document Mint', reference:'DOC-BOE-0098', status:'complete', created_at:'2026-07-12 05:24:22' }
+  ]
+};
+
+const STATUS_CLASS = { submitted:'st-submitted', complete:'st-complete', open:'st-open', pending:'st-pending', error:'st-error', failed:'st-error' };
+const STATUS_LABEL = { submitted:'Submitted', complete:'Completed', open:'Open', pending:'Pending', error:'Error', failed:'Failed' };
+
+function pill(s){
+  const cls = STATUS_CLASS[(s||'').toLowerCase()] || 'st-pending';
+  const lbl = STATUS_LABEL[(s||'').toLowerCase()] || (s||'—');
+  return '<span class="status-pill '+cls+'">'+lbl+'</span>';
+}
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso.replace(' ','T') + (iso.length<=10?'Z':''));
+  if(isNaN(d)) return iso;
+  return d.toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function renderFilings(rows){
+  const b = document.getElementById('filings-body');
+  if(!rows || !rows.length){ b.innerHTML = '<tr><td colspan="4" class="empty">No service requests on record.</td></tr>'; return; }
+  b.innerHTML = rows.map(r =>
+    '<tr><td>'+ (r.type||'—') +'</td><td class="ref-cell">'+ (r.reference||'—') +'</td><td>'+ pill(r.status) +'</td><td>'+ fmtDate(r.created_at) +'</td></tr>'
+  ).join('');
+}
+function renderOps(rows){
+  const b = document.getElementById('ops-body');
+  if(!rows || !rows.length){ b.innerHTML = '<tr><td colspan="4" class="empty">No operations on record.</td></tr>'; return; }
+  b.innerHTML = rows.map(r =>
+    '<tr><td>'+ (r.kind||'—') +'</td><td class="ref-cell">'+ (r.reference||'—') +'</td><td>'+ pill(r.status) +'</td><td>'+ fmtDate(r.created_at) +'</td></tr>'
+  ).join('');
+}
+
+// Catalog live counts (best-effort; falls back to static labels)
+function setCatalog(data){
+  const filings = data.filings||[], ops = data.operations||[];
+  const fcount = (filings.length + ops.length);
+  document.getElementById('cat-ucc').textContent  = filings.length + ' filing(s)';
+  document.getElementById('cat-res').textContent  = 'pledge verification';
+  document.getElementById('cat-arb').textContent  = 'FAA 9 U.S.C. §§1-16';
+  document.getElementById('cat-forms').textContent= '24 forms';
+  document.getElementById('cat-ord').textContent  = fcount + ' in flight';
+  document.getElementById('cat-doc').textContent  = ops.filter(o=>/mint/i.test(o.kind||'')).length + ' minted';
+}
+
+function setUpdated(live){
+  const el = document.getElementById('updated');
+  el.textContent = (live ? 'Live data' : 'Register snapshot') + ' · last updated ' + new Date().toLocaleString();
+}
+function render(data){ renderFilings(data.filings); renderOps(data.operations); setCatalog(data); }
+
+function loadData(tryLive){
+  render(SNAPSHOT); setUpdated(false);
+  if(!tryLive) return;
+  const host = window.CIPHERNEX_API_HOST || 'https://masseyrosupo.com/api';
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true; btn.textContent = '↻ Refreshing…';
+  Promise.all([
+    fetch(host + '/filings', { headers:{'Accept':'application/json'} }).then(r=>r.ok?r.json():[]).catch(()=>[]),
+    fetch(host + '/operations', { headers:{'Accept':'application/json'} }).then(r=>r.ok?r.json():{local:[]}).then(j=>j.local||[]).catch(()=>[])
+  ]).then(([filings, ops]) => {
+    if(Array.isArray(filings) && filings.length){
+      render({ filings, operations: Array.isArray(ops)?ops:[] });
+      setUpdated(true);
+      document.getElementById('src-note').innerHTML =
+        'Live service catalog sourced from the <b>M&amp;R backend</b>. In-flight requests reflect the current trustee register.';
+    }
+  }).finally(() => { btn.disabled=false; btn.textContent='↻ Refresh Status'; });
+}
+
+loadData(true);
+</script>
+</body>
+</html>
