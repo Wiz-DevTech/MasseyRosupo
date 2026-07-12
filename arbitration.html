@@ -2,36 +2,40 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="d545e46">
+  <script src="partials/cache-bust.js?v=d545e46"></script>
+  <!-- CACHE-BUST end -->
+<!-- CACHE-BUST start -->
   <meta name="x-page-version" content="a3fa263">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="bec37a1">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="c0b1e7e">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="5c85a34">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="5178444">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="51e3112">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="9b000df">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="685c08a">
-  <script src="partials/cache-bust.js?v=a3fa263"></script>
+  <script src="partials/cache-bust.js?v=d545e46"></script>
   <!-- CACHE-BUST end -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -565,7 +569,11 @@ tr:hover td{background:var(--ink-mid)}
 </div>
 
 <script>
-const FEES=[
+// Schedule A fee schedule — LOCAL fallback (used if the backend API is
+// unreachable). The live source of truth is the `schedule_fees` table,
+// served by GET /api/schedule-fees. loadScheduleFees() below replaces
+// FEES with the live rows when available.
+const FEES_LOCAL=[
 {code:'FS-01',cat:'trespass',name:'Unsolicited interference / trespass in private matters',amount:100000,per:'per occurrence'},
 {code:'FS-02',cat:'fraud',name:'Offense committed against entities (Massey)',amount:300000,per:'per violation'},
 {code:'FS-03',cat:'rights',name:'RICO Act violation / color of law misuse',amount:1000000,per:'per occurrence'},
@@ -617,6 +625,24 @@ const FEES=[
 {code:'FS-49',cat:'fraud',name:'Failure to fully disclose contract under fraud',amount:50000,per:'per occurrence'},
 {code:'FS-50',cat:'property',name:'Impounding / towing / forced removal',amount:7000,per:'per day'}
 ];
+
+// Live Schedule A — populated from GET /api/schedule-fees (falls back to FEES_LOCAL).
+let FEES = FEES_LOCAL.slice();
+function apiHost(){ return window.CIPHERNEX_API_HOST || 'https://masseyrosupo.com/api'; }
+function loadScheduleFees(){
+  fetch(apiHost() + '/schedule-fees', { headers:{'Accept':'application/json'} })
+    .then(r => r.ok ? r.json() : [])
+    .then(rows => {
+      if (Array.isArray(rows) && rows.length) {
+        FEES = rows.map(f => ({
+          code:f.code, cat:f.category, name:f.name,
+          amount:parseInt(f.amount)||0, per:f.per||'per occurrence'
+        }));
+        if (typeof renderNewCaseViolations === 'function') renderNewCaseViolations();
+        if (document.getElementById('view-schedule') && !document.getElementById('view-schedule').classList.contains('hidden')) renderScheduleList();
+      }
+    }).catch(()=>{ /* keep FEES_LOCAL */ });
+}
 
 const API = location.origin + '/api';
 const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
@@ -863,8 +889,10 @@ renderCountdowns() {
   }).join('');
 }
 
-// ── Bootstrap: gate to trustees only ─────────────────────────────────────────
+// ── Bootstrap: gate to trustees only ─────────────────────────────────────
 document.getElementById('arb-signin').addEventListener('click', goKeycloak);
+// Load the live Schedule A fee schedule (falls back to FEES_LOCAL if API unreachable).
+loadScheduleFees();
 
 function isTrustee(){
   const roles = (account && account.realm_access && account.realm_access.roles) || [];

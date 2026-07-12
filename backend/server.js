@@ -69,6 +69,15 @@ db.exec(`
     payload TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS schedule_fees (
+    id TEXT PRIMARY KEY,
+    code TEXT UNIQUE,        -- 'FS-01' .. 'FS-50'
+    category TEXT,           -- 'trespass' | 'fraud' | 'rights' | 'court' | 'harassment' | 'process' | 'property'
+    name TEXT,
+    amount INTEGER,          -- fee in (the schedule's) dollar units
+    per TEXT,                -- 'per occurrence' | 'per violation' | ...
+    created_at TEXT DEFAULT (datetime('now'))
+  );
   CREATE TABLE IF NOT EXISTS operations (
     id TEXT PRIMARY KEY,
     kind TEXT,              -- 'ledger' | 'reserve' | 'instrument' | ...
@@ -323,6 +332,26 @@ app.get("/api/forms", (req, res) => {
     ? db.prepare("SELECT * FROM forms WHERE category = ?").all(category)
     : db.prepare("SELECT * FROM forms ORDER BY category").all();
   res.json(rows);
+});
+
+// ── Schedule A fee schedule (FAA 50-category liability schedule) ───────────────
+// Read is open (any visitor / signed-in user can view the schedule). Writes
+// (add/edit/remove a fee line) are trustee-only, matching the M&R access model.
+app.get("/api/schedule-fees", (req, res) => {
+  const rows = db.prepare("SELECT * FROM schedule_fees ORDER BY code").all();
+  res.json(rows);
+});
+app.post("/api/schedule-fees", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) => {
+  const { code, category, name, amount, per } = req.body || {};
+  if (!code || !name) return res.status(400).json({ error: "code and name are required" });
+  const id = uuidv4();
+  db.prepare("INSERT OR REPLACE INTO schedule_fees (id, code, category, name, amount, per) VALUES (?,?,?,?,?,?)")
+    .run(id, code, category || "misc", name, parseInt(amount) || 0, per || "per occurrence");
+  res.json({ id, ok: true });
+});
+app.delete("/api/schedule-fees/:code", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) => {
+  db.prepare("DELETE FROM schedule_fees WHERE code = ?").run(req.params.code);
+  res.json({ ok: true });
 });
 
 // ── Filings ───────────────────────────────────────────────────────────────────

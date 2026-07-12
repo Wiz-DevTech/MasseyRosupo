@@ -24,9 +24,9 @@
  */
 
 // ── API host — M&R backend (Express + SQLite, /opt/masseyrosupo.com/backend) ──
-// Deployed on the M&R server; serves /api/auth/oidc-callback, /api/operations,
-// /api/arbitration, /api/forms, /api/filings, /api/contact.
-window.CIPHERNEX_API_HOST = 'https://masseyrosupo.com/api'; // overridden at deploy time by CI/server config
+// Served publicly via the api.masseyrosupo.com nginx vhost (→ backend :3012).
+// Until that DNS/CNAME is live, pages fall back to a seeded snapshot.
+window.CIPHERNEX_API_HOST = 'https://api.masseyrosupo.com/api'; // overridden at deploy time by CI/server config
 
 
 // ── Individual endpoint overrides (optional) ─────────────────────────────────
