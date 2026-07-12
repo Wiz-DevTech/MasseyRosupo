@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="51e3112">
+  <script src="partials/cache-bust.js?v=51e3112"></script>
+  <!-- CACHE-BUST end -->
+<!-- CACHE-BUST start -->
   <meta name="x-page-version" content="9b000df">
-  <script src="partials/cache-bust.js?v=9b000df"></script>
+  <script src="partials/cache-bust.js?v=51e3112"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="685c08a">
-  <script src="partials/cache-bust.js?v=9b000df"></script>
+  <script src="partials/cache-bust.js?v=51e3112"></script>
   <!-- CACHE-BUST end -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,7 +99,7 @@
           localStorage.setItem("mrToken", j.access_token);
           if (j.refresh_token) localStorage.setItem("mrRefresh", j.refresh_token);
           sessionStorage.removeItem("mr_portal_pkce_v");
-          window.location.replace(REDIRECT.split("/portal-login.html")[0] + "/client-arbitration.html");
+          window.location.replace(REDIRECT.split("/portal-login.html")[0] + "/MainAccessDash.html");
         } else {
           console.error("token exchange failed", j);
           alert("Sign-in failed: " + (j.error_description || j.error));
