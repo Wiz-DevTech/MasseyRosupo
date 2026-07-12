@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Massey &amp; Rosupo — My Account</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0d0f14;--ink-soft:#161921;--ink-mid:#1e2230;
+      --border:rgba(168,148,100,0.18);--border-s:rgba(168,148,100,0.09);
+      --gold:#a89464;--gold-lt:#c8ae7e;--gold-glow:rgba(168,148,100,0.14);
+      --parchment:#f0ece3;--cream:#faf8f4;--muted:#525873;--muted-lt:#7a7f96;
+      --green:#2ecc71;--blue:#5dade2;--r:6px;
+      --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;--sans:'DM Sans',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:15px}
+    body{font-family:var(--sans);background:var(--ink);color:var(--parchment);min-height:100vh;display:flex;flex-direction:column}
+    a{text-decoration:none;color:inherit}
+
+    .header{height:58px;background:var(--ink-soft);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+    .header-brand{display:flex;align-items:center;gap:12px}
+    .header-logo{font-family:var(--serif);font-size:1.3rem;font-weight:500;color:var(--gold-lt);letter-spacing:0.03em}
+    .header-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt);letter-spacing:0.1em;text-transform:uppercase}
+    .header-right{display:flex;align-items:center;gap:16px}
+    .header-user{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:0.65rem;color:var(--gold-lt)}
+    .header-user .avatar{width:26px;height:26px;border-radius:50%;background:var(--gold-glow);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:0.7rem}
+    .btn-logout{background:transparent;border:1px solid var(--border);color:var(--gold-lt);font-family:var(--mono);font-size:0.6rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:var(--r);cursor:pointer}
+    .btn-logout:hover{background:var(--gold-glow)}
+    .btn-gold{background:var(--gold);color:var(--ink);font-family:var(--serif);font-weight:600;font-size:0.85rem;letter-spacing:.04em;padding:9px 20px;border-radius:var(--r);border:1px solid var(--gold);cursor:pointer}
+    .btn-gold:hover{background:var(--gold-lt)}
+    .btn-outline{background:transparent;color:var(--gold-lt);font-family:var(--mono);font-size:0.65rem;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border);cursor:pointer}
+    .btn-outline:hover{background:var(--gold-glow)}
+
+    .main{max-width:820px;margin:0 auto;width:100%;padding:32px 24px}
+    .page-title{font-family:var(--serif);font-size:1.8rem;font-weight:400;color:var(--gold-lt);margin-bottom:4px}
+    .page-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:28px}
+    .card{background:var(--ink-soft);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:16px}
+    .card-title{font-family:var(--serif);font-size:1.1rem;color:var(--gold-lt);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-s)}
+    .row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-s);gap:16px}
+    .row:last-child{border-bottom:none}
+    .row-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+    .row-value{font-size:0.85rem;color:var(--parchment);text-align:right;word-break:break-word}
+    .role-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.05em;margin-left:6px}
+    .role-trustee{background:rgba(168,148,100,0.15);color:var(--gold-lt);border:1px solid var(--border)}
+    .role-client{background:rgba(93,173,226,0.15);color:var(--blue);border:1px solid rgba(93,173,226,0.3)}
+    .actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+
+    .login-gate{position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,#15171e 0%,#0d0f14 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center}
+    .login-gate .mark{font-family:var(--mono);font-size:11px;letter-spacing:.30em;text-transform:uppercase;color:var(--gold)}
+    .login-gate .name{font-family:var(--serif);font-size:26px;letter-spacing:.06em;color:var(--cream);font-weight:600}
+    .login-gate .label{font-family:var(--mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-lt)}
+    .login-gate .rule{height:1px;width:64%;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+    .login-gate .signin{margin-top:10px;font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-lt);background:rgba(168,148,100,0.12);border:1px solid var(--gold);border-radius:2px;padding:12px 30px;cursor:pointer}
+    .login-gate .signin:hover{background:var(--gold);color:var(--ink)}
+    .login-gate .return{font-family:var(--mono);font-size:11px;letter-spacing:.10em;color:rgba(168,148,100,0.7);text-decoration:none}
+    .login-gate .ciphernex{position:fixed;bottom:18px;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(168,148,100,0.55)}
+  </style>
+</head>
+<body>
+
+<div class="login-gate" id="login-gate" style="display:none">
+  <div class="mark">M&amp;R</div>
+  <div class="name">MASSEY &amp; ROSUPO CO.</div>
+  <div class="label">Account Access</div>
+  <div class="rule"></div>
+  <button class="signin" id="acct-signin">Sign In</button>
+  <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
+  <div class="ciphernex">CipherNex Federation &middot; Secure Account Access</div>
+</div>
+
+<div id="app-shell" style="display:none">
+  <header class="header">
+    <div class="header-brand">
+      <div>
+        <div class="header-logo">Massey &amp; Rosupo Co.</div>
+        <div class="header-sub">My Account</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-user" id="header-user">
+        <span class="avatar" id="user-initial">U</span>
+        <span id="user-name">user</span>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="page-title">My Account</div>
+    <div class="page-sub">Basic profile &middot; from your CipherNex federated identity</div>
+
+    <div class="card">
+      <div class="card-title">Profile</div>
+      <div class="row"><span class="row-label">Full Name</span><span class="row-value" id="p-name">—</span></div>
+      <div class="row"><span class="row-label">Username</span><span class="row-value" id="p-username">—</span></div>
+      <div class="row"><span class="row-label">Email</span><span class="row-value" id="p-email">—</span></div>
+      <div class="row"><span class="row-label">Account Type</span><span class="row-value" id="p-role">—</span></div>
+      <div class="row"><span class="row-label">Subject ID</span><span class="row-value" id="p-sub" style="font-family:var(--mono);font-size:0.7rem;color:var(--muted-lt)">—</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Quick Access</div>
+      <div class="actions">
+        <a class="btn-gold" href="#" onclick="goArbitration(); return false;">My Arbitration &rarr;</a>
+        <a class="btn-outline" href="portal-login.html">Client Portal</a>
+        <a class="btn-outline" href="admin-portal.html">Trustee Console</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
+const KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
+const REDIRECT = location.origin + "/my-account.html";
+
+function b64url(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+function rnd(n){return b64url(crypto.getRandomValues(new Uint8Array(n)));}
+function decodeJWT(t){try{return JSON.parse(atob(t.split('.')[1]));}catch(e){return null;}}
+
+let token = localStorage.getItem('mrToken') || null;
+let account = token ? decodeJWT(token) : null;
+
+// Role router (mirrors index.html)
+const KC_REQUIRED_ROLE_TRUSTEE = "trustee";
+function goArbitration() {
+  let isTrustee = false;
+  if (token) { try { const p = decodeJWT(token); const roles = (p.realm_access && p.realm_access.roles) || []; isTrustee = roles.includes(KC_REQUIRED_ROLE_TRUSTEE); } catch(e){} }
+  location.href = isTrustee ? 'arbitration.html' : 'client-arbitration.html';
+}
+
+(function handleCallback(){
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code'); if(!code) return;
+  const verifier = sessionStorage.getItem('mr_acct_pkce_v'); if(!verifier) return;
+  // Generic PKCE: try trustee client first, fall back to client portal client
+  function attempt(clientId){
+    return fetch(KC_TOKEN,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({grant_type:"authorization_code",client_id:clientId,code,redirect_uri:REDIRECT,code_verifier:verifier})}).then(r=>r.json());
+  }
+  attempt("massey-admin").then(j=>{
+    if(j.access_token) return j;
+    return attempt("massey-client");
+  }).then(j=>{
+    if(j.access_token){
+      token=j.access_token; account=decodeJWT(token);
+      localStorage.setItem('mrToken', token);
+      if(j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
+      sessionStorage.removeItem('mr_acct_pkce_v');
+      history.replaceState(null,'',REDIRECT);
+      render();
+    } else { alert("Sign-in failed: "+(j.error_description||j.error)); }
+  });
+})();
+
+function goKeycloak(){
+  const verifier = rnd(32);
+  crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)).then(h=>{
+    const challenge = b64url(h); const state = rnd(16);
+    sessionStorage.setItem('mr_acct_pkce_v', verifier);
+    // Use massey-client (beneficiary) as the default account sign-in; trustees may also authenticate here.
+    const client = "massey-client";
+    location.href = KC_AUTH + "?" + new URLSearchParams({
+      client_id:client, response_type:"code", scope:"openid",
+      redirect_uri:REDIRECT, state, code_challenge:challenge, code_challenge_method:"S256"
+    }).toString();
+  });
+}
+
+function logout(){
+  localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh');
+  token=null; account=null;
+  location.href = "logout.html";
+}
+
+function render(){
+  document.getElementById('login-gate').style.display='none';
+  document.getElementById('app-shell').style.display='';
+  const name = account.name || [account.given_name, account.family_name].filter(Boolean).join(' ') || account.preferred_username || 'User';
+  const username = account.preferred_username || '—';
+  const email = account.email || '—';
+  const sub = account.sub || '—';
+  const roles = (account.realm_access && account.realm_access.roles) || [];
+  const isTrustee = roles.includes(KC_REQUIRED_ROLE_TRUSTEE);
+  const roleHtml = isTrustee
+    ? '<span class="role-pill role-trustee">Trustee</span>'
+    : '<span class="role-pill role-client">Beneficiary / Client</span>';
+  document.getElementById('p-name').textContent = name;
+  document.getElementById('p-username').textContent = username;
+  document.getElementById('p-email').textContent = email;
+  document.getElementById('p-role').innerHTML = roleHtml;
+  document.getElementById('p-sub').textContent = sub;
+  const disp = username !== '—' ? username : (account.email||'U');
+  document.getElementById('user-name').textContent = disp;
+  document.getElementById('user-initial').textContent = (disp[0]||'U').toUpperCase();
+}
+
+document.getElementById('acct-signin').addEventListener('click', goKeycloak);
+
+if (token && account) { render(); }
+else { document.getElementById('login-gate').style.display=''; document.getElementById('app-shell').style.display='none'; }
+</script>
+</body>
+</html>
