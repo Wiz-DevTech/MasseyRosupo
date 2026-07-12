@@ -144,7 +144,7 @@ tr:hover td{background:var(--ink-mid)}
 </head>
 <body>
 
-<!-- Login gate (Keycloak PKCE, massey-client) -->
+<!-- Login gate (Keycloak PKCE, massey-admin — TRUSTEE ONLY) -->
 <div class="login-gate" id="login-gate" style="display:none">
   <div class="mark">M&amp;R</div>
   <div class="name">MASSEY &amp; ROSUPO CO.</div>
@@ -589,7 +589,7 @@ const FEES=[
 const API = location.origin + '/api';
 const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
 const KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
-const CLIENT   = "massey-client";
+const CLIENT   = "massey-admin";
 const REDIRECT = location.origin + "/arbitration.html";
 
 function b64url(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
@@ -604,7 +604,7 @@ function decodeJWT(t){
 }
 function isAuthed(){ return !!token && !!account; }
 
-// ── PKCE sign-in (Keycloak, massey-client) ───────────────────────────────────
+// ── PKCE sign-in (Keycloak, massey-admin — TRUSTEE ONLY) ─────────────────────
 (function handleCallback(){
   const params = new URLSearchParams(location.search);
   const code = params.get('code');
@@ -831,8 +831,30 @@ renderCountdowns() {
   }).join('');
 }
 
-// ── Bootstrap: show gate if not signed in, else load persisted cases ──────────
+// ── Bootstrap: gate to trustees only ─────────────────────────────────────────
 document.getElementById('arb-signin').addEventListener('click', goKeycloak);
+
+function isTrustee(){
+  const roles = (account && account.realm_access && account.realm_access.roles) || [];
+  return roles.includes('trustee');
+}
+
+function showForbidden(){
+  document.getElementById('app-shell').style.display = 'none';
+  const gate = document.getElementById('login-gate');
+  gate.style.display = '';
+  gate.innerHTML = `
+    <div class="mark">M&amp;R</div>
+    <div class="name">MASSEY &amp; ROSUPO CO.</div>
+    <div class="label" style="color:var(--red)">Trustee Access Required</div>
+    <div class="rule"></div>
+    <div style="font-family:var(--mono);font-size:0.75rem;color:var(--muted-lt);max-width:340px;line-height:1.7">
+      The Arbitration Case Manager is restricted to Massey &amp; Rosupo trustees.
+      Your account does not hold the required role.
+    </div>
+    <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
+    <div class="ciphernex">CipherNex Federation &middot; Secure Fiduciary Access</div>`;
+}
 
 function applyUserChip() {
   const chip = document.getElementById('header-user');
@@ -855,10 +877,12 @@ loadCases = async function() {
   applyUserChip();
 };
 
-if (isAuthed()) {
-  loadCases();
-} else {
+if (!isAuthed()) {
   showLoginGate();
+} else if (!isTrustee()) {
+  showForbidden();
+} else {
+  loadCases();
 }
 </script>
 </div><!-- /app-shell -->

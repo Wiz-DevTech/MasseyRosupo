@@ -241,31 +241,21 @@ app.post("/api/operations", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) =>
 });
 
 // ── Arbitration API ──────────────────────────────────────────────────────────
-// Binding arbitration is a core M&R governance instrument. Cases are filed by
-// either a beneficiary (client portal) or a trustee, persisted with account
-// association (owner_sub), and view-scoped: clients see only their own cases,
-// trustees (massey-admin) see every case across all accounts.
-app.get("/api/arbitration", auth, async (req, res) => {
+// Binding arbitration is a TRUSTEE-ONLY M&R governance instrument. All access
+// requires the `trustee` realm role (massey-admin). Cases are filed and viewed
+// only by trustees; account association (owner_sub) is still stamped for audit.
+app.get("/api/arbitration", requireRole(KC_REQUIRED_ROLE_TRUSTEE), async (req, res) => {
   try {
-    const roles = (req.user?.realm_access && req.user.realm_access.roles) || [];
-    const isTrustee = roles.includes(KC_REQUIRED_ROLE_TRUSTEE);
-    const rows = isTrustee
-      ? db.prepare("SELECT * FROM arbitrations ORDER BY created_at DESC").all()
-      : db.prepare("SELECT * FROM arbitrations WHERE owner_sub = ? ORDER BY created_at DESC")
-          .all(req.user?.sub || "");
-    return res.json({
-      cases: rows,
-      scope: isTrustee ? "trustee:all" : "client:own",
-      upstream: [],
-    });
+    const rows = db.prepare("SELECT * FROM arbitrations ORDER BY created_at DESC").all();
+    return res.json({ cases: rows, scope: "trustee:all", upstream: [] });
   } catch (e) {
     return res.status(500).json({ error: "list failed", detail: e.message });
   }
 });
 
-// POST a new arbitration case. Both client + trustee may file. owner_sub is
-// stamped server-side from the verified token (never trusted from the body).
-app.post("/api/arbitration", auth, (req, res) => {
+// POST a new arbitration case. Trustee-only. owner_sub is stamped server-side
+// from the verified token (never trusted from the body) for audit trail.
+app.post("/api/arbitration", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) => {
   const id = uuidv4();
   const {
     case_ref, claimant, respondent, entity, address, agreement, commerce,
@@ -294,7 +284,7 @@ app.post("/api/arbitration", auth, (req, res) => {
     owner_sub,
     owner_name
   );
-  return res.status(201).json({ id, ok: true, scope: "own" });
+  return res.status(201).json({ id, ok: true, scope: "trustee" });
 });
 
 // PATCH /api/arbitration/:id — trustee-only status / award / bar-date updates.
