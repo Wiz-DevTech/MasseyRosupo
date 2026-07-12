@@ -2,16 +2,20 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="5178444">
+  <script src="partials/cache-bust.js?v=5178444"></script>
+  <!-- CACHE-BUST end -->
+<!-- CACHE-BUST start -->
   <meta name="x-page-version" content="51e3112">
-  <script src="partials/cache-bust.js?v=51e3112"></script>
+  <script src="partials/cache-bust.js?v=5178444"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="9b000df">
-  <script src="partials/cache-bust.js?v=51e3112"></script>
+  <script src="partials/cache-bust.js?v=5178444"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="685c08a">
-  <script src="partials/cache-bust.js?v=51e3112"></script>
+  <script src="partials/cache-bust.js?v=5178444"></script>
   <!-- CACHE-BUST end -->
     <style>
       /* Keycloak trustee gate (loaded by partials/keycloak-gate.js) */
@@ -190,7 +194,7 @@
 </div>
 <!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
 <script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
-<script src="partials/keycloak-gate.js?v=51e3112"></script>
+<script src="partials/keycloak-gate.js?v=5178444"></script>
 
 <!-- TOP BAR (with Firebase logout) -->
 <div class="topbar">
@@ -218,7 +222,7 @@
         <button class="nav-tab" id="nav-matters" onclick="showMainTab('matters')">Matters &amp; SOP</button>
         <span class="nav-tab dim">Orders &amp; Results</span>
         <a href="SecureMainDash.html" class="nav-tab" id="nav-forms">Forms &amp; Tools</a>
-        <button class="nav-tab" id="nav-arbitration" onclick="showMainTab('arbitration')">Arbitration</button>
+        <button class="nav-tab" id="nav-arbitration" onclick="goArbitration()">Arbitration</button>
         <button class="nav-tab" id="nav-addresses" onclick="showMainTab('addresses')">Agent Addresses</button>
         <span class="nav-tab dim">My Account</span>
     </div>
@@ -345,6 +349,13 @@ let cases = [];  // populated from /api/arbitration (real backend), not localSto
 const mockMatters = [{id:'M-101',title:'Breach of Contract',jurisdiction:'Delaware',status:'Active',filed:'2025-01-10'},{id:'M-102',title:'Shareholder Dispute',jurisdiction:'New York',status:'Discovery',filed:'2025-02-01'}];
 
 function showMainTab(tab){['matters','addresses','arbitration'].forEach(t=>{document.getElementById(`tab-${t}`).classList.add('hidden');let sb=document.getElementById(`sidebar-${t}`);if(sb)sb.classList.add('hidden');});document.getElementById(`tab-${tab}`).classList.remove('hidden');document.getElementById(`sidebar-${tab}`).classList.remove('hidden');if(tab==='arbitration')showArbView('dashboard');if(tab==='matters')searchMatters();}
+// Role-routed link to the real Arbitration Case Manager (not the in-page tab).
+function goArbitration(){
+  const t = localStorage.getItem('mrToken');
+  let isTrustee = false;
+  if (t) { try { const p = JSON.parse(atob(t.split('.')[1])); const roles = (p.realm_access && p.realm_access.roles) || []; isTrustee = roles.includes('trustee'); } catch(e){} }
+  location.href = isTrustee ? 'arbitration.html' : 'client-arbitration.html';
+}
 function setMattersView(v){document.getElementById('mview-search').classList.add('hidden');document.getElementById('mview-sop').classList.add('hidden');document.getElementById(`mview-${v}`).classList.remove('hidden');}
 function filterJurisdiction(j){setMattersView('search');document.getElementById('jurisdictionSelect').value=j;searchMatters();}
 function searchMatters(){let juris=document.getElementById('jurisdictionSelect').value;let f=juris==='ALL'?mockMatters:mockMatters.filter(m=>m.jurisdiction===juris);let el=document.getElementById('mattersResults');if(!f.length){el.innerHTML='<div class="empty">No matters found.</div>';return;}el.innerHTML=`<table><thead><tr><th>Case ID</th><th>Title</th><th>Jurisdiction</th><th>Status</th><th>Filed</th></tr></thead><tbody>${f.map(m=>`<tr><td>${m.id}</td><td>${m.title}</td><td>${m.jurisdiction}</td><td><span class="status-pill st-active">${m.status}</span></td><td>${m.filed}</td></tr>`).join('')}</tbody></table>`;}
@@ -393,6 +404,6 @@ showMainTab('matters');
 window.addEventListener('kc:authed', loadArbitrationCases);
 if (window.kcIsAuthed && window.kcIsAuthed()) loadArbitrationCases();
 </script>
-  <script src="partials/site-nav.js?v=51e3112"></script>
+  <script src="partials/site-nav.js?v=5178444"></script>
 </body>
 </html>
