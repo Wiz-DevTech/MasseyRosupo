@@ -24,9 +24,9 @@
  */
 
 // ── API host — M&R backend (Express + SQLite, /opt/masseyrosupo.com/backend) ──
-// Served publicly via the api.masseyrosupo.com nginx vhost (→ backend :3012).
+// Served publicly via the api.masseyrosupo.wisdomignited.com nginx vhost (→ backend :3012).
 // Until that DNS/CNAME is live, pages fall back to a seeded snapshot.
-window.CIPHERNEX_API_HOST = 'https://api.masseyrosupo.com/api'; // overridden at deploy time by CI/server config
+window.CIPHERNEX_API_HOST = 'https://api.masseyrosupo.wisdomignited.com/api'; // overridden at deploy time by CI/server config
 
 
 // ── Individual endpoint overrides (optional) ─────────────────────────────────
