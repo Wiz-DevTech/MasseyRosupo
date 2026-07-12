@@ -47,4 +47,26 @@ for (const [category, title, description] of CATALOG) {
   ins.run(uuid(), category, title, description);
   added++;
 }
-console.log(`Seeded ${added} new forms; total now ${db.prepare('SELECT COUNT(*) c FROM forms').get().c.c}.`);
+console.log(`Seeded ${added} new forms; total now ${db.prepare('SELECT COUNT(*) c FROM forms').get().c}.`);
+
+// ── Reference example operations + filings (so registers aren't empty) ──
+const opIns = db.prepare("INSERT INTO operations (id, kind, reference, status, detail, created_at) VALUES (?,?,?,?,?,datetime('now'))");
+if (db.prepare("SELECT COUNT(*) c FROM operations").get().c === 0) {
+  [
+    ['UCC Search', 'DE-ACME-2024', 'complete', 'Delaware UCC-1 search — clear, no conflicting filings.'],
+    ['Reserve Check', 'CIPR-7741', 'complete', 'Verified CIPR reserve pledge status for beneficiary account.'],
+    ['Document Mint', 'DOC-BOE-0098', 'complete', 'Minted CipherNex Document ID for inbound bill of exchange.'],
+  ].forEach(([kind, reference, status, detail]) => opIns.run(uuid(), kind, reference, status, detail));
+  console.log('Seeded 3 reference operations.');
+}
+
+const filIns = db.prepare("INSERT INTO filings (id, type, reference, status, created_at) VALUES (?,?,?,?,datetime('now'))");
+if (db.prepare("SELECT COUNT(*) c FROM filings").get().c === 0) {
+  [
+    ['UCC-1', 'ACME LLC (Delaware)', 'submitted'],
+    ['UCC-3', 'ACME LLC — continuation', 'submitted'],
+    ['CIPR', 'Reserve pledge #7741', 'submitted'],
+  ].forEach(([type, reference, status]) => filIns.run(uuid(), type, reference, status));
+  console.log('Seeded 3 reference filings.');
+}
+
