@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Massey &amp; Rosupo — Arbitration Case Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0d0f14;--ink-soft:#161921;--ink-mid:#1e2230;--ink-light:#252a38;
+  --border:rgba(168,148,100,0.18);--border-s:rgba(168,148,100,0.09);
+  --gold:#a89464;--gold-lt:#c8ae7e;--gold-glow:rgba(168,148,100,0.14);
+  --parchment:#f0ece3;--cream:#faf8f4;--muted:#525873;--muted-lt:#7a7f96;
+  --green:#2ecc71;--red:#e74c3c;--blue:#5dade2;--amber:#f39c12;
+  --r:6px;--sidebar-w:240px;--header-h:58px;
+  --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;--sans:'DM Sans',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:var(--sans);background:var(--ink);color:var(--parchment);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+a{text-decoration:none;color:inherit}button{font-family:var(--sans);cursor:pointer}
+input,select,textarea{font-family:var(--sans)}
+
+.header{height:var(--header-h);background:var(--ink-soft);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+.header-brand{display:flex;align-items:center;gap:12px}
+.header-logo{font-family:var(--serif);font-size:1.3rem;font-weight:500;color:var(--gold-lt);letter-spacing:0.03em}
+.header-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt);letter-spacing:0.1em;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:16px}
+.header-status{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:0.65rem;color:var(--green);letter-spacing:0.08em}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.layout{display:flex;flex:1}
+.sidebar{width:var(--sidebar-w);background:var(--ink-soft);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;position:sticky;top:var(--header-h);height:calc(100vh - var(--header-h))}
+.sb-section{padding:8px 16px;margin-bottom:4px}
+.sb-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:0.85rem;color:var(--muted-lt);cursor:pointer;border-radius:var(--r);transition:all 0.15s;margin:1px 0}
+.sb-item:hover{background:var(--ink-mid);color:var(--parchment)}
+.sb-item.active{background:var(--gold-glow);color:var(--gold-lt);border-left:2px solid var(--gold)}
+.sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.main{flex:1;padding:24px;overflow-y:auto}
+
+.page-title{font-family:var(--serif);font-size:1.6rem;font-weight:400;color:var(--gold-lt);margin-bottom:4px}
+.page-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:24px}
+
+.card{background:var(--ink-soft);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.card-title{font-family:var(--serif);font-size:1.1rem;color:var(--gold-lt);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-s)}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--ink-mid);border:1px solid var(--border-s);border-radius:var(--r);padding:14px;text-align:center}
+.metric-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.metric-value{font-family:var(--mono);font-size:1.4rem;font-weight:500;color:var(--gold-lt)}
+.metric-hint{font-size:0.65rem;color:var(--muted);margin-top:2px}
+
+.pipeline{display:flex;gap:4px;margin-bottom:20px;overflow-x:auto;padding:4px 0}
+.pipe-stage{flex:1;min-width:90px;padding:10px 8px;text-align:center;border-radius:var(--r);font-family:var(--mono);font-size:0.65rem;letter-spacing:0.05em;border:1px solid var(--border-s);background:var(--ink-mid);color:var(--muted);position:relative;transition:all 0.2s}
+.pipe-stage.active{background:var(--gold-glow);color:var(--gold-lt);border-color:var(--gold)}
+.pipe-stage.done{background:rgba(46,204,113,0.1);color:var(--green);border-color:rgba(46,204,113,0.3)}
+.pipe-stage::after{content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:5px solid var(--border-s);z-index:1}
+.pipe-stage:last-child::after{display:none}
+
+table{width:100%;border-collapse:collapse;font-size:0.8rem}
+th{text-align:left;padding:8px 10px;font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--ink-mid)}
+td{padding:8px 10px;border-bottom:1px solid var(--border-s);color:var(--parchment)}
+tr:hover td{background:var(--ink-mid)}
+.status-pill{display:inline-block;padding:2px 8px;border-radius:12px;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.05em}
+.st-draft{background:rgba(82,88,115,0.2);color:var(--muted-lt);border:1px solid rgba(82,88,115,0.3)}
+.st-notice{background:rgba(93,173,226,0.15);color:var(--blue);border:1px solid rgba(93,173,226,0.3)}
+.st-hearing{background:rgba(243,156,18,0.15);color:var(--amber);border:1px solid rgba(243,156,18,0.3)}
+.st-awarded{background:rgba(168,148,100,0.15);color:var(--gold-lt);border:1px solid var(--border)}
+.st-final{background:rgba(46,204,113,0.15);color:var(--green);border:1px solid rgba(46,204,113,0.3)}
+.st-settled{background:rgba(46,204,113,0.25);color:var(--green);border:1px solid rgba(46,204,113,0.4)}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.form-field label{display:block;font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+.form-field input,.form-field select,.form-field textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--ink-mid);color:var(--parchment);font-size:0.85rem}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:none;border-radius:var(--r);font-size:0.8rem;font-weight:500;transition:all 0.15s}
+.btn-gold{background:var(--gold);color:var(--ink)}
+.btn-gold:hover{background:var(--gold-lt)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--gold-lt)}
+.btn-ghost:hover{background:var(--gold-glow)}
+.btn-danger{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.3)}
+
+.fee-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border-s);font-size:0.8rem;transition:background 0.1s}
+.fee-item:hover{background:var(--ink-mid)}
+.fee-check{width:16px;height:16px;accent-color:var(--gold)}
+.fee-code{font-family:var(--mono);font-size:0.65rem;color:var(--muted);min-width:48px}
+.fee-name{flex:1;color:var(--parchment)}
+.fee-amount{font-family:var(--mono);color:var(--green);min-width:90px;text-align:right}
+.fee-count{width:50px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--r);background:var(--ink-mid);color:var(--parchment);font-family:var(--mono);font-size:0.75rem;text-align:center}
+.fee-cat{font-family:var(--mono);font-size:0.55rem;padding:2px 6px;border-radius:10px;min-width:60px;text-align:center}
+.cat-trespass{background:rgba(231,76,60,0.12);color:#e57373;border:1px solid rgba(231,76,60,0.25)}
+.cat-harassment{background:rgba(243,156,18,0.12);color:#ffb74d;border:1px solid rgba(243,156,18,0.25)}
+.cat-process{background:rgba(93,173,226,0.12);color:#64b5f6;border:1px solid rgba(93,173,226,0.25)}
+.cat-fraud{background:rgba(149,117,205,0.12);color:#b39ddb;border:1px solid rgba(149,117,205,0.25)}
+.cat-property{background:rgba(46,204,113,0.12);color:#81c784;border:1px solid rgba(46,204,113,0.25)}
+.cat-rights{background:rgba(236,64,122,0.12);color:#f48fb1;border:1px solid rgba(236,64,122,0.25)}
+.cat-court{background:rgba(38,198,218,0.12);color:#4dd0e1;border:1px solid rgba(38,198,218,0.25)}
+
+.total-bar{background:var(--ink-mid);border:1px solid var(--gold);border-radius:var(--r);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.total-label{font-family:var(--serif);font-size:1.1rem;color:var(--gold-lt)}
+.total-amount{font-family:var(--mono);font-size:1.4rem;font-weight:500;color:var(--gold-lt)}
+
+.notice-step{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-s)}
+.notice-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.7rem;flex-shrink:0}
+.notice-num.done{background:rgba(46,204,113,0.2);color:var(--green);border:1px solid rgba(46,204,113,0.4)}
+.notice-num.pending{background:var(--ink-mid);color:var(--muted);border:1px solid var(--border)}
+.notice-num.active{background:var(--gold-glow);color:var(--gold);border:1px solid var(--gold)}
+.notice-info{flex:1}
+.notice-title{font-size:0.85rem;color:var(--parchment);margin-bottom:2px}
+.notice-meta{font-family:var(--mono);font-size:0.65rem;color:var(--muted)}
+
+.countdown{font-family:var(--mono);font-size:2rem;color:var(--gold-lt);text-align:center;padding:20px;letter-spacing:0.1em}
+.countdown-label{font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-align:center;letter-spacing:0.1em;text-transform:uppercase}
+
+.hidden{display:none}
+.tab-active{display:block}
+
+.nav-back{font-family:var(--mono);font-size:0.7rem;color:var(--muted);cursor:pointer;margin-bottom:12px;display:inline-flex;align-items:center;gap:4px}
+.nav-back:hover{color:var(--gold-lt)}
+
+.empty{text-align:center;padding:40px;color:var(--muted);font-family:var(--mono);font-size:0.75rem}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div>
+      <div class="header-logo">Massey & Rosupo Co.</div>
+      <div class="header-sub">Arbitration Case Management</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-status"><span class="pulse-dot"></span> FAA Protocol Active</div>
+    <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">9 U.S.C. §§ 1-16</div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Navigation</div>
+      <div class="sb-item active" onclick="showView('dashboard')">
+        <span class="sb-dot" style="background:var(--gold)"></span> Dashboard
+      </div>
+      <div class="sb-item" onclick="showView('newcase')">
+        <span class="sb-dot" style="background:var(--blue)"></span> New Case
+      </div>
+      <div class="sb-item" onclick="showView('schedule')">
+        <span class="sb-dot" style="background:var(--green)"></span> Schedule A
+      </div>
+      <div class="sb-item" onclick="showView('notices')">
+        <span class="sb-dot" style="background:var(--amber)"></span> Notice Registry
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">FAA Pipeline</div>
+      <div class="sb-item" onclick="showView('formation')">
+        <span class="sb-dot" style="background:var(--muted)"></span> Ch 1-4: Formation
+      </div>
+      <div class="sb-item" onclick="showView('hearing')">
+        <span class="sb-dot" style="background:var(--muted)"></span> Ch 5-6: Hearing
+      </div>
+      <div class="sb-item" onclick="showView('award')">
+        <span class="sb-dot" style="background:var(--muted)"></span> Ch 7: Award
+      </div>
+      <div class="sb-item" onclick="showView('limitation')">
+        <span class="sb-dot" style="background:var(--muted)"></span> Ch 8: 90-Day Bar
+      </div>
+      <div class="sb-item" onclick="showView('financial')">
+        <span class="sb-dot" style="background:var(--muted)"></span> Ch 9-10: Financial
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Links</div>
+      <a href="admin-portal.html" class="sb-item"><span class="sb-dot" style="background:var(--muted)"></span> Admin Portal</a>
+      <a href="index.html" class="sb-item"><span class="sb-dot" style="background:var(--muted)"></span> Main Site</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- ═══════════════════════════════════════════════════════
+         DASHBOARD VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-dashboard">
+      <div class="page-title">Arbitration Dashboard</div>
+      <div class="page-sub">Federal Arbitration Act &mdash; Protocol-Sanctioned Pipeline &mdash; 9 U.S.C. §§ 1-16</div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Active Cases</div>
+          <div class="metric-value" id="m-active">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Pending Notice</div>
+          <div class="metric-value" id="m-notice">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Awaiting 90-Day</div>
+          <div class="metric-value" id="m-90day">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Receivables</div>
+          <div class="metric-value" id="m-receivables">$0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Settled via CIPR</div>
+          <div class="metric-value" id="m-settled">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Case Register</div>
+        <table>
+          <thead><tr><th>Case ID</th><th>Respondent</th><th>Status</th><th>Amount</th><th>Filed</th><th>90-Day</th></tr></thead>
+          <tbody id="case-list">
+            <tr><td colspan="6" class="empty">No cases filed. Create a new case to begin.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-gold" onclick="showView('newcase')">New Arbitration Case</button>
+        <button class="btn btn-ghost" onclick="showView('schedule')">Schedule A Calculator</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         NEW CASE VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-newcase" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">New Arbitration Case</div>
+      <div class="page-sub">FAA Chapter 1-4 &mdash; Contract Formation &amp; Validation</div>
+
+      <div class="card">
+        <div class="card-title">Case Information</div>
+        <div class="form-grid">
+          <div class="form-field"><label>Case ID</label><input id="nc-id" value="" placeholder="Auto-generated"></div>
+          <div class="form-field"><label>Respondent Name</label><input id="nc-respondent" placeholder="Full legal name"></div>
+          <div class="form-field"><label>Respondent Entity Type</label>
+            <select id="nc-entity"><option>Individual</option><option>Corporation</option><option>Government Agency</option><option>Trust/Estate</option><option>Partnership</option></select>
+          </div>
+          <div class="form-field"><label>Respondent Address</label><input id="nc-address" placeholder="Mailing address for certified mail"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Contract / Agreement Reference</div>
+        <div class="form-grid">
+          <div class="form-field"><label>Agreement Type</label>
+            <select id="nc-agreement"><option>Written Contract with Arbitration Clause</option><option>Fee Schedule (Schedule A)</option><option>Constructive Assent (Chapter 5)</option><option>Implied Contract via Commerce</option></select>
+          </div>
+          <div class="form-field"><label>Commerce Nexus</label><input id="nc-commerce" placeholder="How this involves interstate commerce"></div>
+          <div class="form-field"><label>Arbitration Association</label><input value="Massey & Rosupo Private Arbitration Association" readonly style="color:var(--gold-lt)"></div>
+          <div class="form-field"><label>Governing Law</label><input value="Federal Arbitration Act — 9 U.S.C. §§ 1-16" readonly style="color:var(--gold-lt)"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Schedule A Violations</div>
+        <div style="max-height:400px;overflow-y:auto" id="nc-violations"></div>
+        <div class="total-bar" style="margin-top:12px">
+          <div class="total-label">Total Claim Amount</div>
+          <div class="total-amount" id="nc-total">$0</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-gold" onclick="createCase()">File Arbitration Case</button>
+        <button class="btn btn-ghost" onclick="showView('dashboard')">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SCHEDULE A VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-schedule" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">Schedule A &mdash; Fee Schedule</div>
+      <div class="page-sub">Affidavit of Liability &mdash; 50 Violation Categories &mdash; Notarized Westchester, NY</div>
+
+      <div class="card">
+        <div class="card-title">Fee Schedule &amp; Notice of Liability</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('all')">All</button>
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('trespass')">Trespass</button>
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('harassment')">Harassment</button>
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('process')">Process</button>
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('fraud')">Fraud</button>
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('property')">Property</button>
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('rights')">Rights</button>
+          <button class="btn btn-ghost" style="font-size:0.7rem" onclick="filterFees('court')">Court</button>
+        </div>
+        <div style="max-height:500px;overflow-y:auto" id="schedule-list"></div>
+      </div>
+
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:12px;line-height:1.8">
+        All amounts payable in silver dollar coin at 24:1 FRN ratio or equivalent<br>
+        Fees accumulate per occurrence, per person, per violation<br>
+        Silence = tacit agreement &mdash; 21-day response window (UCC &sect; 2-201)<br>
+        All rights reserved without prejudice &mdash; Payments in Lawful Money per 12 USC &sect; 411
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         NOTICE REGISTRY VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-notices" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">Notice Registry</div>
+      <div class="page-sub">Administrative Process of Procedure &mdash; Federal Court Aligned</div>
+
+      <div class="card">
+        <div class="card-title">Notice Chain — Required Steps</div>
+        <div class="notice-step">
+          <div class="notice-num done">1</div>
+          <div class="notice-info">
+            <div class="notice-title">Draft Explanatory Notice</div>
+            <div class="notice-meta">Compose letter citing statutory authority, establish capacity and standing</div>
+          </div>
+        </div>
+        <div class="notice-step">
+          <div class="notice-num pending">2</div>
+          <div class="notice-info">
+            <div class="notice-title">Send via Certified Mail</div>
+            <div class="notice-meta">USPS certified mail to public official / counterparty — tracking number minted on-chain</div>
+          </div>
+        </div>
+        <div class="notice-step">
+          <div class="notice-num pending">3</div>
+          <div class="notice-info">
+            <div class="notice-title">Delivery Confirmation</div>
+            <div class="notice-meta">Return receipt (green card) received — scan and hash mint on CipherNex chain</div>
+          </div>
+        </div>
+        <div class="notice-step">
+          <div class="notice-num pending">4</div>
+          <div class="notice-info">
+            <div class="notice-title">Response Window (30 Days)</div>
+            <div class="notice-meta">Clock starts from confirmed delivery date — window expiration timestamped</div>
+          </div>
+        </div>
+        <div class="notice-step">
+          <div class="notice-num pending">5</div>
+          <div class="notice-info">
+            <div class="notice-title">Acquiescence / Response</div>
+            <div class="notice-meta">Non-response = consent in commerce — or response scanned and minted</div>
+          </div>
+        </div>
+        <div class="notice-step">
+          <div class="notice-num pending">6</div>
+          <div class="notice-info">
+            <div class="notice-title">Returned Stamped Notice</div>
+            <div class="notice-meta">Scan and mint — closes administrative loop per federal court standard</div>
+          </div>
+        </div>
+        <div class="notice-step">
+          <div class="notice-num pending">7</div>
+          <div class="notice-info">
+            <div class="notice-title">Matter Ready for Arbitration</div>
+            <div class="notice-meta">Complete notice chain available — pipeline may advance</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;font-family:var(--mono);font-size:0.65rem;color:var(--muted);line-height:1.8">
+        Notice to agent is notice to principal<br>
+        Acquiescence from non-response supported by certified mail return receipt<br>
+        Every step minted on CipherNex blockchain — Chain ID 777287<br>
+        Evidentiary standard: FRE 803(6) business records + FRE 902(14) self-authenticating
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FORMATION VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-formation" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">FAA Chapters 1-4 — Formation</div>
+      <div class="page-sub">Supremacy &bull; Association &bull; Arbitrator &bull; Agreement</div>
+      <div class="card">
+        <div class="card-title">Chapter 1 — FAA Supremacy</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">Section 2 of Title 9 mandates that a written arbitration provision in any transaction involving commerce is valid, irrevocable, and enforceable. The FAA preempts all state laws that single out arbitration for disfavored treatment.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Authority: 9 U.S.C. § 2 | Commerce Clause</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chapter 2 — Private Arbitration Association</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">Massey &amp; Rosupo Co. operates as a Private Arbitration Association under the FAA. Authority derives from party consent in the contract. No state licensing is required. The FAA's silence on accreditation implies Congress intended private ordering.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Authority: FAA § 2 (freedom of contract) | Party autonomy</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chapter 3 — Arbitrator (Quasi-Judicial)</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">The arbitrator is a private individual vested with adjudicative authority by mutual consent. Not an Article III officer. Authority flows exclusively from the arbitration clause. Quasi-judicial immunity protects decisional independence.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Authority: 9 U.S.C. § 5 (appointment) | Butz v. Economou (quasi-judicial immunity)</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chapter 4 — Binding Agreement</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">The agreement must be in writing, involve commerce, and clearly state intent to arbitrate. Must identify scope, rules, administering entity, and appointment method. Opt-out provision with 30-day window. Survival clause preserves the duty to arbitrate post-termination.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Authority: 9 U.S.C. § 2 | Moses H. Cone Memorial Hospital v. Mercury Construction</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         HEARING VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-hearing" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">FAA Chapters 5-6 — Amendment &amp; Hearing</div>
+      <div class="page-sub">Constructive Assent &bull; Evidence &bull; Subpoena &bull; Procedure</div>
+      <div class="card">
+        <div class="card-title">Chapter 5 — Constructive Assent</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">Continued use of a service or failure to object within a specified period constitutes acceptance of amended terms. The pre-existing duty to respond strengthens the case for constructive assent. Documentation of notice, delivery, and subsequent conduct is critical.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Authority: Restatement (Second) of Contracts § 69 | UCC § 2-207</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chapter 6 — Hearing Conduct</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">Federal Rules of Evidence do not strictly apply. Arbitrator has broad discretion on admissibility. Fundamental fairness is the standard. Cross-examination is permitted. Subpoena power under 9 U.S.C. § 7 compels witness attendance and document production.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Authority: 9 U.S.C. § 7 (subpoena) | Fundamental fairness doctrine</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         AWARD VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-award" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">FAA Chapter 7 — Award</div>
+      <div class="page-sub">Finality &bull; Grounds for Vacatur &bull; Section 10(a) &bull; Section 11</div>
+      <div class="card">
+        <div class="card-title">Award Requirements</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">Must be in writing and signed. Must be mutual, final, and definite. Immediately binding upon issuance, even before court confirmation. No detailed reasoning required. The award is a minted fact on the CipherNex blockchain with QR verification.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Grounds for Vacatur — Section 10(a)</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7">These are the exclusive grounds. The pipeline tracks compliance with each:</p>
+        <div style="margin-top:8px">
+          <div style="padding:6px 0;font-size:0.8rem;border-bottom:1px solid var(--border-s)">1. Corruption, fraud, or undue means</div>
+          <div style="padding:6px 0;font-size:0.8rem;border-bottom:1px solid var(--border-s)">2. Evident partiality by the arbitrator</div>
+          <div style="padding:6px 0;font-size:0.8rem;border-bottom:1px solid var(--border-s)">3. Misconduct in refusing pertinent evidence</div>
+          <div style="padding:6px 0;font-size:0.8rem">4. Arbitrator exceeded powers under the contract</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         90-DAY BAR VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-limitation" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">FAA Chapter 8 — Ninety-Day Bar</div>
+      <div class="page-sub">Section 12 &bull; Absolute Statute of Limitations &bull; No Equitable Extension</div>
+      <div class="card">
+        <div class="card-title">Active 90-Day Countdowns</div>
+        <div id="countdown-list"><div class="empty">No awards pending confirmation.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">The Absolute Bar</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:8px">Failure to serve a motion to vacate within three months of the award is an absolute bar. Cannot be extended by waiver, estoppel, or settlement discussions. After expiration, the award is impervious to direct attack. Confirmation under Section 9 is the only remaining judicial action.</p>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">Authority: 9 U.S.C. § 12 | Florasynth, Inc. v. Pickholz</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FINANCIAL VIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div id="view-financial" class="hidden">
+      <span class="nav-back" onclick="showView('dashboard')">&#8592; Back to Dashboard</span>
+      <div class="page-title">FAA Chapters 9-10 — Financial Realization</div>
+      <div class="page-sub">Receivable Recognition &bull; Cash-Equivalent &bull; CIPR Settlement</div>
+      <div class="card">
+        <div class="card-title">Chapter 9 — Receivable Reclassification</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:12px">Upon 90-day bar expiration, the award transitions from contingent claim to unconditional legal right to payment. Recognized under the accrual method when earned and realizable.</p>
+        <div style="background:var(--ink-mid);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-family:var(--mono);font-size:0.8rem;line-height:1.8">
+          <div style="color:var(--gold-lt);font-size:0.65rem;letter-spacing:0.08em;margin-bottom:6px">MANDATORY JOURNAL ENTRY</div>
+          <div>DEBIT: &nbsp;Accounts Receivable — Arbitration Award &nbsp;<span style="color:var(--green)">[amount]</span></div>
+          <div>CREDIT: Other Income — Legal Settlement &nbsp;<span style="color:var(--green)">[amount]</span></div>
+          <div style="margin-top:8px;font-size:0.65rem;color:var(--muted)">Form 1041 Sch B | ASC 310-10 | UCC §3-603 | XRPL hash = document ID</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chapter 10 — Cash-Equivalent Financial Instrument</div>
+        <p style="font-size:0.85rem;color:var(--parchment);line-height:1.7;margin-bottom:12px">The final award is an unconditional, enforceable obligation — a financial instrument. Ready for collateralization, tokenization (SPV), or CIPR settlement. Bond corpus entry created at 1:1 backing.</p>
+        <div style="background:var(--ink-mid);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-family:var(--mono);font-size:0.8rem;line-height:1.8">
+          <div style="color:var(--gold-lt);font-size:0.65rem;letter-spacing:0.08em;margin-bottom:6px">CIPR SETTLEMENT PATH</div>
+          <div>Award final <span style="color:var(--gold)">&#8594;</span> Bond corpus entry <span style="color:var(--gold)">&#8594;</span> CIPR minted (1:1)</div>
+          <div>CIPR <span style="color:var(--blue)">&#8594;</span> XRPL settlement <span style="color:var(--blue)">&#8594;</span> Public audit hash</div>
+          <div>UCC §3-311 + §3-603 <span style="color:var(--muted)">&#8594;</span> Trezor custody (BTC/ETH)</div>
+          <div style="margin-top:8px;font-size:0.65rem;color:var(--muted)">Reserve ratio = 1.0000 | Chain ID 777287</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const FEES=[
+{code:'FS-01',cat:'trespass',name:'Unsolicited interference / trespass in private matters',amount:100000,per:'per occurrence'},
+{code:'FS-02',cat:'fraud',name:'Offense committed against entities (Massey)',amount:300000,per:'per violation'},
+{code:'FS-03',cat:'rights',name:'RICO Act violation / color of law misuse',amount:1000000,per:'per occurrence'},
+{code:'FS-04',cat:'court',name:'Courts refuse to file documents',amount:10000,per:'per page'},
+{code:'FS-05',cat:'harassment',name:'Unsolicited / solicited phone call',amount:7000,per:'per call'},
+{code:'FS-06',cat:'harassment',name:'Solicited letter of harassment',amount:7000,per:'per letter'},
+{code:'FS-07',cat:'harassment',name:'Correspondence involving meetings',amount:2000,per:'per meeting'},
+{code:'FS-08',cat:'harassment',name:'Unlawful letters of harassment to office',amount:5000,per:'per letter'},
+{code:'FS-09',cat:'trespass',name:'Correspondence to Fair Trading without consent',amount:2000,per:'per occurrence'},
+{code:'FS-10',cat:'court',name:'Write to court services / agents',amount:2000,per:'per correspondence'},
+{code:'FS-11',cat:'court',name:'Write to Trading Standards',amount:2000,per:'per occurrence'},
+{code:'FS-12',cat:'process',name:'Write to police / sheriff after first notice',amount:2000,per:'per correspondence'},
+{code:'FS-13',cat:'court',name:'Court special / general appearance',amount:30000,per:'per appearance'},
+{code:'FS-14',cat:'harassment',name:'Phone call to relevant bodies / agents',amount:2000,per:'per call + $5/min'},
+{code:'FS-15',cat:'process',name:'Failure to provide certified docs / oaths',amount:5000,per:'per individual'},
+{code:'FS-16',cat:'process',name:'Failure to perform directive by Sovereign Beneficiary',amount:10000,per:'per occurrence'},
+{code:'FS-17',cat:'court',name:'False statements from Trustees / agents',amount:20000,per:'per statement'},
+{code:'FS-18',cat:'rights',name:'Unlawful Arrest / Illegal Restraint — 4th Amend.',amount:1000000,per:'plus additional'},
+{code:'FS-19',cat:'rights',name:'Fraudulent Bond / Speedy Trial / Conspiracy',amount:1000000,per:'per occurrence + land'},
+{code:'FS-20',cat:'rights',name:'Assault (with or without weapon)',amount:1000000,per:'per occurrence + land'},
+{code:'FS-21',cat:'court',name:'Unfounded accusations by officer / sheriff',amount:3000,per:'per occurrence'},
+{code:'FS-22',cat:'rights',name:'Unlawful detention or incarceration',amount:200000,per:'per day + land'},
+{code:'FS-23',cat:'court',name:'Court without lawful reason / contempt',amount:200000,per:'per occurrence'},
+{code:'FS-24',cat:'fraud',name:'Coercion, deception, or attempted deception',amount:5000,per:'per occurrence'},
+{code:'FS-25',cat:'court',name:'Refusal of lawful bailment — Bill of Rights',amount:100000,per:'per occurrence'},
+{code:'FS-26',cat:'rights',name:'Coercion during unlawful detainment',amount:200000,per:'per occurrence'},
+{code:'FS-27',cat:'property',name:'Unlawful recording of lien / garnishment',amount:300000,per:'per occurrence'},
+{code:'FS-28',cat:'property',name:'Theft / destruction / concealment of property',amount:6000,per:'per day + cost'},
+{code:'FS-29',cat:'process',name:'Denial / abuse of due process',amount:200000,per:'per occurrence'},
+{code:'FS-30',cat:'process',name:'Obstruction of justice',amount:100000,per:'per occurrence'},
+{code:'FS-31',cat:'process',name:'Reckless credentials / failure to identify',amount:300000,per:'per occurrence'},
+{code:'FS-32',cat:'fraud',name:'Counterfeit staple security instrument',amount:20000,per:'per occurrence'},
+{code:'FS-33',cat:'trespass',name:'Every trespass on property including trust',amount:100000,per:'per occurrence'},
+{code:'FS-34',cat:'court',name:'Commercial liability signed affidavit perjury',amount:5000,per:'per page'},
+{code:'FS-35',cat:'fraud',name:'Repossession / coercion via Cestui Que Trust',amount:200000,per:'per occurrence'},
+{code:'FS-36',cat:'rights',name:'Human trafficking / assault / kidnapping',amount:1000000,per:'per occurrence'},
+{code:'FS-37',cat:'harassment',name:'Harassment after notice',amount:100000,per:'per occurrence'},
+{code:'FS-38',cat:'court',name:'Breach of fiduciary duty / perjury / oath',amount:200000,per:'per occurrence'},
+{code:'FS-39',cat:'fraud',name:'False statements from Trustees / jurisdiction',amount:20000,per:'per statement'},
+{code:'FS-40',cat:'process',name:'Impairment of contract by Trustees / agents',amount:30000,per:'per occurrence'},
+{code:'FS-41',cat:'rights',name:'Violation of unalienable rights',amount:50000,per:'per occurrence'},
+{code:'FS-42',cat:'fraud',name:'Harm done to family pets without cause',amount:100000,per:'per occurrence'},
+{code:'FS-43',cat:'fraud',name:'Request disclosure without autograph',amount:15000,per:'per occurrence'},
+{code:'FS-44',cat:'process',name:'Taking of fingerprints per person',amount:4000,per:'per occurrence'},
+{code:'FS-45',cat:'process',name:'Field test during unlawful detainment',amount:2000,per:'per occurrence'},
+{code:'FS-46',cat:'rights',name:'Coercion during unlawful detainment (force)',amount:200000,per:'per occurrence'},
+{code:'FS-47',cat:'property',name:'Fraudulent foreclosures / liens / auctions',amount:500000,per:'per occurrence'},
+{code:'FS-48',cat:'fraud',name:'Fraud against secured party property / Will',amount:500000,per:'per violation'},
+{code:'FS-49',cat:'fraud',name:'Failure to fully disclose contract under fraud',amount:50000,per:'per occurrence'},
+{code:'FS-50',cat:'property',name:'Impounding / towing / forced removal',amount:7000,per:'per day'}
+];
+
+let cases = JSON.parse(localStorage.getItem('MRSP_Cases') || '[]');
+
+function showView(id) {
+  document.querySelectorAll('.main > div').forEach(d => {d.classList.add('hidden');d.classList.remove('tab-active')});
+  document.getElementById('view-'+id).classList.remove('hidden');
+  document.getElementById('view-'+id).classList.add('tab-active');
+  document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('active'));
+  if(id === 'newcase') renderNewCaseViolations();
+  if(id === 'schedule') renderScheduleList();
+  if(id === 'dashboard') renderDashboard();
+  if(id === 'limitation') renderCountdowns();
+}
+
+function renderFeeItem(f, prefix, showCheck) {
+  return `<div class="fee-item" data-cat="${f.cat}">
+    ${showCheck ? `<input type="checkbox" class="fee-check" data-code="${f.code}" onchange="${prefix}Calc()">` : ''}
+    <span class="fee-code">${f.code}</span>
+    <span class="fee-cat cat-${f.cat}">${f.cat}</span>
+    <span class="fee-name">${f.name}</span>
+    <span class="fee-amount">$${f.amount.toLocaleString()}</span>
+    ${showCheck ? `<input type="number" class="fee-count" data-code="${f.code}" value="1" min="1" max="999" onchange="${prefix}Calc()">` : `<span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);min-width:80px;text-align:right">${f.per}</span>`}
+  </div>`;
+}
+
+function renderNewCaseViolations() {
+  document.getElementById('nc-violations').innerHTML = FEES.map(f => renderFeeItem(f,'nc',true)).join('');
+  document.getElementById('nc-id').value = 'MRSP-' + Date.now().toString(36).toUpperCase();
+}
+
+function ncCalc() {
+  let total = 0;
+  FEES.forEach(f => {
+    const cb = document.querySelector(`#view-newcase .fee-check[data-code="${f.code}"]`);
+    const ct = document.querySelector(`#view-newcase .fee-count[data-code="${f.code}"]`);
+    if(cb && cb.checked) total += f.amount * (parseInt(ct.value)||1);
+  });
+  document.getElementById('nc-total').textContent = '$' + total.toLocaleString();
+}
+
+function renderScheduleList(filter) {
+  const list = filter && filter !== 'all' ? FEES.filter(f=>f.cat===filter) : FEES;
+  document.getElementById('schedule-list').innerHTML = list.map(f => renderFeeItem(f,'',false)).join('');
+}
+function filterFees(cat) { renderScheduleList(cat); }
+
+function createCase() {
+  const id = document.getElementById('nc-id').value;
+  const respondent = document.getElementById('nc-respondent').value;
+  if(!respondent) { alert('Respondent name required.'); return; }
+  let violations = [];
+  let total = 0;
+  FEES.forEach(f => {
+    const cb = document.querySelector(`#view-newcase .fee-check[data-code="${f.code}"]`);
+    const ct = document.querySelector(`#view-newcase .fee-count[data-code="${f.code}"]`);
+    if(cb && cb.checked) {
+      const count = parseInt(ct.value)||1;
+      violations.push({code:f.code,name:f.name,amount:f.amount,count,subtotal:f.amount*count});
+      total += f.amount * count;
+    }
+  });
+  const c = {
+    id, respondent,
+    entity: document.getElementById('nc-entity').value,
+    address: document.getElementById('nc-address').value,
+    agreement: document.getElementById('nc-agreement').value,
+    commerce: document.getElementById('nc-commerce').value,
+    violations, total,
+    status: 'NOTICE_PENDING',
+    filed: new Date().toISOString().split('T')[0],
+    awardDate: null,
+    barDate: null
+  };
+  cases.push(c);
+  localStorage.setItem('MRSP_Cases', JSON.stringify(cases));
+  showView('dashboard');
+}
+
+function renderDashboard() {
+  const active = cases.filter(c=>c.status!=='SETTLED').length;
+  const notice = cases.filter(c=>c.status==='NOTICE_PENDING').length;
+  const bar90 = cases.filter(c=>c.status==='PENDING_90DAY').length;
+  const recv = cases.filter(c=>['RECEIVABLE','SETTLED'].includes(c.status)).reduce((s,c)=>s+c.total,0);
+  const settled = cases.filter(c=>c.status==='SETTLED').length;
+  document.getElementById('m-active').textContent = active;
+  document.getElementById('m-notice').textContent = notice;
+  document.getElementById('m-90day').textContent = bar90;
+  document.getElementById('m-receivables').textContent = '$'+recv.toLocaleString();
+  document.getElementById('m-settled').textContent = settled;
+
+  const tbody = document.getElementById('case-list');
+  if(!cases.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No cases filed.</td></tr>'; return; }
+  tbody.innerHTML = cases.slice().reverse().map(c => {
+    const statusMap = {
+      'NOTICE_PENDING':'<span class="status-pill st-notice">Notice Pending</span>',
+      'HEARING':'<span class="status-pill st-hearing">Hearing</span>',
+      'AWARDED':'<span class="status-pill st-awarded">Awarded</span>',
+      'PENDING_90DAY':'<span class="status-pill st-hearing">90-Day Window</span>',
+      'RECEIVABLE':'<span class="status-pill st-final">Receivable</span>',
+      'SETTLED':'<span class="status-pill st-settled">Settled</span>'
+    };
+    const bar = c.barDate || '—';
+    return `<tr>
+      <td style="font-family:var(--mono);font-size:0.75rem">${c.id}</td>
+      <td>${c.respondent}</td>
+      <td>${statusMap[c.status]||c.status}</td>
+      <td style="font-family:var(--mono);color:var(--green)">$${c.total.toLocaleString()}</td>
+      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">${c.filed}</td>
+      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">${bar}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCountdowns() {
+  const pending = cases.filter(c=>c.status==='PENDING_90DAY' && c.awardDate);
+  const el = document.getElementById('countdown-list');
+  if(!pending.length) { el.innerHTML = '<div class="empty">No awards pending confirmation.</div>'; return; }
+  el.innerHTML = pending.map(c => {
+    const award = new Date(c.awardDate);
+    const bar = new Date(award.getTime() + 90*24*60*60*1000);
+    const now = new Date();
+    const remaining = Math.max(0, Math.ceil((bar - now)/(24*60*60*1000)));
+    return `<div style="padding:16px;border-bottom:1px solid var(--border-s)">
+      <div style="font-size:0.85rem;color:var(--parchment);margin-bottom:4px">${c.id} — ${c.respondent}</div>
+      <div class="countdown">${remaining} days</div>
+      <div class="countdown-label">remaining until absolute bar</div>
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-align:center;margin-top:4px">Award: ${c.awardDate} | Bar: ${bar.toISOString().split('T')[0]}</div>
+    </div>`;
+  }).join('');
+}
+
+renderDashboard();
+</script>
+</body>
+</html>

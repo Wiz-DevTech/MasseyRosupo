@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.0">
+    <title>Massey & Rosupo Co. — Entity Management</title>
+
+    <!-- Firebase Auth (unchanged) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+            authDomain: "masseyrosupo.firebaseapp.com",
+            projectId: "masseyrosupo",
+            storageBucket: "masseyrosupo.firebasestorage.app",
+            messagingSenderId: "335180500143",
+            appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
+            measurementId: "G-TLVDZ69BVC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'portal-login.html';
+            }
+        });
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = 'portal-login.html';
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ─── ROOT VARIABLES (preserved) ─── */
+        :root {
+            /* Ink/Gold theme -- recolored from original blue/light per WIBT theme spec */
+            --primary: #e8eef5;     /* light heading/text (was blue) */
+            --secondary: #aab4c4;   /* light body text (was blue-gray) */
+            --accent: #c9a84c;      /* gold -- links, active tab, accents */
+            --light: #11161f;       /* panel base */
+            --gold: #c9a84c;        /* gold */
+            --border: #2a3344;      /* dark border */
+            --blue-light: #161d2a;  /* dark tint */
+            --blue-hover: #1f2a3d;  /* dark hover */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.8;
+            color: var(--secondary);
+            background-color: #0a0e1a;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── TOP NAV ─── */
+        .top-nav {
+            background: #0a0e1a;
+            border-bottom: 1px solid var(--gold);
+            color: white;
+            padding: 8px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .top-nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-actions a,
+        .user-actions button {
+            color: white;
+            text-decoration: none;
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 0;
+            transition: opacity 0.2s;
+        }
+
+        .user-actions a:hover,
+        .user-actions button:hover {
+            opacity: 0.75;
+        }
+
+        .user-actions .sep {
+            opacity: 0.4;
+        }
+
+        /* ─── MAIN NAV ─── */
+        .main-nav {
+            background: #11161f;
+            border-bottom: 1px solid var(--gold);
+            padding: 12px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .main-nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .logo:hover {
+            opacity: 0.85;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: rgba(201,168,76,0.12);
+            color: var(--gold);
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* ─── MAIN CONTAINER ─── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            background-color: #11161f;
+            min-height: calc(100vh - 120px);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 30px;
+            padding: 30px 0;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .sidebar-links {
+            list-style: none;
+        }
+
+        .sidebar-links li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: block;
+            padding: 5px 0;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar-links a:hover, .sidebar-links a.active {
+            color: var(--accent);
+            padding-left: 5px;
+            font-weight: 500;
+        }
+
+        /* ─── CONTENT AREA ─── */
+        .content-area {
+            flex: 1;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            .main-nav-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* ─── ADDITIONAL UTILITIES ─── */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--blue-hover);
+        }
+        .btn-gold {
+            background: var(--gold);
+            color: white;
+        }
+        .btn-gold:hover {
+            background: #a58d5a;
+        }
+        .card {
+            background: #161d2a;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .card-note {
+            background: #161d2a;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            line-height: 1.5;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .gap-5 { gap: 5px; }
+        .mt-20 { margin-top: 20px; }
+        .mb-20 { margin-bottom: 20px; }
+        .text-muted { color: var(--secondary); font-size: 0.9rem; }
+        .text-gold { color: var(--gold); }
+        .fw-600 { font-weight: 600; }
+        .mono { font-family: 'Montserrat', sans-serif; }
+        .serif { font-family: 'Cormorant Garamond', serif; }
+        .w-200 { width: 200px; }
+        .w-full { width: 100%; }
+        .p-20 { padding: 20px; }
+        .text-center { text-align: center; }
+        .italic { font-style: italic; }
+        .border-bottom { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
+
+        /* Form controls on dark theme */
+        select, input, textarea {
+            background-color: #161d2a;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+        select option { background-color: #161d2a; color: var(--secondary); }
+    </style>
+</head>
+<body>
+    <!-- ═══ TOP NAV ═══ -->
+    <nav class="top-nav">
+        <div class="top-nav-content">
+            <div class="user-info">
+                <span>Ann Wiseman</span>
+            </div>
+            <div class="user-actions">
+                <a href="MainAccessDash.html">&#8592; Dashboard</a>
+                <span class="sep">|</span>
+                <span>Help</span>
+                <span class="sep">|</span>
+                <span>Settings</span>
+                <span class="sep">|</span>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ MAIN NAV ═══ -->
+    <nav class="main-nav">
+        <div class="main-nav-content">
+            <a href="MainAccessDash.html" class="logo">
+                <div style="width: 24px; height: 24px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
+                Admin
+            </a>
+            <div class="nav-tabs">
+                <span class="nav-tab active">Entity Management</span>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">Transactional Services</span>
+                <a href="LitDash.html" class="nav-tab">Matters &amp; SOP</a>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">Orders &amp; Results</span>
+                <a href="SecureMainDash.html" class="nav-tab">Forms &amp; Tools</a>
+                <span class="nav-tab" style="cursor: default; opacity: 0.6;">My Account</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <div class="container">
+        <div class="main-content">
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Entity Management</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="EntDash.html" class="active">Company Management</a></li>
+                        <li><a href="LitDash.html">Agent Addresses</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Quick Links</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="LitDash.html">Litigation &amp; SOP</a></li>
+                        <li><a href="SecureMainDash.html">Forms &amp; Databases</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Registry</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="#entity-registry">Entity Registry</a></li>
+                        <li><a href="#compliance">Compliance Calendar</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- CONTENT AREA -->
+            <main class="content-area">
+
+                <!-- PAGE HEADER -->
+                <div class="flex-between mb-20">
+                    <div class="flex-center">
+                        <div class="flex-center gap-5">
+                            <div style="width: 16px; height: 16px; background: var(--gold); border-radius: 2px;"></div>
+                            <div style="width: 16px; height: 16px; background: var(--accent); border-radius: 2px;"></div>
+                            <div style="width: 16px; height: 16px; background: var(--secondary); border-radius: 2px;"></div>
+                            <div style="width: 16px; height: 16px; background: #2ecc71; border-radius: 2px;"></div>
+                        </div>
+                        <h1 style="font-size: 1.8rem; color: var(--primary); margin: 0;">Company Management</h1>
+                    </div>
+                    <div style="color: var(--gold); font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 2px;">
+                        ENTITY MANAGEMENT
+                    </div>
+                </div>
+
+                <!-- SEARCH & FILTER CARD -->
+                <div class="card">
+                    <div class="mb-20">
+                        <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--primary); margin-bottom: 8px;">
+                            Jurisdiction
+                        </label>
+                        <select id="jurisdictionSelect" style="width: 200px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--secondary);">
+                            <option value="ALL">ALL</option>
+                            <option value="Delaware">Delaware</option>
+                            <option value="New York">New York</option>
+                            <option value="California">California</option>
+                            <option value="Texas">Texas</option>
+                        </select>
+                    </div>
+
+                    <div class="flex-center mb-20">
+                        <button class="btn btn-primary" onclick="filterEntities()">SEARCH</button>
+                        <span style="color: var(--secondary); font-size: 0.9rem; margin: 0 10px;">|</span>
+                        <button class="btn btn-secondary" onclick="clearFilter()">CLEAR</button>
+                    </div>
+
+                    <div class="mb-20">
+                        <a href="#" style="color: var(--accent); text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500;">
+                            Entity Registration &amp; Amendment Form
+                        </a>
+                    </div>
+
+                    <div class="card-note">
+                        <strong>NOTE:</strong><br>
+                        Manage your corporate entities, registered agent designations, and compliance calendars from this console. For agent address changes, use the <a href="LitDash.html" style="color: var(--accent);">Agent Addresses</a> section.
+                    </div>
+                </div>
+
+                <!-- RESULTS AREA (with sample data and interactive table) -->
+                <div class="card" style="min-height: 200px;">
+                    <div class="flex-between border-bottom">
+                        <h2 style="font-size: 1.2rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Registered Entities</h2>
+                        <span style="font-size: 0.8rem; color: var(--secondary);" id="entityCount">Showing 0 entities</span>
+                    </div>
+                    <div id="entityTableWrapper" style="overflow-x: auto; margin-top: 15px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead style="background: var(--light); border-bottom: 2px solid var(--border);">
+                                <tr>
+                                    <th style="padding: 10px 8px; text-align: left; font-family: 'Montserrat', sans-serif; font-weight: 600; color: var(--accent);">Entity Name</th>
+                                    <th style="padding: 10px 8px; text-align: left; font-family: 'Montserrat', sans-serif; font-weight: 600; color: var(--accent);">Jurisdiction</th>
+                                    <th style="padding: 10px 8px; text-align: left; font-family: 'Montserrat', sans-serif; font-weight: 600; color: var(--accent);">Status</th>
+                                    <th style="padding: 10px 8px; text-align: left; font-family: 'Montserrat', sans-serif; font-weight: 600; color: var(--accent);">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="entityTableBody">
+                                <!-- rows inserted by JS -->
+                                <tr><td colspan="4" style="text-align: center; padding: 30px; color: var(--secondary); font-style: italic;">Select a jurisdiction, or "ALL" to view all managed entities</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ENTITY REGISTRY (quick form) -->
+                <div class="card" id="entity-registry">
+                    <h2 style="font-size: 1.2rem; color: var(--primary); font-family: 'Montserrat', sans-serif; margin-bottom: 15px;">Quick Entity Registration</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--primary); margin-bottom: 4px;">Entity Name</label>
+                            <input type="text" id="newEntityName" placeholder="e.g. Wisdom Analytics LLC" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--primary); margin-bottom: 4px;">Jurisdiction</label>
+                            <select id="newEntityJurisdiction" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem;">
+                                <option value="Delaware">Delaware</option>
+                                <option value="New York">New York</option>
+                                <option value="California">California</option>
+                                <option value="Texas">Texas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button class="btn btn-gold" onclick="addEntity()">➕ Add Entity</button>
+                        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                    </div>
+                </div>
+
+                <!-- COMPLIANCE CALENDAR -->
+                <div class="card" id="compliance">
+                    <h2 style="font-size: 1.2rem; color: var(--primary); font-family: 'Montserrat', sans-serif; margin-bottom: 15px;">Compliance Calendar</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--primary); margin-bottom: 4px;">Entity</label>
+                            <select id="complianceEntity" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem;">
+                                <option value="">— Select —</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--primary); margin-bottom: 4px;">Filing Type</label>
+                            <select style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem;">
+                                <option>Annual Report</option>
+                                <option>Franchise Tax</option>
+                                <option>UCC Continuation</option>
+                                <option>Beneficial Ownership</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--primary); margin-bottom: 4px;">Due Date</label>
+                            <input type="date" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="alert('Compliance reminder set.')">Set Reminder</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // ─── SAMPLE DATA ───────────────────────────────────────────────
+        let entities = [
+            { name: "Wisdom Ignited Business Trust", jurisdiction: "Delaware", status: "Active" },
+            { name: "CIPR Treasury", jurisdiction: "Delaware", status: "Active" },
+            { name: "Massey & Rosupo Co.", jurisdiction: "Delaware", status: "Pending" },
+            { name: "WizDevTech LLC", jurisdiction: "New York", status: "Formation" },
+            { name: "MPRS Capital", jurisdiction: "California", status: "Pending EIN" },
+            { name: "Wisdom Analytics LLC", jurisdiction: "Texas", status: "Active" },
+            { name: "Wise Legacy Estates LLC", jurisdiction: "Delaware", status: "Active" },
+            { name: "Divine Signs LLC", jurisdiction: "California", status: "Dormant" },
+        ];
+
+        let currentFilter = 'ALL';
+
+        // ─── RENDER TABLE ──────────────────────────────────────────────
+        function renderTable(filter = 'ALL') {
+            const tbody = document.getElementById('entityTableBody');
+            const countEl = document.getElementById('entityCount');
+            const filtered = filter === 'ALL' ? entities : entities.filter(e => e.jurisdiction === filter);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 30px; color: var(--secondary); font-style: italic;">No entities found for "${filter}"</td></tr>`;
+                countEl.textContent = 'Showing 0 entities';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach((e, idx) => {
+                const statusColor = e.status === 'Active' ? '#2ecc71' :
+                                   e.status === 'Pending' ? '#f39c12' :
+                                   e.status === 'Formation' ? '#5dade2' :
+                                   e.status === 'Dormant' ? '#95a5a6' : '#e74c3c';
+                html += `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 10px 8px; font-weight: 500; color: var(--primary);">${e.name}</td>
+                        <td style="padding: 10px 8px;">${e.jurisdiction}</td>
+                        <td style="padding: 10px 8px;">
+                            <span style="display: inline-block; padding: 2px 12px; border-radius: 12px; background: ${statusColor}22; color: ${statusColor}; font-weight: 500; font-size: 0.8rem; border: 1px solid ${statusColor}44;">${e.status}</span>
+                        </td>
+                        <td style="padding: 10px 8px;">
+                            <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="editEntity(${idx})">Edit</button>
+                            <button class="btn" style="padding: 4px 12px; font-size: 0.75rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteEntity(${idx})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            countEl.textContent = `Showing ${filtered.length} entities`;
+
+            // Update compliance dropdown
+            const sel = document.getElementById('complianceEntity');
+            sel.innerHTML = '<option value="">— Select —</option>';
+            filtered.forEach(e => {
+                sel.innerHTML += `<option value="${e.name}">${e.name}</option>`;
+            });
+        }
+
+        // ─── FILTER FUNCTIONS ─────────────────────────────────────────
+        function filterEntities() {
+            const sel = document.getElementById('jurisdictionSelect');
+            currentFilter = sel.value;
+            renderTable(currentFilter);
+        }
+
+        function clearFilter() {
+            document.getElementById('jurisdictionSelect').value = 'ALL';
+            currentFilter = 'ALL';
+            renderTable('ALL');
+        }
+
+        // ─── ADD ENTITY ────────────────────────────────────────────────
+        function addEntity() {
+            const name = document.getElementById('newEntityName').value.trim();
+            const jurisdiction = document.getElementById('newEntityJurisdiction').value;
+            if (!name) {
+                alert('Please enter an entity name.');
+                return;
+            }
+            entities.push({ name, jurisdiction, status: 'Pending' });
+            renderTable(currentFilter);
+            document.getElementById('newEntityName').value = '';
+            alert(`Entity "${name}" added successfully.`);
+        }
+
+        function clearForm() {
+            document.getElementById('newEntityName').value = '';
+            document.getElementById('newEntityJurisdiction').value = 'Delaware';
+        }
+
+        // ─── EDIT / DELETE ─────────────────────────────────────────────
+        function editEntity(idx) {
+            const e = entities[idx];
+            const newName = prompt('Edit entity name:', e.name);
+            if (newName !== null && newName.trim() !== '') {
+                e.name = newName.trim();
+                renderTable(currentFilter);
+            }
+        }
+
+        function deleteEntity(idx) {
+            if (confirm(`Delete "${entities[idx].name}"?`)) {
+                entities.splice(idx, 1);
+                renderTable(currentFilter);
+            }
+        }
+
+        // ─── INIT ──────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable('ALL');
+        });
+    </script>
+</body>
+</html>
