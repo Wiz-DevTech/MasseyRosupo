@@ -87,7 +87,7 @@
           localStorage.setItem("mrToken", j.access_token);
           if (j.refresh_token) localStorage.setItem("mrRefresh", j.refresh_token);
           sessionStorage.removeItem("mr_portal_pkce_v");
-          window.location.replace(REDIRECT.split("/portal-login.html")[0] + "/MainAccessDash.html");
+          window.location.replace(REDIRECT.split("/portal-login.html")[0] + "/client-arbitration.html");
         } else {
           console.error("token exchange failed", j);
           alert("Sign-in failed: " + (j.error_description || j.error));

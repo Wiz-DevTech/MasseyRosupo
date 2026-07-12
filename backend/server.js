@@ -219,7 +219,8 @@ app.post("/api/auth/oidc-callback", async (req, res) => {
 
 // ── Operations API (proxies to wisdomignited backend; M&R-local records too) ──
 // The substantial Operations APIs + wisdomignited links live upstream.
-app.get("/api/operations", auth, async (req, res) => {
+// Operations ledger is fiduciary — trustee-only read (matches POST).
+app.get("/api/operations", requireRole(KC_REQUIRED_ROLE_TRUSTEE), async (req, res) => {
   const local = db.prepare("SELECT * FROM operations ORDER BY created_at DESC").all();
   try {
     const upstream = await fetch(`${WISDOM_BACKEND_API}/operations`, {
