@@ -344,7 +344,7 @@
 <div id="kc-gate" class="kc-gate">
   <div class="mark">M&amp;R</div>
   <div class="name">MASSEY &amp; ROSUPO CO.</div>
-  <div class="label">Trustee Console Access</div>
+  <div class="label">Secure Access</div>
   <div class="rule"></div>
   <button class="signin" id="kc-signin">Sign In</button>
   <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
@@ -353,12 +353,14 @@
 <div id="kc-forbidden" class="kc-forbidden" style="display:none">
   <div class="mark">M&amp;R</div>
   <div class="name">ACCESS RESTRICTED</div>
-  <div class="label">Trustee role required</div>
+  <div class="label">Sign-in required</div>
   <div class="rule"></div>
-  <div class="return" style="color:#c8ae7e">Your account does not hold the required Trustee role.</div>
+  <div class="return" style="color:#c8ae7e">Please sign in with your Massey &amp; Rosupo account.</div>
   <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
   <div class="ciphernex">CipherNex Federation &middot; Secure Fiduciary Access</div>
 </div>
+<!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
+<script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
 <script src="partials/keycloak-gate.js"></script>
     <!-- Top Navigation -->
     <nav class="top-nav">

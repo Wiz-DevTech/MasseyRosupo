@@ -621,7 +621,7 @@
 <div id="kc-gate" class="kc-gate">
   <div class="mark">M&amp;R</div>
   <div class="name">MASSEY &amp; ROSUPO CO.</div>
-  <div class="label">Trustee Console Access</div>
+  <div class="label">Secure Access</div>
   <div class="rule"></div>
   <button class="signin" id="kc-signin">Sign In</button>
   <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
@@ -630,12 +630,14 @@
 <div id="kc-forbidden" class="kc-forbidden" style="display:none">
   <div class="mark">M&amp;R</div>
   <div class="name">ACCESS RESTRICTED</div>
-  <div class="label">Trustee role required</div>
+  <div class="label">Sign-in required</div>
   <div class="rule"></div>
-  <div class="return" style="color:#c8ae7e">Your account does not hold the required Trustee role.</div>
+  <div class="return" style="color:#c8ae7e">Please sign in with your Massey &amp; Rosupo account.</div>
   <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
   <div class="ciphernex">CipherNex Federation &middot; Secure Fiduciary Access</div>
 </div>
+<!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
+<script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
 <script src="partials/keycloak-gate.js"></script>
     <header class="header">
         <div class="header-left">
@@ -828,7 +830,7 @@
                             </div>
                         </div>
                     </section>
-                    <section class="mr-doc-section dashboard-section">
+                    <section class="mr-doc-section dashboard-section admin-only">
                         <h2 class="section-header">Live Operations <span class="mr-doc-badge">M&amp;R Backend</span></h2>
                         <p class="mr-doc-sub">Real-time operations ledger from the Massey &amp; Rosupo backend (trustee view).</p>
                         <div class="mr-doc-card">
@@ -848,7 +850,7 @@
                         <!-- Upload form (trustee only) -->
                         <div class="mr-doc-card">
                             <h3 class="mr-doc-h3">Upload &amp; Mint a Document</h3>
-                            <form id="mrDocForm" class="mr-doc-form">
+                            <form id="mrDocForm" class="mr-doc-form admin-only">
                                 <div class="mr-doc-row">
                                     <label>File
                                         <input type="file" name="file" required>

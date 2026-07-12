@@ -161,7 +161,7 @@
 <div id="kc-gate" class="kc-gate">
   <div class="mark">M&amp;R</div>
   <div class="name">MASSEY &amp; ROSUPO CO.</div>
-  <div class="label">Trustee Console Access</div>
+  <div class="label">Secure Access</div>
   <div class="rule"></div>
   <button class="signin" id="kc-signin">Sign In</button>
   <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
@@ -170,12 +170,14 @@
 <div id="kc-forbidden" class="kc-forbidden" style="display:none">
   <div class="mark">M&amp;R</div>
   <div class="name">ACCESS RESTRICTED</div>
-  <div class="label">Trustee role required</div>
+  <div class="label">Sign-in required</div>
   <div class="rule"></div>
-  <div class="return" style="color:#c8ae7e">Your account does not hold the required Trustee role.</div>
+  <div class="return" style="color:#c8ae7e">Please sign in with your Massey &amp; Rosupo account.</div>
   <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
   <div class="ciphernex">CipherNex Federation &middot; Secure Fiduciary Access</div>
 </div>
+<!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
+<script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
 <script src="partials/keycloak-gate.js"></script>
 
 <!-- TOP BAR (with Firebase logout) -->
@@ -314,7 +316,7 @@
                     <div class="metric"><div class="metric-label">Total Receivables</div><div class="metric-value" id="m-receivables">$0</div></div>
                 </div>
                 <div class="card"><div class="card-title">Case Register</div><table><thead><tr><th>Case ID</th><th>Respondent</th><th>Status</th><th>Amount</th><th>Filed</th><th>90-Day Bar</th></tr></thead><tbody id="case-list"><tr><td colspan="6" class="empty">No cases filed. Create a new case to begin.</td></tr></tbody></table></div>
-                <div style="display:flex;gap:12px;"><button class="btn btn-gold" onclick="showArbView('newcase')">+ New Arbitration Case</button><button class="btn btn-ghost" onclick="showArbView('schedule')">Schedule A Calculator</button></div>
+                <div style="display:flex;gap:12px;"><button class="admin-only btn btn-gold" onclick="showArbView('newcase')">+ New Arbitration Case</button><button class="admin-only btn btn-ghost" onclick="showArbView('schedule')">Schedule A Calculator</button></div>
             </div>
             <div id="view-newcase" class="hidden"><span class="nav-back" onclick="showArbView('dashboard')">← Back to Dashboard</span><div class="page-title">New Arbitration Case</div><div class="card"><div class="card-title">Case Information</div><div class="form-grid"><div class="form-field"><label>Case ID</label><input id="nc-id" readonly></div><div class="form-field"><label>Respondent Name</label><input id="nc-respondent" placeholder="Full legal name"></div><div class="form-field"><label>Entity Type</label><select id="nc-entity"><option>Individual</option><option>Corporation</option><option>Government Agency</option></select></div><div class="form-field"><label>Address</label><input id="nc-address" placeholder="Mailing address"></div></div></div><div class="card"><div class="card-title">Schedule A Violations</div><div id="nc-violations" style="max-height:400px;overflow-y:auto;"></div><div class="total-bar"><div class="total-label">Total Claim Amount</div><div class="total-amount" id="nc-total">$0</div></div></div><button class="btn btn-gold" onclick="createCase()">File Arbitration Case</button><button class="btn btn-ghost" onclick="showArbView('dashboard')">Cancel</button></div>
             <div id="view-schedule" class="hidden"><span class="nav-back" onclick="showArbView('dashboard')">← Back</span><div class="page-title">Schedule A — Fee Schedule</div><div class="card"><div id="schedule-list"></div></div></div>

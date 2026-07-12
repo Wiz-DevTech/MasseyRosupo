@@ -1,18 +1,24 @@
-/* Shared Keycloak trustee gate for M&R dashboards.
-   Mirrors the access model of arbitration.html: only accounts with the
-   `trustee` realm role (massey-admin) may open these fiduciary consoles.
-   Beneficiaries / anonymous visitors see a forbidden / sign-in screen.
-
-   The including page must contain two overlays:
-     <div id="kc-gate" class="kc-gate"> ... <button id="kc-signin">Sign In</button> ... </div>
-     <div id="kc-forbidden" class="kc-forbidden" style="display:none"> ... </div>
-   and hide its own content until authed (the gate overlay is fixed full-screen
-   so it covers the console until the user is authenticated). */
+/* Shared Keycloak gate for M&R pages.
+ *
+ * Two modes (set BEFORE including this script):
+ *   window.KC_CLIENT_ID         - Keycloak client to sign in with (default: "massey-admin")
+ *   window.KC_REQUIRE_TRUSTEE   - if true (default), only `trustee` role may enter
+ *                                 (used by arbitration.html, admin-portal.html).
+ *                                 if false, ANY signed-in user may enter
+ *                                 (used by EntDash/LitDash/MainAccessDash/SecureMainDash —
+ *                                  these are user-facing consoles: forms + own documents).
+ *
+ * Admin-only actions (create arbitration case, add invoices, mint secured
+ * documents on-chain, edit fee schedule, filings, operations) are enforced
+ * server-side regardless of this gate. Front-end admin controls should be
+ * tagged class="admin-only" and are auto-hidden for non-trustees.
+ */
 
 const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
 const KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
 const KC_REQUIRED_ROLE_TRUSTEE = "trustee";
-const KC_CLIENT = "massey-admin";
+const KC_CLIENT = window.KC_CLIENT_ID || "massey-admin";
+const KC_REQUIRE_TRUSTEE = (typeof window.KC_REQUIRE_TRUSTEE === "undefined") ? true : !!window.KC_REQUIRE_TRUSTEE;
 const KC_REDIRECT = location.origin + location.pathname;
 
 function _kcB64url(buf){ return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
@@ -26,6 +32,11 @@ function _kcIsTrustee(){
     const roles = (p.realm_access && p.realm_access.roles) || [];
     return roles.includes(KC_REQUIRED_ROLE_TRUSTEE);
   } catch(e){ return false; }
+}
+// "Authorized" depends on mode: trustee-only vs any signed-in user.
+function _kcAuthorized(){
+  if (KC_REQUIRE_TRUSTEE) return _kcIsTrustee();
+  return !!localStorage.getItem('mrToken');
 }
 
 function _kcShowGate(){
@@ -60,25 +71,32 @@ function kcGoKeycloak(){
   });
 }
 
-/* Shared authenticated API helper for dashboards.
-   Returns parsed JSON. Throws on non-2xx. Uses the stored mrToken. */
+/* Shared authenticated API helper. Throws on non-2xx and re-shows the gate. */
 async function kcApi(path, opts = {}) {
   const token = localStorage.getItem('mrToken');
   const headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
   if (token) headers["Authorization"] = "Bearer " + token;
   const res = await fetch(location.origin + "/api" + path, Object.assign({ headers }, opts));
-  if (res.status === 401 || res.status === 403) {
-    // Session expired or lost trustee role — send back to gate.
-    _kcShowGate();
-    throw new Error("unauthorized");
-  }
+  if (res.status === 401 || res.status === 403) { _kcShowGate(); throw new Error("unauthorized"); }
   return res.json();
 }
 window.kcApi = kcApi;
 
-/* True once a trustee session is active (use to gate data loads). */
-function kcIsAuthed() { return _kcIsTrustee(); }
+/* Authorization check that respects the page mode (trustee-only vs any user). */
+function kcIsAuthed(){ return _kcAuthorized(); }
 window.kcIsAuthed = kcIsAuthed;
+/* Trustee role specifically (for hiding admin-only UI). */
+function kcIsTrustee(){ return _kcIsTrustee(); }
+window.kcIsTrustee = kcIsTrustee;
+
+/* Hide any element tagged class="admin-only" for non-trustees. */
+function kcApplyAdminVisible(){
+  const trustee = _kcIsTrustee();
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = trustee ? '' : 'none';
+  });
+}
+window.kcApplyAdminVisible = kcApplyAdminVisible;
 
 (function _kcHandleCallback(){
   const params = new URLSearchParams(location.search);
@@ -94,7 +112,7 @@ window.kcIsAuthed = kcIsAuthed;
         if (j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
         sessionStorage.removeItem('kc_pkce_v');
         history.replaceState(null, '', KC_REDIRECT);
-        if (_kcIsTrustee()) { _kcHideAll(); window.dispatchEvent(new Event('kc:authed')); }
+        if (_kcAuthorized()) { _kcHideAll(); kcApplyAdminVisible(); window.dispatchEvent(new Event('kc:authed')); }
         else _kcShowForbidden();
       } else {
         _kcShowGate();
@@ -103,12 +121,13 @@ window.kcIsAuthed = kcIsAuthed;
 })();
 
 (function _kcBoot(){
-  if (_kcIsTrustee()) _kcHideAll();
-  else if (localStorage.getItem('mrToken')) _kcShowForbidden();
+  if (_kcAuthorized()) { _kcHideAll(); }
+  else if (localStorage.getItem('mrToken') && KC_REQUIRE_TRUSTEE) _kcShowForbidden();
   else _kcShowGate();
 })();
 
 document.addEventListener('DOMContentLoaded', function(){
   const btn = document.getElementById('kc-signin');
   if (btn) btn.addEventListener('click', kcGoKeycloak);
+  kcApplyAdminVisible();
 });
