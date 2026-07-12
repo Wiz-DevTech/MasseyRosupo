@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="ca56ed6">
+  <script src="partials/cache-bust.js?v=ca56ed6"></script>
+  <!-- CACHE-BUST end -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="WIBT Accrual Ledger v1.0 — CipherNex Protocol | Wisdom Ignited Business Trust">
+<title>WIBT Universal Accrual Ledger — GAAP & UCC Compliant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── WIBT DESIGN TOKENS ──────────────────────────────────────── */
+:root {
+  --ink:        #0d0f14;
+  --ink-soft:   #161921;
+  --ink-mid:    #1e2230;
+  --ink-light:  #252a38;
+  --border:     rgba(168,148,100,0.18);
+  --border-s:   rgba(168,148,100,0.09);
+  --gold:       #a89464;
+  --gold-lt:    #c8ae7e;
+  --gold-glow:  rgba(168,148,100,0.14);
+  --gold-glow2: rgba(168,148,100,0.22);
+  --parchment:  #f0ece3;
+  --cream:      #faf8f4;
+  --muted:      #525873;
+  --muted-lt:   #7a7f96;
+  --green:      #2ecc71;
+  --green-glow: rgba(46,204,113,0.12);
+  --red:        #e74c3c;
+  --red-glow:   rgba(231,76,60,0.12);
+  --blue:       #5dade2;
+  --blue-glow:  rgba(93,173,226,0.12);
+  --amber:      #f39c12;
+  --purple:     #9b59b6;
+  --cipr:       #c9a84c;
+  --cipr-glow:  rgba(201,168,76,0.15);
+  --r:          6px;
+  --mono:       'DM Mono', monospace;
+  --serif:      'Cormorant Garamond', serif;
+  --sans:       'DM Sans', sans-serif;
+  --sidebar-w:  220px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--ink);color:var(--parchment);min-height:100vh;display:flex;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--sans);cursor:pointer}
+input,select,textarea{font-family:var(--sans)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--ink-mid)}
+::-webkit-scrollbar-thumb{background:rgba(168,148,100,0.3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────────── */
+.sidebar{width:var(--sidebar-w);background:var(--ink-soft);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:30;overflow-y:auto}
+.sidebar-header{padding:18px 16px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-logo{font-family:var(--serif);font-size:1.05rem;font-weight:500;color:var(--parchment);line-height:1.3}
+.sidebar-sub{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.14em;color:var(--gold);text-transform:uppercase;margin-top:3px}
+.sidebar-badge{display:inline-block;font-family:var(--mono);font-size:0.48rem;letter-spacing:0.1em;color:var(--green);background:var(--green-glow);border:1px solid rgba(46,204,113,0.25);padding:2px 7px;border-radius:20px;margin-top:5px}
+.nav-section{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;padding:10px 14px 3px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;font-size:0.78rem;color:var(--muted-lt);transition:all 0.15s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--gold-glow);color:var(--parchment)}
+.nav-item.active{background:var(--gold-glow);color:var(--gold-lt);border-left-color:var(--gold)}
+.nav-icon{width:15px;text-align:center;font-size:0.8rem}
+.sidebar-footer{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0}
+.reserve-status{background:var(--ink);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;font-family:var(--mono);font-size:0.55rem}
+.reserve-ratio{font-size:1rem;color:var(--gold-lt);font-weight:500;letter-spacing:0.04em}
+.reserve-label{color:var(--muted);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase}
+
+/* ─── MAIN ────────────────────────────────────────────────────── */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:52px;background:var(--ink-soft);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:20}
+.topbar-title{font-family:var(--serif);font-size:1rem;font-weight:400;color:var(--parchment)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-tag{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;color:var(--gold);background:var(--gold-glow);border:1px solid var(--border);padding:2px 8px;border-radius:20px}
+
+/* ─── CONTENT ─────────────────────────────────────────────────── */
+.content{padding:20px 24px;flex:1}
+.section{display:none}
+.section.active{display:block;animation:fadeIn 0.25s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── CARDS ───────────────────────────────────────────────────── */
+.card{background:var(--ink-soft);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
+.card-gold{border-color:rgba(168,148,100,0.35)}
+.card-green{border-color:rgba(46,204,113,0.25)}
+.card-red{border-color:rgba(231,76,60,0.25)}
+.card-blue{border-color:rgba(93,173,226,0.2)}
+.section-div{font-family:var(--mono);font-size:0.54rem;letter-spacing:0.13em;color:var(--gold);text-transform:uppercase;border-bottom:1px solid var(--border-s);padding-bottom:7px;margin:18px 0 12px}
+.section-div:first-child{margin-top:0}
+.screen-title{font-family:var(--serif);font-size:1.4rem;font-weight:400;color:var(--parchment);margin-bottom:3px}
+.screen-sub{font-size:0.75rem;color:var(--muted-lt);margin-bottom:18px;line-height:1.5}
+
+/* ─── STAT GRID ───────────────────────────────────────────────── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.stat-card{background:var(--ink-mid);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.stat-label{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.stat-value{font-size:1.3rem;font-weight:500;font-family:var(--mono);color:var(--parchment)}
+.stat-value.gold{color:var(--gold-lt)}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.blue{color:var(--blue)}
+.stat-sub{font-size:0.62rem;color:var(--muted-lt);margin-top:3px}
+
+/* ─── FORMS ───────────────────────────────────────────────────── */
+.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px 14px}
+.field-grid.two{grid-template-columns:1fr 1fr}
+.field-grid.three{grid-template-columns:1fr 1fr 1fr}
+.field-grid.four{grid-template-columns:1fr 1fr 1fr 1fr}
+.field-grid.full{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.span-2{grid-column:span 2}
+.field label{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;color:var(--gold);text-transform:uppercase}
+.field input,.field select,.field textarea{background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--parchment);font-size:0.82rem;font-family:var(--sans);padding:7px 10px;outline:none;transition:border-color 0.2s;width:100%}
+.field input::placeholder,.field textarea::placeholder{color:#2e3245}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field select option{background:var(--ink-mid)}
+.field textarea{min-height:64px;resize:vertical;line-height:1.5}
+.field-mono input,.field-mono select{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.03em}
+
+/* ─── BUTTONS ─────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 16px;border-radius:4px;border:1px solid transparent;font-family:var(--sans);font-size:0.78rem;font-weight:500;cursor:pointer;transition:all 0.15s}
+.btn-gold{background:var(--gold-glow);border-color:var(--gold);color:var(--gold-lt)}
+.btn-gold:hover{background:var(--gold-glow2)}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--muted-lt)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--parchment)}
+.btn-green{background:var(--green-glow);border-color:rgba(46,204,113,0.4);color:var(--green)}
+.btn-green:hover{background:rgba(46,204,113,0.18)}
+.btn-red{background:var(--red-glow);border-color:rgba(231,76,60,0.3);color:var(--red)}
+.btn-blue{background:var(--blue-glow);border-color:rgba(93,173,226,0.3);color:var(--blue)}
+.btn-sm{padding:5px 11px;font-size:0.7rem}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+/* ─── TABLES ──────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.78rem}
+thead tr{background:var(--ink-mid)}
+thead th{padding:8px 10px;text-align:left;font-family:var(--mono);font-size:0.52rem;letter-spacing:0.08em;color:var(--gold);text-transform:uppercase;font-weight:500;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border-s);transition:background 0.1s}
+tbody tr:hover{background:var(--gold-glow)}
+td{padding:7px 10px;color:var(--parchment)}
+td.mono{font-family:var(--mono);font-size:0.7rem}
+td.dr{color:var(--green)}
+td.cr{color:var(--red)}
+td.gold{color:var(--gold-lt)}
+tfoot tr{background:var(--ink-mid)}
+tfoot td{padding:8px 10px;font-family:var(--mono);font-size:0.72rem;font-weight:500;color:var(--gold-lt);border-top:1px solid var(--border)}
+
+/* ─── BADGES ──────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.07em;text-transform:uppercase;padding:2px 8px;border-radius:3px;border:1px solid}
+.badge-green{background:var(--green-glow);border-color:rgba(46,204,113,0.3);color:var(--green)}
+.badge-red{background:var(--red-glow);border-color:rgba(231,76,60,0.3);color:var(--red)}
+.badge-gold{background:var(--gold-glow);border-color:var(--border);color:var(--gold-lt)}
+.badge-blue{background:var(--blue-glow);border-color:rgba(93,173,226,0.3);color:var(--blue)}
+.badge-purple{background:rgba(155,89,182,0.12);border-color:rgba(155,89,182,0.3);color:var(--purple)}
+
+/* ─── AI AGENT ────────────────────────────────────────────────── */
+.agent-header{background:var(--ink-mid);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.agent-name{font-family:var(--serif);font-size:1.1rem;color:var(--gold-lt)}
+.agent-desc{font-size:0.72rem;color:var(--muted-lt);margin-top:3px}
+.chat-wrap{background:var(--ink);border:1px solid var(--border);border-radius:var(--r);height:380px;overflow-y:auto;padding:14px;margin-bottom:10px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg-avatar{width:28px;height:28px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-family:var(--mono);font-weight:500}
+.msg-user .msg-avatar{background:var(--gold-glow);border:1px solid var(--border);color:var(--gold)}
+.msg-agent .msg-avatar{background:var(--ink-mid);border:1px solid var(--border);color:var(--green)}
+.msg-body{flex:1}
+.msg-role{font-family:var(--mono);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.msg-text{font-size:0.78rem;line-height:1.6;color:var(--parchment);white-space:pre-wrap}
+.msg-text hr{border:none;border-top:1px solid rgba(46,204,113,0.25);margin:6px 0}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--parchment);font-size:0.8rem;font-family:var(--sans);padding:9px 12px;outline:none;transition:border-color 0.2s;resize:none}
+.chat-input:focus{border-color:var(--gold)}
+.typing-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1s infinite}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* ─── JOURNAL ─────────────────────────────────────────────────── */
+.journal-entry{background:var(--ink);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.je-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.je-ref{font-family:var(--mono);font-size:0.6rem;color:var(--gold)}
+.je-date{font-family:var(--mono);font-size:0.6rem;color:var(--muted-lt)}
+.je-desc{font-size:0.78rem;color:var(--parchment);margin-bottom:8px}
+.je-lines table{font-size:0.72rem}
+.ucc-anchor{font-family:var(--mono);font-size:0.52rem;color:var(--muted);border-top:1px solid var(--border-s);margin-top:8px;padding-top:6px}
+
+/* ─── UCC MEMO ────────────────────────────────────────────────── */
+.ucc-memo{background:var(--cipr-glow);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:8px 10px;font-family:var(--mono);font-size:0.58rem;color:var(--gold-lt);margin-top:10px;line-height:1.7}
+
+/* ─── TOAST ───────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink-mid);border:1px solid var(--border);border-radius:var(--r);padding:10px 16px;font-size:0.76rem;color:var(--parchment);display:flex;align-items:center;gap:8px;z-index:999;opacity:0;transform:translateY(6px);transition:all 0.22s;min-width:240px}
+.toast.show{opacity:1;transform:translateY(0)}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.tdot.err{background:var(--red)}
+
+/* ─── CIPR PANEL ──────────────────────────────────────────────── */
+.cipr-panel{background:linear-gradient(135deg,var(--cipr-glow),rgba(168,148,100,0.06));border:1px solid rgba(201,168,76,0.25);border-radius:var(--r);padding:14px 16px}
+.cipr-title{font-family:var(--mono);font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--cipr);margin-bottom:8px}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  .sidebar{width:0;overflow:hidden}
+  .main{margin-left:0}
+  .field-grid.three,.field-grid.four{grid-template-columns:1fr 1fr}
+}
+</style>
+<!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="dev">
+  <script src="partials/cache-bust.js?v=dev"></script>
+  <!-- CACHE-BUST end -->
+</head>
+<body>
+
+<!-- ── SIDEBAR ──────────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">Wisdom Ignited<br>Business Trust</div>
+    <div class="sidebar-sub">Universal Accrual Ledger</div>
+    <div class="sidebar-badge">GAAP · UCC · CIPR</div>
+  </div>
+
+  <nav style="flex:1;padding:8px 0">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" data-section="dashboard" onclick="show('dashboard')"><span class="nav-icon">◈</span>Dashboard</div>
+
+    <div class="nav-section">Accounting</div>
+    <div class="nav-item" data-section="ledger" onclick="show('ledger')"><span class="nav-icon">📒</span>General Ledger</div>
+    <div class="nav-item" data-section="journal" onclick="show('journal')"><span class="nav-icon">✍</span>Journal Entries</div>
+    <div class="nav-item" data-section="coa" onclick="show('coa')"><span class="nav-icon">🗂</span>Chart of Accounts</div>
+    <div class="nav-item" data-section="arap" onclick="show('arap')"><span class="nav-icon">↕</span>AR / AP</div>
+
+    <div class="nav-section">Commerce</div>
+    <div class="nav-item" data-section="invoicing" onclick="show('invoicing')"><span class="nav-icon">🧾</span>Invoicing</div>
+    <div class="nav-item" data-section="boe" onclick="show('boe')"><span class="nav-icon">📜</span>Bills of Exchange</div>
+    <div class="nav-item" data-section="payments" onclick="show('payments')"><span class="nav-icon">💳</span>Payment Orders</div>
+    <div class="nav-item" data-section="expenses" onclick="show('expenses')"><span class="nav-icon">📋</span>Expenses</div>
+
+    <div class="nav-section">CIPR Settlement</div>
+    <div class="nav-item" data-section="cipr" onclick="show('cipr')"><span class="nav-icon">⬡</span>CIPR Ledger</div>
+    <div class="nav-item" data-section="reserve" onclick="show('reserve')"><span class="nav-icon">🔒</span>Bond Reserve</div>
+    <div class="nav-item" data-section="trustlines" onclick="show('trustlines')"><span class="nav-icon">↔</span>TrustLines</div>
+
+    <div class="nav-section">Assets & Tax</div>
+    <div class="nav-item" data-section="depreciation" onclick="show('depreciation')"><span class="nav-icon">🏗</span>Depreciation</div>
+    <div class="nav-item" data-section="tax" onclick="show('tax')"><span class="nav-icon">🧮</span>Tax Estimator</div>
+    <div class="nav-item" data-section="payroll" onclick="show('payroll')"><span class="nav-icon">👷</span>Payroll</div>
+    <div class="nav-item" data-section="inventory" onclick="show('inventory')"><span class="nav-icon">📦</span>Inventory</div>
+    <div class="nav-item" data-section="budget" onclick="show('budget')"><span class="nav-icon">📈</span>Budget & Forecast</div>
+    <div class="nav-item" data-section="bank" onclick="show('bank')"><span class="nav-icon">🏦</span>Bank Reconciliation</div>
+
+    <div class="nav-section">Entities & Reports</div>
+    <div class="nav-item" data-section="entities" onclick="show('entities')"><span class="nav-icon">🏛</span>Entity Registry</div>
+    <div class="nav-item" data-section="reports" onclick="show('reports')"><span class="nav-icon">📑</span>Financial Statements</div>
+    <div class="nav-item" data-section="audit" onclick="show('audit')"><span class="nav-icon">🔍</span>Audit Log</div>
+
+    <div class="nav-section">CPA Agents</div>
+    <div class="nav-item" data-section="agent-wibt" onclick="show('agent-wibt')"><span class="nav-icon">⚖</span>WIBT Master CPA</div>
+    <div class="nav-item" data-section="agent-trust" onclick="show('agent-trust')"><span class="nav-icon">🔒</span>Trust CPA</div>
+    <div class="nav-item" data-section="agent-corp" onclick="show('agent-corp')"><span class="nav-icon">🏢</span>Corporation CPA</div>
+    <div class="nav-item" data-section="agent-nonprofit" onclick="show('agent-nonprofit')"><span class="nav-icon">🏛</span>Nonprofit CPA</div>
+    <div class="nav-item" data-section="agent-partner" onclick="show('agent-partner')"><span class="nav-icon">🤝</span>Partnership CPA</div>
+    <div class="nav-item" data-section="agent-consolidated" onclick="show('agent-consolidated')"><span class="nav-icon">🗃</span>Consolidated CPA</div>
+
+    <div class="nav-section">Settings</div>
+    <div class="nav-item" data-section="settings" onclick="show('settings')"><span class="nav-icon">⚙</span>API & Settings</div>
+    <div class="nav-item" data-section="irsforms" onclick="show('irsforms')"><span class="nav-icon">📄</span>IRS Form Generator</div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="reserve-status">
+      <div class="reserve-label">Reserve Ratio</div>
+      <div class="reserve-ratio" id="sidebarRatio">1.0000</div>
+      <div class="reserve-label" style="margin-top:4px">Circulating Supply</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--parchment)" id="sidebarSupply">—</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="exportAll()">⬇ Export</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="saveAll()">💾 Save</button>
+    </div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-s)">
+      <a href="transactional-services.html" style="display:block;font-family:var(--mono);font-size:0.55rem;letter-spacing:0.08em;color:var(--gold-lt);text-transform:uppercase;padding:5px 0">← M&amp;R Portal</a>
+      <a href="arbitration.html" style="display:block;font-family:var(--mono);font-size:0.55rem;letter-spacing:0.08em;color:var(--muted-lt);text-transform:uppercase;padding:5px 0">Arbitration</a>
+      <a href="EntDash.html" style="display:block;font-family:var(--mono);font-size:0.55rem;letter-spacing:0.08em;color:var(--muted-lt);text-transform:uppercase;padding:5px 0">Entity Management</a>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ─────────────────────────────────────────────────────── -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-right">
+      <span class="topbar-tag" id="entityTag">All Entities</span>
+      <span class="topbar-tag" id="periodTag">FY 2026</span>
+      <button class="btn btn-ghost btn-sm" onclick="show('agent-wibt')">⚖ CPA Agent</button>
+      <button class="btn btn-gold btn-sm" onclick="saveAll()">💾 Save</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ══════════════════════════════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section active" id="sec-dashboard">
+    <div class="screen-title">Operational Dashboard</div>
+    <div class="screen-sub">Real-time overview of accrual position, CIPR reserve health, entity status, and pending obligations.</div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Debits (YTD)</div>
+        <div class="stat-value green" id="dash-debits">$0.00</div>
+        <div class="stat-sub">All entities</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Credits (YTD)</div>
+        <div class="stat-value red" id="dash-credits">$0.00</div>
+        <div class="stat-sub">All entities</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Net Position</div>
+        <div class="stat-value gold" id="dash-net">$0.00</div>
+        <div class="stat-sub">Debits minus credits</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">CIPR Reserve Ratio</div>
+        <div class="stat-value gold" id="dash-ratio">1.0000</div>
+        <div class="stat-sub">Must remain ≥ 1.0000</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active TrustLines</div>
+        <div class="stat-value blue" id="dash-tl">0</div>
+        <div class="stat-sub">Open consent channels</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending AR</div>
+        <div class="stat-value gold" id="dash-ar">$0.00</div>
+        <div class="stat-sub">Receivables outstanding</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending AP</div>
+        <div class="stat-value red" id="dash-ap">$0.00</div>
+        <div class="stat-sub">Payables outstanding</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Journal Entries</div>
+        <div class="stat-value" id="dash-je">0</div>
+        <div class="stat-sub">Double-entry records</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="card card-gold">
+        <div class="section-div">CIPR Reserve Status</div>
+        <div class="cipr-panel">
+          <div class="cipr-title">Bond Reserve Ledger — Live Position</div>
+          <div id="dash-reserve-entries" style="font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt);line-height:2">No reserve entries recorded.</div>
+        </div>
+        <div class="ucc-memo" style="margin-top:10px">
+          UCC 3-311 — Accord &amp; Satisfaction | UCC 3-603 — Tender of Payment | 12 USC 411 — Inversion of Liability<br>
+          Chain ID: 777287 | CipherNex Private PoW | Reserve Ratio: <span id="dash-ratio-memo">1.0000</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-div">Recent Ledger Activity</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Date</th><th>Description</th><th>Dr</th><th>Cr</th></tr></thead>
+          <tbody id="dash-recent"><tr><td colspan="4" style="text-align:center;color:var(--muted)">No entries yet</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0">
+      <div class="section-div">Quick Entry — General Ledger</div>
+      <div class="field-grid four">
+        <div class="field"><label>Date</label><input type="date" id="qDate"></div>
+        <div class="field"><label>Description</label><input type="text" id="qDesc" placeholder="Transaction description"></div>
+        <div class="field">
+          <label>Category</label>
+          <select id="qCat">
+            <option>Income</option>
+            <option>Business Expense</option>
+            <option>Trust Distribution</option>
+            <option>CIPR Settlement</option>
+            <option>Bond Reserve Issuance</option>
+            <option>Bill of Exchange — Issued</option>
+            <option>Bill of Exchange — Discharged</option>
+            <option>Debt Offset (Accord & Satisfaction)</option>
+            <option>Charitable Contribution</option>
+            <option>Investment Income</option>
+            <option>Capital Gain/Loss</option>
+            <option>Payroll</option>
+            <option>Asset Purchase</option>
+            <option>Depreciation</option>
+            <option>Tax Obligation</option>
+            <option>Intercompany Transfer</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Entity</label><select id="qEntity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option><option>MPRS Capital</option><option>Wisdom Analytics LLC</option><option>Wise Legacy Estates LLC</option><option>Divine Signs LLC</option><option>Wisdom Academy</option><option>Knowledge &amp; Wisdom Dev</option></select></div>
+        <div class="field"><label>Debit (Dr)</label><input type="number" id="qDr" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="field"><label>Credit (Cr)</label><input type="number" id="qCr" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="field"><label>UCC Anchor</label><select id="qUCC"><option value="">None</option><option value="UCC 3-311">UCC 3-311 — Accord &amp; Satisfaction</option><option value="UCC 3-603">UCC 3-603 — Tender of Payment</option><option value="12 USC 411">12 USC 411 — Lawful Money</option><option value="UCC 9-102">UCC 9-102 — Secured Transaction</option></select></div>
+        <div class="field"><label>CIPR Amount</label><input type="number" id="qCIPR" step="0.01" min="0" placeholder="0.00"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="addLedgerEntry()">➕ Add Entry</button>
+        <button class="btn btn-ghost" onclick="show('ledger')">View Full Ledger →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       GENERAL LEDGER
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-ledger">
+    <div class="screen-title">General Ledger</div>
+    <div class="screen-sub">GAAP accrual-basis double-entry ledger. All entries carry UCC anchor memos and entity attribution. Debits must equal credits across each period.</div>
+
+    <div class="card">
+      <div class="section-div">New Ledger Entry</div>
+      <div class="field-grid four">
+        <div class="field"><label>Date <span style="color:var(--red)">*</span></label><input type="date" id="l-date"></div>
+        <div class="field span-2"><label>Description <span style="color:var(--red)">*</span></label><input type="text" id="l-desc" placeholder="Full description of transaction"></div>
+        <div class="field"><label>Account Code</label><input type="text" id="l-acct" placeholder="e.g. 1000 — Cash"></div>
+        <div class="field"><label>Category</label><select id="l-cat"><option>Income</option><option>Business Expense</option><option>Trust Distribution</option><option>CIPR Settlement</option><option>Bond Reserve Issuance</option><option>Bill of Exchange — Issued</option><option>Bill of Exchange — Discharged</option><option>Debt Offset</option><option>Charitable Contribution</option><option>Investment Income</option><option>Capital Gain/Loss</option><option>Payroll</option><option>Asset Purchase</option><option>Depreciation</option><option>Tax Obligation</option><option>Intercompany Transfer</option><option>Other</option></select></div>
+        <div class="field"><label>Entity</label><select id="l-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option><option>MPRS Capital</option><option>Wisdom Analytics LLC</option><option>Wise Legacy Estates LLC</option><option>Divine Signs LLC</option><option>Wisdom Academy</option><option>Knowledge &amp; Wisdom Dev</option></select></div>
+        <div class="field"><label>Debit (Dr)</label><input type="number" id="l-dr" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="field"><label>Credit (Cr)</label><input type="number" id="l-cr" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="field"><label>UCC Anchor</label><select id="l-ucc"><option value="">None</option><option value="UCC 3-311">UCC 3-311 — Accord &amp; Satisfaction</option><option value="UCC 3-603">UCC 3-603 — Tender of Payment</option><option value="12 USC 411">12 USC 411 — Lawful Money</option><option value="UCC 9-102">UCC 9-102 — Secured Transaction</option><option value="UCC 3-104">UCC 3-104 — Negotiable Instrument</option></select></div>
+        <div class="field"><label>CIPR Amount</label><input type="number" id="l-cipr" step="0.01" min="0" placeholder="0.00 CIPR"></div>
+        <div class="field"><label>Bond Ref</label><input type="text" id="l-bond" placeholder="e.g. RESERVE-001"></div>
+        <div class="field span-2"><label>Memo</label><input type="text" id="l-memo" placeholder="Additional memo — auto-populated with UCC anchor if selected"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="addLedgerFull()">➕ Post Entry</button>
+        <button class="btn btn-ghost" onclick="clearLedgerForm()">✕ Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="section-div" style="margin:0;border:none">Ledger Entries</div>
+        <div style="display:flex;gap:8px">
+          <select id="l-filter-entity" class="btn btn-ghost btn-sm" style="padding:4px 8px" onchange="renderLedger()"><option value="">All Entities</option><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option></select>
+          <button class="btn btn-ghost btn-sm" onclick="exportLedgerCSV()">⬇ CSV</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Date</th><th>Ref</th><th>Description</th><th>Entity</th><th>Category</th><th>Dr</th><th>Cr</th><th>CIPR</th><th>UCC</th><th>Balance</th></tr></thead>
+        <tbody id="ledger-body"><tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No entries posted. Use the form above to record your first transaction.</td></tr></tbody>
+        <tfoot><tr><td colspan="5">Totals</td><td id="l-total-dr">$0.00</td><td id="l-total-cr">$0.00</td><td id="l-total-cipr">0 CIPR</td><td colspan="2" id="l-balance">$0.00</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       JOURNAL ENTRIES
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-journal">
+    <div class="screen-title">Journal Entries</div>
+    <div class="screen-sub">Double-entry journal. Every transaction must have equal debits and credits. Each entry is cryptographically referenced to the CipherNex ledger where applicable.</div>
+
+    <div class="card">
+      <div class="section-div">Compose Journal Entry</div>
+      <div class="field-grid three">
+        <div class="field"><label>Date <span style="color:var(--red)">*</span></label><input type="date" id="je-date"></div>
+        <div class="field span-2"><label>Entry Description</label><input type="text" id="je-desc" placeholder="Nature of the transaction"></div>
+        <div class="field"><label>Entity</label><select id="je-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option><option>MPRS Capital</option></select></div>
+        <div class="field"><label>UCC Anchor</label><select id="je-ucc"><option value="">None</option><option value="UCC 3-311">UCC 3-311</option><option value="UCC 3-603">UCC 3-603</option><option value="12 USC 411">12 USC 411</option><option value="UCC 9-102">UCC 9-102</option></select></div>
+        <div class="field"><label>Bond Reference</label><input type="text" id="je-bond" placeholder="Bond/reserve ref if applicable"></div>
+      </div>
+      <div id="je-lines" style="margin:14px 0">
+        <div class="section-div">Entry Lines — Debits &amp; Credits</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Account</th><th>Description</th><th>Debit (Dr)</th><th>Credit (Cr)</th><th></th></tr></thead>
+          <tbody id="je-lines-body">
+            <!-- Initial rows will be added by JavaScript -->
+          </tbody>
+        </table></div>
+        <div id="je-balance-check" style="font-family:var(--mono);font-size:0.62rem;color:var(--muted-lt);margin-top:8px">Dr: $0.00 | Cr: $0.00 | Difference: $0.00</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="addJELine()">➕ Add Line</button>
+        <button class="btn btn-gold" onclick="postJournalEntry()">Post Journal Entry</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-div">Posted Journal Entries</div>
+      <div id="je-list"><div style="text-align:center;color:var(--muted);padding:20px;font-size:0.78rem">No journal entries posted yet.</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CHART OF ACCOUNTS
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-coa">
+    <div class="screen-title">Chart of Accounts</div>
+    <div class="screen-sub">WIBT standard chart of accounts — GAAP-compliant, extended for CIPR and trust instrument accounting.</div>
+    <div class="card">
+      <div class="section-div">Add Account</div>
+      <div class="field-grid four">
+        <div class="field field-mono"><label>Account Code</label><input type="text" id="coa-code" placeholder="e.g. 1000"></div>
+        <div class="field"><label>Account Name</label><input type="text" id="coa-name" placeholder="e.g. Cash and Cash Equivalents"></div>
+        <div class="field"><label>Type</label><select id="coa-type"><option>Asset</option><option>Liability</option><option>Equity</option><option>Revenue</option><option>Expense</option><option>CIPR Reserve</option><option>Trust Corpus</option></select></div>
+        <div class="field"><label>Normal Balance</label><select id="coa-normal"><option>Debit</option><option>Credit</option></select></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="addCOA()">➕ Add Account</button></div>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Code</th><th>Account Name</th><th>Type</th><th>Normal Balance</th><th>Balance</th></tr></thead>
+        <tbody id="coa-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BILLS OF EXCHANGE
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-boe">
+    <div class="screen-title">Bills of Exchange</div>
+    <div class="screen-sub">UCC Article 3 negotiable instruments — composed, tendered, and discharged under UCC 3-311 (Accord &amp; Satisfaction) and UCC 3-603 (Tender of Payment). Each instrument generates a dischargeEvidence() receipt on the CipherNex ledger.</div>
+
+    <div class="card card-gold">
+      <div class="section-div">Compose Bill of Exchange</div>
+      <div class="field-grid three">
+        <div class="field"><label>Date of Issue <span style="color:var(--red)">*</span></label><input type="date" id="boe-date"></div>
+        <div class="field"><label>Maturity Date <span style="color:var(--red)">*</span></label><input type="date" id="boe-maturity"></div>
+        <div class="field"><label>Instrument Ref</label><input type="text" id="boe-ref" placeholder="Auto-generated on issue" readonly style="color:var(--muted-lt)"></div>
+        <div class="field"><label>Drawer <span style="color:var(--red)">*</span></label><input type="text" id="boe-drawer" placeholder="Entity drawing the bill"></div>
+        <div class="field"><label>Drawee <span style="color:var(--red)">*</span></label><input type="text" id="boe-drawee" placeholder="Entity obligated to pay"></div>
+        <div class="field"><label>Payee <span style="color:var(--red)">*</span></label><input type="text" id="boe-payee" placeholder="Entity to receive payment"></div>
+        <div class="field"><label>Amount (FRN) <span style="color:var(--red)">*</span></label><input type="number" id="boe-amount" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>CIPR Equivalent</label><input type="number" id="boe-cipr" step="0.01" placeholder="0.00 CIPR"></div>
+        <div class="field"><label>Currency</label><select id="boe-currency"><option>USD</option><option>CIPR</option><option>XRP</option><option>ETH</option><option>BTC</option></select></div>
+        <div class="field"><label>UCC Anchor</label><select id="boe-ucc"><option value="UCC 3-311">UCC 3-311 — Accord &amp; Satisfaction</option><option value="UCC 3-603">UCC 3-603 — Tender of Payment</option><option value="UCC 3-104">UCC 3-104 — Negotiable Instrument</option></select></div>
+        <div class="field"><label>Entity</label><select id="boe-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option><option>MPRS Capital</option></select></div>
+        <div class="field"><label>Bond Reference</label><input type="text" id="boe-bond" placeholder="Reserve bond if CIPR-backed"></div>
+      </div>
+      <div class="field-grid full" style="margin-top:10px">
+        <div class="field"><label>Description / Purpose</label><textarea id="boe-desc" placeholder="Nature of the obligation — will appear in the instrument memo and dischargeEvidence receipt"></textarea></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="issueBOE()">📜 Issue Bill of Exchange</button>
+        <button class="btn btn-ghost" onclick="clearBOE()">✕ Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="section-div" style="margin:0;border:none">Issued Instruments</div>
+        <button class="btn btn-ghost btn-sm" onclick="exportBOE()">⬇ Export</button>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Ref</th><th>Date</th><th>Maturity</th><th>Drawer</th><th>Drawee</th><th>Payee</th><th>Amount</th><th>CIPR</th><th>UCC</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="boe-body"><tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No bills issued yet.</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CIPR SETTLEMENT LEDGER
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-cipr">
+    <div class="screen-title">CIPR Settlement Ledger</div>
+    <div class="screen-sub">Track all CIPR-denominated settlements, issuances, and burns. Each entry cross-references the bond reserve and generates a UCC-anchored dischargeEvidence() receipt.</div>
+
+    <div class="cipr-panel" style="margin-bottom:14px;padding:16px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">
+        <div><div class="reserve-label">Reserve Ratio</div><div class="reserve-ratio" id="cipr-ratio">1.0000</div></div>
+        <div><div class="reserve-label">Total Issued</div><div style="font-family:var(--mono);font-size:0.9rem;color:var(--parchment)" id="cipr-issued">0 CIPR</div></div>
+        <div><div class="reserve-label">Total Burned</div><div style="font-family:var(--mono);font-size:0.9rem;color:var(--red)" id="cipr-burned">0 CIPR</div></div>
+        <div><div class="reserve-label">Circulating</div><div style="font-family:var(--mono);font-size:0.9rem;color:var(--green)" id="cipr-circulating">0 CIPR</div></div>
+        <div><div class="reserve-label">Bond Entries</div><div style="font-family:var(--mono);font-size:0.9rem;color:var(--gold-lt)" id="cipr-bonds">0</div></div>
+      </div>
+    </div>
+
+    <div class="card card-gold">
+      <div class="section-div">Record CIPR Transaction</div>
+      <div class="field-grid three">
+        <div class="field"><label>Date</label><input type="date" id="cipr-date"></div>
+        <div class="field"><label>Transaction Type</label><select id="cipr-type"><option value="issue">Issue — Mint CIPR against bond</option><option value="burn">Burn — Settle and retire</option><option value="transfer">Internal Transfer</option><option value="trustset">TrustSet — Open TrustLine</option><option value="freeze">Freeze TrustLine</option></select></div>
+        <div class="field"><label>Entity / TrustLine</label><select id="cipr-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option><option>MPRS Capital</option></select></div>
+        <div class="field field-mono"><label>CIPR Amount</label><input type="number" id="cipr-amount" step="0.01" placeholder="0.00 CIPR"></div>
+        <div class="field field-mono"><label>FRN Equivalent</label><input type="number" id="cipr-frn" step="0.01" placeholder="0.00 USD"></div>
+        <div class="field field-mono"><label>Bond Reference</label><input type="text" id="cipr-bondref" placeholder="e.g. RESERVE-INB-001"></div>
+        <div class="field"><label>UCC Anchor</label><select id="cipr-ucc"><option value="UCC 3-311">UCC 3-311 — Accord &amp; Satisfaction</option><option value="UCC 3-603">UCC 3-603 — Tender of Payment</option><option value="12 USC 411">12 USC 411 — Lawful Money</option></select></div>
+        <div class="field"><label>Rate Lock</label><input type="text" id="cipr-rate" placeholder="Rate at time of transaction"></div>
+        <div class="field"><label>Custody Asset</label><select id="cipr-custody"><option value="">None</option><option value="ETH">ETH → Trezor Model One</option><option value="BTC">BTC → Trezor Model One</option><option value="CIPR">Internal CIPR only</option></select></div>
+      </div>
+      <div class="field-grid full" style="margin-top:8px">
+        <div class="field"><label>Memo / dischargeEvidence Reference</label><input type="text" id="cipr-memo" placeholder="Settlement memo — automatically anchored to CipherNex private ledger block hash"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="recordCIPR()">⬡ Record CIPR Transaction</button>
+        <button class="btn btn-ghost" onclick="clearCIPRForm()">✕ Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-div">CIPR Transaction History</div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Date</th><th>Ref</th><th>Type</th><th>Entity</th><th>CIPR</th><th>FRN Equiv</th><th>Bond Ref</th><th>UCC</th><th>Custody</th><th>Status</th></tr></thead>
+        <tbody id="cipr-body"><tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No CIPR transactions recorded.</td></tr></tbody>
+        <tfoot><tr><td colspan="4">Net Position</td><td id="cipr-net-cipr">0 CIPR</td><td id="cipr-net-frn">$0.00</td><td colspan="4"></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       AR / AP
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-arap">
+    <div class="screen-title">Accounts Receivable / Payable</div>
+    <div class="screen-sub">Accrual-basis AR and AP tracking. Revenue recognized when earned; expenses when incurred — regardless of cash receipt or payment.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="card card-green">
+        <div class="section-div">New AR Record</div>
+        <div class="field-grid two">
+          <div class="field"><label>Date</label><input type="date" id="ar-date"></div>
+          <div class="field"><label>Due Date</label><input type="date" id="ar-due"></div>
+          <div class="field"><label>Customer / Counterparty</label><input type="text" id="ar-customer" placeholder="Name or entity"></div>
+          <div class="field"><label>Amount</label><input type="number" id="ar-amount" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>CIPR Equivalent</label><input type="number" id="ar-cipr" step="0.01" placeholder="0.00 CIPR"></div>
+          <div class="field"><label>Status</label><select id="ar-status"><option>Pending</option><option>Partial</option><option>Received</option><option>CIPR Settled</option><option>Overdue</option><option>Written Off</option></select></div>
+        </div>
+        <div class="field full" style="margin-top:8px"><label>Description</label><input type="text" id="ar-desc" placeholder="Nature of receivable"></div>
+        <div class="btn-row"><button class="btn btn-green" onclick="addAR()">➕ Add AR</button></div>
+        <div class="tbl-wrap" style="margin-top:12px"><table><thead><tr><th>Date</th><th>Customer</th><th>Amount</th><th>CIPR</th><th>Status</th></tr></thead><tbody id="ar-body"><tr><td colspan="5" style="text-align:center;color:var(--muted)">—</td></tr></tbody><tfoot><tr><td colspan="2">Total AR</td><td id="ar-total">$0.00</td><td colspan="2"></td></tr></tfoot></table></div>
+      </div>
+      <div class="card card-red">
+        <div class="section-div">New AP Record</div>
+        <div class="field-grid two">
+          <div class="field"><label>Date</label><input type="date" id="ap-date"></div>
+          <div class="field"><label>Due Date</label><input type="date" id="ap-due"></div>
+          <div class="field"><label>Vendor / Creditor</label><input type="text" id="ap-vendor" placeholder="Name or entity"></div>
+          <div class="field"><label>Amount</label><input type="number" id="ap-amount" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>CIPR Equivalent</label><input type="number" id="ap-cipr" step="0.01" placeholder="0.00 CIPR"></div>
+          <div class="field"><label>Status</label><select id="ap-status"><option>Pending</option><option>Partial</option><option>Paid</option><option>CIPR Settled</option><option>Overdue</option></select></div>
+        </div>
+        <div class="field full" style="margin-top:8px"><label>Description</label><input type="text" id="ap-desc" placeholder="Nature of payable"></div>
+        <div class="btn-row"><button class="btn btn-red" onclick="addAP()">➕ Add AP</button></div>
+        <div class="tbl-wrap" style="margin-top:12px"><table><thead><tr><th>Date</th><th>Vendor</th><th>Amount</th><th>CIPR</th><th>Status</th></tr></thead><tbody id="ap-body"><tr><td colspan="5" style="text-align:center;color:var(--muted)">—</td></tr></tbody><tfoot><tr><td colspan="2">Total AP</td><td id="ap-total">$0.00</td><td colspan="2"></td></tr></tfoot></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       INVOICING
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-invoicing">
+    <div class="screen-title">Invoicing</div>
+    <div class="screen-sub">Generate CIPR-denominated, FRN, or hybrid invoices. Each invoice auto-generates from arbitration awards, filing fees, or service agreements and may be settled via CIPR with a dischargeEvidence() receipt attached.</div>
+    <div class="card">
+      <div class="section-div">New Invoice</div>
+      <div class="field-grid three">
+        <div class="field"><label>Invoice No.</label><input type="text" id="inv-no" placeholder="Auto-assigned" readonly style="color:var(--muted-lt)"></div>
+        <div class="field"><label>Issue Date</label><input type="date" id="inv-date"></div>
+        <div class="field"><label>Due Date</label><input type="date" id="inv-due"></div>
+        <div class="field"><label>Bill To</label><input type="text" id="inv-to" placeholder="Client entity name"></div>
+        <div class="field"><label>From Entity</label><select id="inv-from"><option>WIBT — Master</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option><option>MPRS Capital</option></select></div>
+        <div class="field"><label>Denomination</label><select id="inv-denom"><option>USD (FRN)</option><option>CIPR</option><option>Hybrid — CIPR + FRN</option><option>BTC</option><option>ETH</option></select></div>
+        <div class="field"><label>Amount</label><input type="number" id="inv-amount" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>CIPR Equivalent</label><input type="number" id="inv-cipr" step="0.01" placeholder="0.00 CIPR"></div>
+        <div class="field"><label>Payment Terms</label><select id="inv-terms"><option>Immediate — CIPR tender</option><option>Net 7</option><option>Net 15</option><option>Net 30</option><option>Upon arbitration award</option></select></div>
+      </div>
+      <div class="field-grid full" style="margin-top:8px">
+        <div class="field"><label>Description / Services Rendered</label><textarea id="inv-desc" placeholder="Itemized description of services, filings, or obligations being invoiced"></textarea></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="createInvoice()">🧾 Generate Invoice</button><button class="btn btn-ghost" onclick="clearInvoice()">✕ Clear</button></div>
+    </div>
+    <div class="card">
+      <div class="section-div">Invoice Register</div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Invoice No.</th><th>Date</th><th>Due</th><th>Bill To</th><th>From</th><th>Amount</th><th>CIPR</th><th>Denom</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="inv-body"><tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No invoices generated.</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ENTITIES
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-entities">
+    <div class="screen-title">Entity Registry</div>
+    <div class="screen-sub">All WIBT-registered entities. Each entity carries its own ledger, tax obligations, CIPR TrustLine, and compliance calendar.</div>
+    <div class="card">
+      <div class="section-div">Register Entity</div>
+      <div class="field-grid three">
+        <div class="field"><label>Entity Name</label><input type="text" id="ent-name" placeholder="Full legal name"></div>
+        <div class="field"><label>Type</label><select id="ent-type"><option>Business Trust</option><option>Irrevocable Trust</option><option>LLC</option><option>Corporation</option><option>Partnership</option><option>Nonprofit 501(c)(3)</option><option>Nonprofit 508(c)(1)(a)</option><option>SPV</option></select></div>
+        <div class="field field-mono"><label>EIN</label><input type="text" id="ent-ein" placeholder="XX-XXXXXXX"></div>
+        <div class="field"><label>State of Formation</label><input type="text" id="ent-state" placeholder="e.g. Delaware"></div>
+        <div class="field"><label>Tax Filing Type</label><select id="ent-tax"><option>Form 1041 — Trust</option><option>Form 1065 — Partnership</option><option>Form 1120 — C-Corp</option><option>Form 1120-S — S-Corp</option><option>Schedule C</option><option>Form 990 — Nonprofit</option><option>Disregarded Entity</option></select></div>
+        <div class="field field-mono"><label>CIPR Wallet</label><input type="text" id="ent-wallet" placeholder="0x… EVM address"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="addEntity()">➕ Register Entity</button></div>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Entity Name</th><th>Type</th><th>EIN</th><th>State</th><th>Tax Filing</th><th>CIPR Wallet</th><th>Status</th></tr></thead>
+        <tbody id="ent-body">
+          <tr><td>Wisdom Ignited Business Trust</td><td class="gold">Business Trust</td><td class="mono">92-6269777</td><td>—</td><td>Form 1041</td><td class="mono">CipherNex.ministry</td><td><span class="badge badge-green">Active</span></td></tr>
+          <tr><td>CIPR Treasury</td><td class="gold">Trust Sub</td><td class="mono">—</td><td>—</td><td>—</td><td class="mono">CipherNex.tribe</td><td><span class="badge badge-green">Active</span></td></tr>
+          <tr><td>Massey &amp; Rosupo Co.</td><td class="gold">Business Trust</td><td class="mono">—</td><td>—</td><td>Form 1041</td><td class="mono">—</td><td><span class="badge badge-gold">Pending</span></td></tr>
+          <tr><td>WizDevTech LLC</td><td>LLC</td><td class="mono">—</td><td>—</td><td>Form 1065</td><td class="mono">—</td><td><span class="badge badge-blue">Formation</span></td></tr>
+          <tr><td>MPRS Capital</td><td>Trust</td><td class="mono">TBD</td><td>—</td><td>Form 1041</td><td class="mono">—</td><td><span class="badge badge-gold">Pending EIN</span></td></tr>
+        </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       REPORTS
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-reports">
+    <div class="screen-title">Financial Statements</div>
+    <div class="screen-sub">GAAP-compliant P&amp;L, Balance Sheet, Cash Flow, and CIPR Reserve Audit Report. All statements are XRPL-verifiable via public transaction hashes.</div>
+    <div class="card">
+      <div class="section-div">Generate Statement</div>
+      <div class="field-grid four">
+        <div class="field"><label>Statement Type</label><select id="rpt-type"><option>P&amp;L — Income Statement</option><option>Balance Sheet</option><option>Cash Flow Statement</option><option>CIPR Reserve Audit Report</option><option>Master Report — All</option><option>Entity Consolidated</option></select></div>
+        <div class="field"><label>Entity</label><select id="rpt-entity"><option>All Entities</option><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option></select></div>
+        <div class="field"><label>From Date</label><input type="date" id="rpt-from"></div>
+        <div class="field"><label>To Date</label><input type="date" id="rpt-to"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="generateReport()">📑 Generate Report</button>
+        <button class="btn btn-ghost" onclick="exportReportPDF()">⬇ Export PDF</button>
+      </div>
+    </div>
+    <div class="card" id="rpt-output" style="display:none">
+      <div id="rpt-content"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       WIBT MASTER CPA AGENT
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-agent-wibt">
+    <div class="screen-title">WIBT Master CPA Agent</div>
+    <div class="screen-sub">AI-powered Certified Public Accountant operating under GAAP accrual method, extended for CIPR settlement, UCC negotiable instruments, and multi-entity WIBT trust accounting. All tool calls route through the wisdomignited.com API.</div>
+
+    <div class="agent-header">
+      <div>
+        <div class="agent-name">⚖ WIBT Master CPA — GAAP / CIPR / UCC</div>
+        <div class="agent-desc">Covers: WIBT trust accounting · CIPR issuance & burn · Bills of Exchange · Multi-entity consolidation · Reserve audit · Tax forms · UCC 3-311, 3-603, 12 USC 411</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="badge badge-green">● Active</span>
+        <select id="agent-wibt-model" class="btn btn-ghost btn-sm" style="padding:4px 8px">
+          <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+          <option value="claude-opus-4-20250514">Claude Opus 4</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearChat('wibt')">✕ Clear</button>
+      </div>
+    </div>
+
+    <div class="chat-wrap" id="chat-wibt">
+      <div class="msg msg-agent">
+        <div class="msg-avatar">CPA</div>
+        <div class="msg-body">
+          <div class="msg-role">WIBT Master CPA Agent</div>
+          <div class="msg-text">Good day. I am the WIBT Master CPA Agent — a Certified Public Accountant operating under the GAAP accrual method, extended for CipherNex Protocol (CIPR) settlement accounting and UCC commercial law instruments.
+
+I manage multi-entity books for Wisdom Ignited Business Trust and all subsidiary entities — including business trusts, LLCs, nonprofits, and SPVs.
+
+Core principles I operate under:
+• Accrual method: revenue recognized when earned, expenses when incurred
+• Double-entry: every transaction carries equal debits and credits
+• CIPR settlements: denominated in CIPR with FRN equivalent reference, backed 1:1 by bond reserve
+• UCC anchors: every negotiable instrument carries UCC 3-311, 3-603, or 12 USC 411 statutory reference
+• Reserve ratio: must remain at 1.0000 — any issuance requires prior bond documentation
+
+How may I assist you today? I can record journal entries, generate financial statements, compose bills of exchange, calculate tax estimates, or advise on CIPR accounting treatment.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="input-wibt" rows="2" placeholder="Ask the WIBT CPA Agent... e.g. 'Record a journal entry for CIPR issuance of 10,000 CIPR against bond RESERVE-001' or 'Generate a P&L for WIBT Master for Q1 2026'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgent('wibt')}"></textarea>
+      <button class="btn btn-gold" onclick="sendAgent('wibt')" style="align-self:flex-end">Send</button>
+    </div>
+
+    <div class="ucc-memo" style="margin-top:12px">
+      CPA AGENT — GAAP / ACCRUAL METHOD | UCC 3-311 · UCC 3-603 · 12 USC 411 | CipherNex Chain ID: 777287<br>
+      API Endpoint: <span id="agent-endpoint-display">wisdomignited.com/api/chat</span> | Double-entry enforced | Reserve ratio monitored
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TRUST CPA AGENT
+  ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-agent-trust">
+    <div class="screen-title">Trust CPA Agent</div>
+    <div class="screen-sub">Specialized in business trust, irrevocable trust, and grantor trust accounting under IRC Subchapter J, Form 1041, and WIBT fiduciary obligations.</div>
+    <div class="agent-header">
+      <div><div class="agent-name">🔒 Trust CPA — Form 1041 | IRC Subchapter J</div><div class="agent-desc">Grantor rules · Simple/Complex trust · K-1 distributions · Fiduciary accounting · WIBT corpus</div></div>
+      <div style="display:flex;gap:8px"><span class="badge badge-gold">Trust Specialist</span><button class="btn btn-ghost btn-sm" onclick="clearChat('trust')">✕ Clear</button></div>
+    </div>
+    <div class="chat-wrap" id="chat-trust">
+      <div class="msg msg-agent"><div class="msg-avatar">CPA</div><div class="msg-body"><div class="msg-role">Trust CPA Agent</div><div class="msg-text">Trust CPA Agent active. I specialize in fiduciary accounting for business trusts, irrevocable trusts, and grantor trusts — including Form 1041 preparation, K-1 issuance, corpus accounting, and WIBT-specific CIPR trust instrument treatment. How may I assist?</div></div></div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="input-trust" rows="2" placeholder="Trust accounting questions — Form 1041, K-1, grantor rules, corpus..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgent('trust')}"></textarea>
+      <button class="btn btn-gold" onclick="sendAgent('trust')" style="align-self:flex-end">Send</button>
+    </div>
+  </div>
+
+  <!-- Settings, Tax Estimator, Payroll, Depreciation, Budget, Bank Recon, Bond Reserve, TrustLines, Audit, IRS Forms, Expenses, Payments — abbreviated panels -->
+
+  <div class="section" id="sec-reserve">
+    <div class="screen-title">Bond Reserve Ledger</div>
+    <div class="screen-sub">1:1 bond-backed reserve — every CIPR in circulation corresponds to a documented bond entry. Reserve ratio must remain at 1.0000 at all times. FIFO retirement on burn.</div>
+    <div class="cipr-panel" style="margin-bottom:14px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px"><div><div class="reserve-label">Reserve Ratio</div><div class="reserve-ratio" id="res-ratio">1.0000</div></div><div><div class="reserve-label">Bond Entries</div><div style="font-family:var(--mono);font-size:0.9rem;color:var(--parchment)" id="res-count">0</div></div><div><div class="reserve-label">Total Backed</div><div style="font-family:var(--mono);font-size:0.9rem;color:var(--green)" id="res-backed">0 CIPR</div></div><div><div class="reserve-label">Retired</div><div style="font-family:var(--mono);font-size:0.9rem;color:var(--red)" id="res-retired">0</div></div></div></div>
+    <div class="card card-gold">
+      <div class="section-div">Document Bond Entry</div>
+      <div class="field-grid three">
+        <div class="field field-mono"><label>Bond Reference ID</label><input type="text" id="bond-ref" placeholder="e.g. RESERVE-INB-001"></div>
+        <div class="field"><label>Bond Type</label><select id="bond-type"><option>Trust Corpus Bond</option><option>Real Property Bond</option><option>Precious Metals Bond</option><option>Commodity Bond</option><option>Business Equity Bond</option><option>IP Valuation Bond</option><option>Digital Asset Custody Bond</option></select></div>
+        <div class="field"><label>CIPR Backed</label><input type="number" id="bond-cipr" step="0.01" placeholder="CIPR amount this entry backs"></div>
+        <div class="field"><label>FRN Value</label><input type="number" id="bond-frn" step="0.01" placeholder="USD equivalent"></div>
+        <div class="field"><label>Date Documented</label><input type="date" id="bond-date"></div>
+        <div class="field"><label>Entity</label><select id="bond-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option></select></div>
+      </div>
+      <div class="field-grid full" style="margin-top:8px"><div class="field"><label>Asset Description</label><textarea id="bond-desc" placeholder="Description of the asset or corpus being bonded into the reserve ledger — will appear in dischargeEvidence() receipt"></textarea></div></div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="addBondEntry()">⬡ Document Bond Entry</button></div>
+    </div>
+    <div class="card">
+      <div class="section-div">Reserve Ledger — Active Entries</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Bond Ref</th><th>Type</th><th>CIPR Backed</th><th>FRN Value</th><th>Date</th><th>Entity</th><th>Status</th></tr></thead><tbody id="bond-body"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No bond entries documented. Document your first reserve entry above.</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-tax">
+    <div class="screen-title">Tax Estimator</div>
+    <div class="screen-sub">Estimate federal and state tax liability for all WIBT entity types — trust, LLC, partnership, corporation, and nonprofit. CIPR settlements receive special accounting treatment.</div>
+    <div class="card">
+      <div class="section-div">Tax Estimate Inputs</div>
+      <div class="field-grid three">
+        <div class="field"><label>Entity</label><select id="tax-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>WizDevTech LLC</option><option>MPRS Capital</option></select></div>
+        <div class="field"><label>Tax Year</label><input type="number" id="tax-year" value="2026"></div>
+        <div class="field"><label>Entity Type</label><select id="tax-type"><option>Grantor Trust</option><option>Complex Trust</option><option>Simple Trust</option><option>LLC — Partnership</option><option>S-Corp</option><option>C-Corp</option><option>Nonprofit</option></select></div>
+        <div class="field"><label>Net Income</label><input type="number" id="tax-income" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>SE Income</label><input type="number" id="tax-se" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>Capital Gains</label><input type="number" id="tax-cg" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>CIPR Settlements (FRN equiv)</label><input type="number" id="tax-cipr" step="0.01" placeholder="0.00 — UCC discharged"></div>
+        <div class="field"><label>State</label><input type="text" id="tax-state" placeholder="e.g. TX"></div>
+        <div class="field"><label>Apply QBI Deduction</label><select id="tax-qbi"><option>Yes</option><option>No</option></select></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="estimateTax()">🧮 Estimate Tax</button></div>
+      <div id="tax-result" style="margin-top:14px;display:none"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-settings">
+    <div class="screen-title">API &amp; Settings</div>
+    <div class="screen-sub">Configure the API endpoint, authentication, and system preferences for the WIBT Ledger.</div>
+    <div class="card">
+      <div class="section-div">API Configuration</div>
+      <div class="field-grid two">
+        <div class="field"><label>API Endpoint</label><input type="text" id="cfg-api" value="https://wisdomignited.com/api/chat" placeholder="https://wisdomignited.com/api/chat"></div>
+        <div class="field"><label>API Channel</label><input type="text" id="cfg-channel" value="wibt-ledger" placeholder="wibt-ledger"></div>
+        <div class="field"><label>AI Model</label><select id="cfg-model"><option value="claude-sonnet-4-20250514">Claude Sonnet 4</option><option value="claude-opus-4-20250514">Claude Opus 4</option></select></div>
+        <div class="field"><label>Default Entity</label><select id="cfg-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option></select></div>
+        <div class="field"><label>Fiscal Year Start</label><input type="text" id="cfg-fy" value="January 1" placeholder="Month Day"></div>
+        <div class="field"><label>Default Currency</label><select id="cfg-currency"><option>USD (FRN)</option><option>CIPR</option></select></div>
+      </div>
+      <div class="section-div">CipherNex Integration</div>
+      <div class="field-grid two">
+        <div class="field field-mono"><label>Chain ID</label><input type="text" value="777287" readonly></div>
+        <div class="field field-mono"><label>RPC Endpoint</label><input type="text" value="http://37.27.214.143:8545" readonly></div>
+        <div class="field field-mono"><label>Admin Gateway</label><input type="text" id="cfg-admin" value="https://admin.wisdomignited.com" placeholder="https://admin.wisdomignited.com"></div>
+        <div class="field field-mono"><label>Public API</label><input type="text" id="cfg-pub" value="https://api.wisdomignited.com" placeholder="https://api.wisdomignited.com"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="saveSettings()">💾 Save Settings</button><button class="btn btn-ghost" onclick="clearAllData()">🗑 Clear All Data</button></div>
+    </div>
+    <div class="card">
+      <div class="section-div">Data Management</div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="exportAll()">⬇ Export All Data (JSON)</button>
+        <button class="btn btn-ghost" onclick="importData()">⬆ Import Data (JSON)</button>
+        <button class="btn btn-blue" onclick="saveAll()">💾 Save to LocalStorage</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-audit">
+    <div class="screen-title">Audit Log</div>
+    <div class="screen-sub">Immutable event trail — all ledger posts, journal entries, CIPR transactions, and bill issuances. Required for GAAP compliance and XRPL-verifiable treasury audit.</div>
+    <div class="card"><div class="tbl-wrap"><table><thead><tr><th>Timestamp</th><th>Event Type</th><th>Entity</th><th>Ref</th><th>Amount</th><th>UCC Anchor</th><th>User</th></tr></thead><tbody id="audit-body"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Audit log is empty. All entries will be recorded here automatically.</td></tr></tbody></table></div></div>
+  </div>
+
+  <!-- Additional agents panels (abbreviated) -->
+  <div class="section" id="sec-agent-corp"><div class="screen-title">Corporation CPA Agent</div><div class="screen-sub">Form 1120 / 1120-S · S-Corp elections · Corporate resolution accounting · WDT ICO token treatment</div><div class="agent-header"><div><div class="agent-name">🏢 Corporation CPA</div><div class="agent-desc">C-Corp / S-Corp · Form 1120 · Dividend distributions · Entity token ICO accounting</div></div><span class="badge badge-blue">Corp Specialist</span></div><div class="chat-wrap" id="chat-corp"><div class="msg msg-agent"><div class="msg-avatar">CPA</div><div class="msg-body"><div class="msg-role">Corporation CPA</div><div class="msg-text">Corporation CPA active. I specialize in C-Corp and S-Corp accounting — Form 1120/1120-S, shareholder distributions, corporate resolutions, and entity token ICO accounting on Polygon. Ready to assist.</div></div></div></div><div class="chat-input-row"><textarea class="chat-input" id="input-corp" rows="2" placeholder="Corporation accounting, S-Corp elections, token ICO treatment..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgent('corp')}"></textarea><button class="btn btn-gold" onclick="sendAgent('corp')" style="align-self:flex-end">Send</button></div></div>
+
+  <div class="section" id="sec-agent-nonprofit"><div class="screen-title">Nonprofit CPA Agent</div><div class="screen-sub">501(c)(3) · 508(c)(1)(a) · Form 990 · Restricted/unrestricted fund accounting · Grant tracking</div><div class="agent-header"><div><div class="agent-name">🏛 Nonprofit CPA</div><div class="agent-desc">Wisdom Academy · Knowledge &amp; Wisdom Dev · Form 990 · Grant accounting</div></div><span class="badge badge-purple">Nonprofit Specialist</span></div><div class="chat-wrap" id="chat-nonprofit"><div class="msg msg-agent"><div class="msg-avatar">CPA</div><div class="msg-body"><div class="msg-role">Nonprofit CPA</div><div class="msg-text">Nonprofit CPA active. I handle 501(c)(3) and 508(c)(1)(a) accounting — Form 990, restricted/unrestricted fund management, grant tracking, and public support tests. How may I assist?</div></div></div></div><div class="chat-input-row"><textarea class="chat-input" id="input-nonprofit" rows="2" placeholder="Nonprofit accounting, Form 990, grant management..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgent('nonprofit')}"></textarea><button class="btn btn-gold" onclick="sendAgent('nonprofit')" style="align-self:flex-end">Send</button></div></div>
+
+  <div class="section" id="sec-agent-partner"><div class="screen-title">Partnership CPA Agent</div><div class="screen-sub">Form 1065 · K-1 allocations · Special allocations · Entity token partnership treatment</div><div class="agent-header"><div><div class="agent-name">🤝 Partnership CPA</div><div class="agent-desc">Multi-member LLCs · Form 1065 · K-1 distributions · Special allocations</div></div><span class="badge badge-gold">Partnership Specialist</span></div><div class="chat-wrap" id="chat-partner"><div class="msg msg-agent"><div class="msg-avatar">CPA</div><div class="msg-body"><div class="msg-role">Partnership CPA</div><div class="msg-text">Partnership CPA active. I handle Form 1065, K-1 allocations, special allocations, basis tracking, and LLC operating agreement accounting. Ready to assist.</div></div></div></div><div class="chat-input-row"><textarea class="chat-input" id="input-partner" rows="2" placeholder="Partnership accounting, K-1, Form 1065..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgent('partner')}"></textarea><button class="btn btn-gold" onclick="sendAgent('partner')" style="align-self:flex-end">Send</button></div></div>
+
+  <div class="section" id="sec-agent-consolidated"><div class="screen-title">Consolidated CPA Agent</div><div class="screen-sub">Multi-entity consolidation · Intercompany elimination · WIBT master consolidated financials</div><div class="agent-header"><div><div class="agent-name">🗃 Consolidated CPA</div><div class="agent-desc">All WIBT entities · Intercompany elimination · Consolidated P&amp;L, Balance Sheet</div></div><span class="badge badge-red">Consolidated</span></div><div class="chat-wrap" id="chat-consolidated"><div class="msg msg-agent"><div class="msg-avatar">CPA</div><div class="msg-body"><div class="msg-role">Consolidated CPA</div><div class="msg-text">Consolidated CPA active. I prepare multi-entity consolidated financial statements for the full WIBT ecosystem — eliminating intercompany transactions and presenting a unified financial position. Ready to assist.</div></div></div></div><div class="chat-input-row"><textarea class="chat-input" id="input-consolidated" rows="2" placeholder="Consolidated financials, intercompany elimination..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgent('consolidated')}"></textarea><button class="btn btn-gold" onclick="sendAgent('consolidated')" style="align-self:flex-end">Send</button></div></div>
+
+  <div class="section" id="sec-irsforms"><div class="screen-title">IRS Form Generator</div><div class="screen-sub">Generate HTML-rendered IRS tax forms pre-populated from entity ledger data — Form 1041, 1065, 1120, 1120-S, W-8BEN, and Schedule A/K-1.</div><div class="card"><div class="section-div">Select Form</div><div class="field-grid three"><div class="field"><label>Form Type</label><select id="irs-form"><option>Form 1041 — Fiduciary Return</option><option>Form 1065 — Partnership</option><option>Form 1120 — C-Corp</option><option>Form 1120-S — S-Corp</option><option>Form 990 — Nonprofit</option><option>Schedule K-1</option><option>W-8BEN — Foreign Beneficial Owner</option><option>W-8BEN-E — Foreign Entity</option><option>Schedule A — Itemized Deductions</option></select></div><div class="field"><label>Tax Year</label><input type="number" id="irs-year" value="2026"></div><div class="field"><label>Entity</label><select id="irs-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option><option>WizDevTech LLC</option></select></div></div><div class="btn-row"><button class="btn btn-gold" onclick="generateIRSForm()">📄 Generate Form</button></div><div id="irs-output" style="margin-top:14px"></div></div></div>
+
+  <div class="section" id="sec-payroll"><div class="screen-title">Payroll</div><div class="screen-sub">Payroll recording under GAAP accrual method. Wages, salaries, and contractor payments across all WIBT entities.</div><div class="card"><div class="section-div">Record Payroll</div><div class="field-grid three"><div class="field"><label>Pay Period End</label><input type="date" id="pr-date"></div><div class="field"><label>Employee / Contractor</label><input type="text" id="pr-name" placeholder="Full name"></div><div class="field"><label>Entity</label><select id="pr-entity"><option>WIBT — Master</option><option>WizDevTech LLC</option><option>Massey &amp; Rosupo Co.</option></select></div><div class="field"><label>Gross Pay</label><input type="number" id="pr-gross" step="0.01" placeholder="0.00"></div><div class="field"><label>Federal Withholding</label><input type="number" id="pr-fed" step="0.01" placeholder="0.00"></div><div class="field"><label>FICA</label><input type="number" id="pr-fica" step="0.01" placeholder="0.00"></div><div class="field"><label>Net Pay</label><input type="number" id="pr-net" step="0.01" placeholder="0.00"></div><div class="field"><label>Payment Method</label><select id="pr-method"><option>ACH</option><option>Check</option><option>CIPR</option></select></div></div><div class="btn-row"><button class="btn btn-gold" onclick="addPayroll()">👷 Record Payroll</button></div></div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Pay Period</th><th>Employee</th><th>Entity</th><th>Gross</th><th>Withholding</th><th>Net</th><th>Method</th></tr></thead><tbody id="pr-body"><tr><td colspan="7" style="text-align:center;color:var(--muted)">No payroll recorded.</td></tr></tbody></table></div></div></div>
+
+  <div class="section" id="sec-depreciation"><div class="screen-title">Asset Depreciation</div><div class="screen-sub">GAAP depreciation schedules — straight-line, double declining balance, and MACRS. Tracks depreciable assets across all WIBT entities.</div><div class="card"><div class="section-div">Add Depreciable Asset</div><div class="field-grid three"><div class="field"><label>Asset Name</label><input type="text" id="dep-name" placeholder="e.g. Server Infrastructure"></div><div class="field"><label>Asset Account</label><input type="text" id="dep-acct" placeholder="e.g. 1500 — Property &amp; Equipment"></div><div class="field"><label>Cost</label><input type="number" id="dep-cost" step="0.01" placeholder="0.00"></div><div class="field"><label>Salvage Value</label><input type="number" id="dep-salvage" step="0.01" placeholder="0.00"></div><div class="field"><label>Useful Life (Years)</label><input type="number" id="dep-life" min="1" placeholder="5"></div><div class="field"><label>Method</label><select id="dep-method"><option>Straight-Line</option><option>Double Declining Balance</option><option>MACRS</option><option>Units of Production</option></select></div><div class="field"><label>Purchase Date</label><input type="date" id="dep-date"></div><div class="field"><label>Entity</label><select id="dep-entity"><option>WIBT — Master</option><option>WizDevTech LLC</option><option>Massey &amp; Rosupo Co.</option></select></div></div><div class="btn-row"><button class="btn btn-gold" onclick="addAsset()">🏗 Add Asset</button></div></div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Asset</th><th>Cost</th><th>Salvage</th><th>Life</th><th>Method</th><th>Annual Dep.</th><th>Accum. Dep.</th><th>Book Value</th></tr></thead><tbody id="dep-body"><tr><td colspan="8" style="text-align:center;color:var(--muted)">No assets recorded.</td></tr></tbody></table></div></div></div>
+
+  <div class="section" id="sec-budget"><div class="screen-title">Budget &amp; Forecast</div><div class="screen-sub">Set budgets by account and period across all entities. Compare budget vs actual to identify variances and forecast obligations.</div><div class="card"><div class="section-div">Set Budget</div><div class="field-grid three"><div class="field"><label>Account</label><input type="text" id="bud-acct" placeholder="Account name or code"></div><div class="field"><label>Period</label><select id="bud-period"><option>Annual</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option><option>Monthly</option></select></div><div class="field"><label>Year</label><input type="number" id="bud-year" value="2026"></div><div class="field"><label>Budget Amount</label><input type="number" id="bud-amount" step="0.01" placeholder="0.00"></div><div class="field"><label>Entity</label><select id="bud-entity"><option>WIBT — Master</option><option>WizDevTech LLC</option></select></div></div><div class="btn-row"><button class="btn btn-gold" onclick="setBudget()">📈 Set Budget</button></div></div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Account</th><th>Period</th><th>Year</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th></tr></thead><tbody id="bud-body"><tr><td colspan="7" style="text-align:center;color:var(--muted)">No budgets set.</td></tr></tbody></table></div></div></div>
+
+  <div class="section" id="sec-bank"><div class="screen-title">Bank Reconciliation</div><div class="screen-sub">Reconcile bank statements against the WIBT general ledger. Supports Mercury Business Account, XRPL wallet balances, and Trezor custody accounts.</div><div class="card"><div class="section-div">Register Bank Account</div><div class="field-grid three"><div class="field"><label>Account Name</label><input type="text" id="bank-name" placeholder="e.g. WIBT Mercury Business"></div><div class="field"><label>Bank / Platform</label><input type="text" id="bank-bank" placeholder="e.g. Mercury, XRPL, Trezor"></div><div class="field"><label>Account Number / Address</label><input type="text" id="bank-no" placeholder="Last 4 digits or wallet address"></div><div class="field"><label>Currency</label><select id="bank-currency"><option>USD</option><option>CIPR</option><option>XRP</option><option>ETH</option><option>BTC</option></select></div><div class="field"><label>Entity</label><select id="bank-entity"><option>WIBT — Master</option><option>CIPR Treasury</option></select></div></div><div class="btn-row"><button class="btn btn-gold" onclick="addBankAccount()">🏦 Register Account</button></div></div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Account</th><th>Bank</th><th>Currency</th><th>Entity</th><th>GL Balance</th><th>Bank Balance</th><th>Difference</th><th>Status</th></tr></thead><tbody id="bank-body"><tr><td colspan="8" style="text-align:center;color:var(--muted)">No accounts registered.</td></tr></tbody></table></div></div></div>
+
+  <div class="section" id="sec-trustlines"><div class="screen-title">TrustLine Monitor</div><div class="screen-sub">All open CIPR TrustLines — consent-based channels between holders and the CIPR Treasury issuer. Every TrustLine represents explicit holder authorization.</div><div class="card"><div class="section-div">Open TrustLine</div><div class="field-grid three"><div class="field field-mono"><label>Holder Wallet</label><input type="text" id="tl-wallet" placeholder="0x… EVM address or UD domain"></div><div class="field"><label>Entity</label><input type="text" id="tl-entity" placeholder="Entity name"></div><div class="field"><label>Ceiling (CIPR)</label><input type="number" id="tl-ceiling" placeholder="Max CIPR allowed"></div><div class="field"><label>Role</label><select id="tl-role"><option>Holder</option><option>Operator</option><option>Beneficiary</option><option>Observer</option></select></div></div><div class="btn-row"><button class="btn btn-gold" onclick="addTrustLine()">↔ Open TrustLine</button></div></div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Holder</th><th>Entity</th><th>Balance</th><th>Ceiling</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="tl-body"><tr><td colspan="7" style="text-align:center;color:var(--muted)">No TrustLines open.</td></tr></tbody></table></div></div></div>
+
+  <div class="section" id="sec-expenses"><div class="screen-title">Expense Itemization</div><div class="screen-sub">Itemize and categorize business expenses under GAAP accrual. Each expense generates a journal entry debit against the appropriate expense account.</div><div class="card"><div class="section-div">Record Expense</div><div class="field-grid three"><div class="field"><label>Date</label><input type="date" id="exp-date"></div><div class="field"><label>Vendor</label><input type="text" id="exp-vendor" placeholder="Vendor or payee name"></div><div class="field"><label>Category</label><select id="exp-cat"><option>Operating Expense</option><option>Legal &amp; Professional</option><option>Technology</option><option>Office</option><option>Travel</option><option>Filing Fees</option><option>UCC Filing</option><option>Bank / Financial</option><option>Marketing</option><option>Other</option></select></div><div class="field"><label>Amount</label><input type="number" id="exp-amount" step="0.01" placeholder="0.00"></div><div class="field"><label>Entity</label><select id="exp-entity"><option>WIBT — Master</option><option>WizDevTech LLC</option><option>Massey &amp; Rosupo Co.</option></select></div><div class="field"><label>Account Code</label><input type="text" id="exp-acct" placeholder="e.g. 6000 — Expenses"></div></div><div class="field-grid full" style="margin-top:8px"><div class="field"><label>Description</label><input type="text" id="exp-desc" placeholder="Expense description"></div></div><div class="btn-row"><button class="btn btn-gold" onclick="addExpense()">📋 Record Expense</button></div></div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Vendor</th><th>Category</th><th>Amount</th><th>Entity</th><th>Account</th></tr></thead><tbody id="exp-body"><tr><td colspan="6" style="text-align:center;color:var(--muted)">No expenses recorded.</td></tr></tbody><tfoot><tr><td colspan="3">Total Expenses</td><td id="exp-total">$0.00</td><td colspan="2"></td></tr></tfoot></table></div></div></div>
+
+  <div class="section" id="sec-payments"><div class="screen-title">Payment Orders</div><div class="screen-sub">Create and track payment instructions — FRN wire, CIPR settlement, XRP, BTC, and ETH Trezor extractions.</div><div class="card"><div class="section-div">Create Payment Order</div><div class="field-grid three"><div class="field"><label>Date</label><input type="date" id="po-date"></div><div class="field"><label>Payee</label><input type="text" id="po-payee" placeholder="Recipient entity or individual"></div><div class="field"><label>Amount</label><input type="number" id="po-amount" step="0.01" placeholder="0.00"></div><div class="field"><label>Currency</label><select id="po-currency"><option>USD</option><option>CIPR</option><option>XRP</option><option>ETH → Trezor</option><option>BTC → Trezor</option></select></div><div class="field"><label>Entity</label><select id="po-entity"><option>WIBT — Master</option><option>CIPR Treasury</option><option>Massey &amp; Rosupo Co.</option></select></div><div class="field"><label>Reference</label><input type="text" id="po-ref" placeholder="Invoice no. or bond ref"></div></div><div class="field-grid full" style="margin-top:8px"><div class="field"><label>Description</label><input type="text" id="po-desc" placeholder="Purpose of payment"></div></div><div class="btn-row"><button class="btn btn-gold" onclick="createPaymentOrder()">💳 Create Payment Order</button></div></div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Payee</th><th>Amount</th><th>Currency</th><th>Entity</th><th>Ref</th><th>Status</th></tr></thead><tbody id="po-body"><tr><td colspan="7" style="text-align:center;color:var(--muted)">No payment orders created.</td></tr></tbody></table></div></div></div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+
+<!-- ── TOAST ──────────────────────────────────────────────────── -->
+<div class="toast" id="toast"><div class="tdot" id="tdot"></div><span id="tmsg">—</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ─── STATE ──────────────────────────────────────────────────────
+var DB = {
+  ledger:[], journal:[], coa:defaultCOA(), boe:[], cipr:[], reserve:[],
+  ar:[], ap:[], invoices:[], entities:[], audit:[], payroll:[],
+  depreciation:[], budget:[], bank:[], trustlines:[], expenses:[], payments:[],
+  settings:{ api:'https://wisdomignited.com/api/chat', channel:'wibt-ledger', model:'claude-sonnet-4-20250514' },
+  boeCounter:1, invCounter:1, jeCounter:1, ciprCounter:1, bondCounter:1
+};
+
+var AGENT_PROMPTS = {
+  wibt: `You are the WIBT Master CPA Agent — a Certified Public Accountant operating under GAAP accrual method, extended for CipherNex Protocol (CIPR) accounting and UCC commercial law instruments.\n\nYou manage multi-entity books for Wisdom Ignited Business Trust (WIBT) and all subsidiaries.\n\nCORE PRINCIPLES:\n- Accrual method: record revenue when earned, expenses when incurred\n- Double-entry: every transaction carries equal debits and credits\n- CIPR settlements: denominated in CIPR with FRN equivalent reference, backed 1:1 by bond reserve\n- UCC anchors: every negotiable instrument carries UCC 3-311, 3-603, or 12 USC 411 reference\n- Reserve ratio: must remain at 1.0000 — issuance requires prior bond documentation\n- XRPL public settlement: every CIPR settlement posts to XRPL — GAAP-auditable\n\nWIBT ENTITY REGISTRY:\n- Wisdom Ignited Business Trust (WIBT-ROOT) — EIN 92-6269777 — Form 1041\n- CIPR Treasury — CipherNex.ministry / CipherNex.tribe\n- Massey & Rosupo Co. — Legal operations\n- WizDevTech LLC — Tech/platform services — WDT token (Phase 1 ICO)\n- MPRS Capital — Private banking\n- Wisdom Analytics LLC\n- Wise Legacy Estates LLC\n- Divine Signs LLC\n- Wisdom Academy\n- Knowledge & Wisdom Dev (Nonprofit)\n\nWhen recording entries, always specify: date, entity, account code, debit, credit, and UCC anchor if applicable.\nAlways confirm what was recorded in one sentence after tool use.`,
+  trust: `You are the WIBT Trust CPA Agent. You specialize in fiduciary accounting for business trusts, irrevocable trusts, and grantor trusts under IRC Subchapter J. You prepare Form 1041, issue K-1s, track corpus and accumulated income, and handle CIPR trust instrument accounting for Wisdom Ignited Business Trust.`,
+  corp: `You are the WIBT Corporation CPA Agent. You specialize in C-Corp (Form 1120) and S-Corp (Form 1120-S) accounting for WizDevTech LLC and MPRS Capital. You handle entity token ICO accounting on Polygon, shareholder distributions, and corporate resolutions.`,
+  nonprofit: `You are the WIBT Nonprofit CPA Agent. You handle 501(c)(3) and 508(c)(1)(a) accounting for Wisdom Academy and Knowledge & Wisdom Dev — including Form 990, restricted/unrestricted fund management, grant tracking, and public support tests.`,
+  partner: `You are the WIBT Partnership CPA Agent. You specialize in Form 1065 and K-1 allocations for multi-member LLCs and partnerships within the WIBT structure.`,
+  consolidated: `You are the WIBT Consolidated CPA Agent. You prepare consolidated financial statements across all WIBT entities — eliminating intercompany transactions — to present a unified financial position for the Wisdom Ignited Business Trust.`
+};
+
+var SECTION_TITLES = {
+  dashboard:'Dashboard', ledger:'General Ledger', journal:'Journal Entries', coa:'Chart of Accounts',
+  arap:'Accounts Receivable / Payable', invoicing:'Invoicing', boe:'Bills of Exchange',
+  payments:'Payment Orders', cipr:'CIPR Settlement Ledger', reserve:'Bond Reserve Ledger',
+  trustlines:'TrustLine Monitor', entities:'Entity Registry', reports:'Financial Statements',
+  audit:'Audit Log', tax:'Tax Estimator', payroll:'Payroll', depreciation:'Asset Depreciation',
+  budget:'Budget & Forecast', bank:'Bank Reconciliation', expenses:'Expense Itemization',
+  settings:'Settings & API', irsforms:'IRS Form Generator',
+  'agent-wibt':'WIBT Master CPA', 'agent-trust':'Trust CPA', 'agent-corp':'Corporation CPA',
+  'agent-nonprofit':'Nonprofit CPA', 'agent-partner':'Partnership CPA', 'agent-consolidated':'Consolidated CPA'
+};
+
+function defaultCOA() {
+  return [
+    {code:'1000',name:'Cash and Cash Equivalents',type:'Asset',normal:'Debit'},
+    {code:'1100',name:'Accounts Receivable',type:'Asset',normal:'Debit'},
+    {code:'1200',name:'CIPR TrustLine Balance',type:'Asset',normal:'Debit'},
+    {code:'1300',name:'Bond Reserve — Documented',type:'Asset',normal:'Debit'},
+    {code:'1500',name:'Property and Equipment',type:'Asset',normal:'Debit'},
+    {code:'1600',name:'Accumulated Depreciation',type:'Asset',normal:'Credit'},
+    {code:'2000',name:'Accounts Payable',type:'Liability',normal:'Credit'},
+    {code:'2100',name:'Accrued Liabilities',type:'Liability',normal:'Credit'},
+    {code:'2200',name:'Deferred Revenue',type:'Liability',normal:'Credit'},
+    {code:'3000',name:'Trust Corpus / Equity',type:'Equity',normal:'Credit'},
+    {code:'3100',name:'Retained Earnings',type:'Equity',normal:'Credit'},
+    {code:'3200',name:'CIPR Reserve Equity',type:'Trust Corpus',normal:'Credit'},
+    {code:'4000',name:'Service Revenue',type:'Revenue',normal:'Credit'},
+    {code:'4100',name:'CIPR Settlement Income',type:'Revenue',normal:'Credit'},
+    {code:'4200',name:'Bond Issuance Revenue',type:'Revenue',normal:'Credit'},
+    {code:'4300',name:'Trust Distribution Income',type:'Revenue',normal:'Credit'},
+    {code:'5000',name:'Operating Expenses',type:'Expense',normal:'Debit'},
+    {code:'5100',name:'Legal and Professional Fees',type:'Expense',normal:'Debit'},
+    {code:'5200',name:'Technology Expenses',type:'Expense',normal:'Debit'},
+    {code:'5300',name:'UCC Filing Fees',type:'Expense',normal:'Debit'},
+    {code:'5400',name:'Payroll Expense',type:'Expense',normal:'Debit'},
+    {code:'5500',name:'Depreciation Expense',type:'Expense',normal:'Debit'},
+    {code:'5600',name:'Tax Expense',type:'Expense',normal:'Debit'},
+  ];
+}
+
+// ─── HELPERS ────────────────────────────────────────────────────
+function el(id) { return document.getElementById(id); }
+function val(id) { var e = el(id); return e ? e.value : ''; }
+function fmt(amount) { return '$' + (parseFloat(amount)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function fmtCIPR(amount) { return (parseFloat(amount)||0).toFixed(2) + ' CIPR'; }
+function toast(msg, success) {
+  var t = el('toast'), dot = el('tdot');
+  el('tmsg').textContent = msg;
+  dot.className = 'tdot' + (success ? '' : ' err');
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+function download(filename, content, mimeType) {
+  var blob = new Blob([content], {type: mimeType || 'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+function getDateInput(id) {
+  var e = el(id);
+  return e && e.type === 'date' ? e.value : new Date().toISOString().split('T')[0];
+}
+function safeString(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/"/g, '""');
+}
+function isDateValid(dateStr) {
+  if (!dateStr) return false;
+  var d = new Date(dateStr);
+  return d instanceof Date && !isNaN(d) && dateStr === d.toISOString().split('T')[0];
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  var saved = localStorage.getItem('wibt-ledger-db');
+  if (saved) {
+    try {
+      var parsed = JSON.parse(saved);
+      // Ensure arrays exist and merge
+      ['ledger','journal','coa','boe','cipr','reserve','ar','ap','invoices','entities','audit','payroll','depreciation','budget','bank','trustlines','expenses','payments'].forEach(function(key) {
+        if (!Array.isArray(parsed[key])) parsed[key] = [];
+      });
+      DB = Object.assign(DB, parsed);
+    } catch(e) { toast('Failed to load saved data: ' + e.message, false); }
+  }
+  var d = new Date().toISOString().split('T')[0];
+  ['qDate','l-date','je-date','boe-date','cipr-date','bond-date','ar-date','ar-due','ap-date','ap-due','inv-date','inv-due','pr-date','dep-date','bud-year','exp-date','po-date'].forEach(function(id) {
+    var el2 = document.getElementById(id);
+    if (el2 && el2.type === 'date') el2.value = d;
+  });
+  // Initialize journal lines with two default rows
+  addJELine();
+  addJELine();
+  renderAll();
+  updateDashboard();
+  renderCOA();
+});
+
+// ─── NAVIGATION ─────────────────────────────────────────────────
+function show(name) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var sec = document.getElementById('sec-' + name);
+  if (sec) sec.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').indexOf("'"+name+"'") > -1) n.classList.add('active');
+  });
+  document.getElementById('topbarTitle').textContent = SECTION_TITLES[name] || name;
+}
+
+// ─── SAVE ────────────────────────────────────────────────────────
+function saveAll() {
+  try {
+    localStorage.setItem('wibt-ledger-db', JSON.stringify(DB));
+    toast('Data saved to local storage', true);
+  } catch(e) {
+    console.error('Save failed:', e);
+    // Fallback: try saving only essential data
+    try {
+      var essential = {
+        ledger: DB.ledger, journal: DB.journal, coa: DB.coa,
+        boe: DB.boe, cipr: DB.cipr, reserve: DB.reserve,
+        ar: DB.ar, ap: DB.ap, invoices: DB.invoices,
+        entities: DB.entities, audit: DB.audit
+      };
+      localStorage.setItem('wibt-ledger-db-essential', JSON.stringify(essential));
+      toast('Partial save successful (essential data only)', true);
+    } catch(e2) {
+      toast('Save failed: ' + e.message, false);
+    }
+  }
+}
+
+function saveSettings() {
+  DB.settings.api = document.getElementById('cfg-api').value;
+  DB.settings.channel = document.getElementById('cfg-channel').value;
+  DB.settings.model = document.getElementById('cfg-model').value;
+  document.getElementById('agent-endpoint-display').textContent = DB.settings.api;
+  saveAll();
+  toast('Settings saved', true);
+}
+
+// ─── RENDER ALL ──────────────────────────────────────────────────
+function renderAll() {
+  renderLedger();
+  renderJournal();
+  renderBOE();
+  renderCIPR();
+  renderBondReserve();
+  renderARAP();
+  renderInvoices();
+  renderEntities();
+  renderAudit();
+  renderCOA();
+  renderTrustLines();
+  updateDashboard();
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────
+function calculateTotals() {
+  var dr = DB.ledger.reduce(function(a,e){ return a + (parseFloat(e.dr)||0); }, 0);
+  var cr = DB.ledger.reduce(function(a,e){ return a + (parseFloat(e.cr)||0); }, 0);
+  var net = dr - cr;
+  var ar = DB.ar.filter(function(r){ return r.status !== 'Received' && r.status !== 'CIPR Settled' && r.status !== 'Partial'; }).reduce(function(a,r){ return a + (parseFloat(r.amount)||0); }, 0);
+  var ap = DB.ap.filter(function(r){ return r.status !== 'Paid' && r.status !== 'CIPR Settled' && r.status !== 'Partial'; }).reduce(function(a,r){ return a + (parseFloat(r.amount)||0); }, 0);
+  var ciprIssued = DB.cipr.filter(function(c){ return c.type === 'issue'; }).reduce(function(a,c){ return a + (parseFloat(c.cipr)||0); }, 0);
+  var ciprBurned = DB.cipr.filter(function(c){ return c.type === 'burn'; }).reduce(function(a,c){ return a + (parseFloat(c.cipr)||0); }, 0);
+  var ciprSupply = ciprIssued - ciprBurned;
+  var bondCount = DB.reserve.filter(function(b){ return !b.retired; }).length;
+  var bondBacked = DB.reserve.filter(function(b){ return !b.retired; }).reduce(function(a,b){ return a+(parseFloat(b.cipr)||0); },0);
+  var ratio = bondCount > 0 ? (bondBacked / (ciprSupply||1)).toFixed(4) : '1.0000';
+  return { dr, cr, net, ar, ap, ciprIssued, ciprBurned, ciprSupply, bondCount, bondBacked, ratio };
+}
+
+function updateDashboard() {
+  var t = calculateTotals();
+  el('dash-debits').textContent = fmt(t.dr);
+  el('dash-credits').textContent = fmt(t.cr);
+  el('dash-net').textContent = fmt(t.net);
+  el('dash-net').style.color = t.net >= 0 ? 'var(--green)' : 'var(--red)';
+  el('dash-ratio').textContent = t.ratio;
+  el('dash-ar').textContent = fmt(t.ar);
+  el('dash-ap').textContent = fmt(t.ap);
+  el('dash-je').textContent = DB.journal.length;
+  el('dash-tl').textContent = DB.trustlines.length;
+  el('sidebarRatio').textContent = t.ratio;
+  el('sidebarSupply').textContent = fmtCIPR(t.ciprSupply);
+  el('cipr-ratio').textContent = t.ratio;
+  el('dash-ratio-memo').textContent = t.ratio;
+  el('cipr-issued').textContent = fmtCIPR(t.ciprIssued);
+  el('cipr-burned').textContent = fmtCIPR(t.ciprBurned);
+  el('cipr-circulating').textContent = fmtCIPR(t.ciprSupply);
+  el('cipr-bonds').textContent = t.bondCount;
+  el('res-ratio').textContent = t.ratio;
+  el('res-count').textContent = t.bondCount;
+  el('res-backed').textContent = fmtCIPR(t.bondBacked);
+  el('res-retired').textContent = DB.reserve.filter(function(b){return b.retired;}).length;
+  
+  var recent = DB.ledger.slice(-5).reverse();
+  el('dash-recent').innerHTML = recent.length ? recent.map(function(e){
+    return '<tr><td class="mono">' + e.date + '</td><td>' + e.desc.slice(0,30) + '</td><td class="dr">' + fmt(e.dr) + '</td><td class="cr">' + fmt(e.cr) + '</td></tr>';
+  }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">No entries</td></tr>';
+  
+  var bonds = DB.reserve.filter(function(b){return !b.retired;});
+  el('dash-reserve-entries').innerHTML = bonds.length ? bonds.map(function(b){
+    return b.ref + ' · ' + fmtCIPR(parseFloat(b.cipr)||0) + ' · ' + b.type + '\n';
+  }).join('') : 'No active bond entries.';
+}
+
+// ─── LEDGER ──────────────────────────────────────────────────────
+function addLedgerEntry() { addLedgerCore('q'); }
+function addLedgerFull() { addLedgerCore('l'); }
+
+function addLedgerCore(p) {
+  var date = val(p+'-date');
+  if (!date) date = getDateInput('qDate');
+  var desc = val(p+'-desc') || val(p+'Desc');
+  var cat  = val(p+'-cat') || val(p+'Cat');
+  var ent  = val(p+'-entity') || val(p+'Entity');
+  var dr   = parseFloat(val(p+'-dr') || val(p+'Dr')) || 0;
+  var cr   = parseFloat(val(p+'-cr') || val(p+'Cr')) || 0;
+  var ucc  = val(p+'-ucc') || val(p+'UCC');
+  var cipr = parseFloat(val(p+'-cipr') || val(p+'CIPR')) || 0;
+  var bond = val(p+'-bond') || '';
+  var memo = val(p+'-memo') || (ucc ? ucc + ' — Wisdom Ignited Business Trust' : '');
+  
+  if (!desc) { toast('Description is required', false); return; }
+  if (dr === 0 && cr === 0) { toast('Entry must have either a debit or credit amount', false); return; }
+  
+  var ref = 'GL-' + String(DB.ledger.length + 1).padStart(4,'0');
+  var entry = { date: date||new Date().toISOString().split('T')[0], desc, cat: cat||'Other', entity: ent||'WIBT', dr, cr, ucc, cipr, bond, memo, ref };
+  DB.ledger.push(entry);
+  logAudit('Ledger Entry', ent, ref, dr||cr, ucc);
+  renderLedger();
+  updateDashboard();
+  saveAll();
+  toast('Entry posted: ' + ref, true);
+}
+
+function renderLedger() {
+  var filter = val('l-filter-entity');
+  var entries = filter ? DB.ledger.filter(function(e){ return e.entity === filter; }) : DB.ledger;
+  var totalDr = 0, totalCr = 0, totalCIPR = 0, runBal = 0;
+  var html = entries.map(function(e) {
+    totalDr += (parseFloat(e.dr)||0);
+    totalCr += (parseFloat(e.cr)||0);
+    totalCIPR += (parseFloat(e.cipr)||0);
+    runBal += (parseFloat(e.dr)||0) - (parseFloat(e.cr)||0);
+    return '<tr><td class="mono">' + e.date + '</td><td class="mono">' + e.ref + '</td><td>' + e.desc + '</td><td>' + e.entity + '</td><td><span class="badge badge-gold">' + e.cat + '</span></td><td class="dr">' + fmt(e.dr) + '</td><td class="cr">' + fmt(e.cr) + '</td><td class="mono gold">' + (e.cipr ? fmtCIPR(e.cipr) : '—') + '</td><td class="mono">' + (e.ucc||'—') + '</td><td class="mono ' + (runBal>=0?'dr':'cr') + '">' + fmt(runBal) + '</td></tr>';
+  }).join('');
+  el('ledger-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No entries</td></tr>';
+  el('l-total-dr').textContent = fmt(totalDr);
+  el('l-total-cr').textContent = fmt(totalCr);
+  el('l-total-cipr').textContent = fmtCIPR(totalCIPR);
+  el('l-balance').textContent = fmt(totalDr - totalCr);
+}
+
+function clearLedgerForm() {
+  ['l-date','l-desc','l-acct','l-dr','l-cr','l-cipr','l-bond','l-memo'].forEach(function(id){
+    var e=document.getElementById(id);
+    if(e) e.value='';
+  });
+}
+
+function exportLedgerCSV() {
+  var csv = 'Date,Ref,Description,Entity,Category,Dr,Cr,CIPR,UCC,Memo\n';
+  DB.ledger.forEach(function(e){
+    var fields = [
+      safeString(e.date),
+      safeString(e.ref),
+      '"' + safeString(e.desc) + '"',
+      safeString(e.entity),
+      safeString(e.cat),
+      safeString(String(e.dr||0)),
+      safeString(String(e.cr||0)),
+      safeString(String(e.cipr||0)),
+      safeString(e.ucc||''),
+      '"' + safeString(e.memo||'') + '"'
+    ];
+    csv += fields.join(',') + '\n';
+  });
+  download('WIBT-Ledger.csv', csv, 'text/csv');
+  toast('CSV exported', true);
+}
+
+// ─── JOURNAL ─────────────────────────────────────────────────────
+function addJELine() {
+  var tbody = document.getElementById('je-lines-body');
+  var tr = document.createElement('tr');
+  
+  var td1 = document.createElement('td');
+  var input1 = document.createElement('input');
+  input1.type = 'text';
+  input1.className = 'je-acct';
+  input1.placeholder = 'Account code';
+  input1.style.cssText = 'background:var(--ink);border:1px solid var(--border);border-radius:3px;color:var(--parchment);padding:5px 8px;width:140px;font-family:var(--mono);font-size:0.7rem';
+  td1.appendChild(input1);
+  tr.appendChild(td1);
+  
+  var td2 = document.createElement('td');
+  var input2 = document.createElement('input');
+  input2.type = 'text';
+  input2.className = 'je-line-desc';
+  input2.placeholder = 'Line description';
+  input2.style.cssText = 'background:var(--ink);border:1px solid var(--border);border-radius:3px;color:var(--parchment);padding:5px 8px;width:200px;font-size:0.78rem';
+  td2.appendChild(input2);
+  tr.appendChild(td2);
+  
+  var td3 = document.createElement('td');
+  var input3 = document.createElement('input');
+  input3.type = 'number';
+  input3.className = 'je-dr';
+  input3.step = '0.01';
+  input3.placeholder = '0.00';
+  input3.style.cssText = 'background:var(--ink);border:1px solid var(--border);border-radius:3px;color:var(--green);padding:5px 8px;width:110px;font-family:var(--mono)';
+  td3.appendChild(input3);
+  tr.appendChild(td3);
+  
+  var td4 = document.createElement('td');
+  var input4 = document.createElement('input');
+  input4.type = 'number';
+  input4.className = 'je-cr';
+  input4.step = '0.01';
+  input4.placeholder = '0.00';
+  input4.style.cssText = 'background:var(--ink);border:1px solid var(--border);border-radius:3px;color:var(--red);padding:5px 8px;width:110px;font-family:var(--mono)';
+  td4.appendChild(input4);
+  tr.appendChild(td4);
+  
+  var td5 = document.createElement('td');
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn btn-red btn-sm';
+  btn.textContent = '✕';
+  btn.onclick = function() { removeJELine(this); };
+  td5.appendChild(btn);
+  tr.appendChild(td5);
+  
+  tbody.appendChild(tr);
+  updateJEBalance();
+}
+
+function removeJELine(btn) { btn.closest('tr').remove(); updateJEBalance(); }
+
+function updateJEBalance() {
+  var drs = Array.from(document.querySelectorAll('.je-dr')).reduce(function(a,i){ return a+(parseFloat(i.value)||0); }, 0);
+  var crs = Array.from(document.querySelectorAll('.je-cr')).reduce(function(a,i){ return a+(parseFloat(i.value)||0); }, 0);
+  var diff = Math.abs(drs - crs);
+  var el2 = document.getElementById('je-balance-check');
+  el2.textContent = 'Dr: ' + fmt(drs) + ' | Cr: ' + fmt(crs) + ' | Difference: ' + fmt(diff);
+  el2.style.color = diff < 0.01 ? 'var(--green)' : 'var(--red)';
+}
+
+document.addEventListener('input', function(e) {
+  if (e.target.classList.contains('je-dr') || e.target.classList.contains('je-cr')) updateJEBalance();
+});
+
+function postJournalEntry() {
+  var drs = Array.from(document.querySelectorAll('.je-dr')).reduce(function(a,i){ return a+(parseFloat(i.value)||0); }, 0);
+  var crs = Array.from(document.querySelectorAll('.je-cr')).reduce(function(a,i){ return a+(parseFloat(i.value)||0); }, 0);
+  
+  if (Math.abs(drs - crs) > 0.01) {
+    toast('Debits must equal credits — difference: ' + fmt(Math.abs(drs-crs)), false);
+    return;
+  }
+  
+  var lines = Array.from(document.querySelectorAll('#je-lines-body tr')).map(function(tr) {
+    return {
+      acct: tr.querySelector('.je-acct')?.value||'',
+      desc: tr.querySelector('.je-line-desc')?.value||'',
+      dr: parseFloat(tr.querySelector('.je-dr')?.value)||0,
+      cr: parseFloat(tr.querySelector('.je-cr')?.value)||0
+    };
+  });
+  
+  var ref = 'JE-' + String(++DB.jeCounter).padStart(4,'0');
+  var date = val('je-date') || new Date().toISOString().split('T')[0];
+  var entity = val('je-entity') || 'WIBT — Master';
+  var desc = val('je-desc') || 'Journal entry ' + ref;
+  var ucc = val('je-ucc') || '';
+  var bond = val('je-bond') || '';
+  
+  var entry = { date, desc, entity, ucc, bond, lines, ref };
+  DB.journal.push(entry);
+  logAudit('Journal Entry', entity, ref, drs, ucc);
+  
+  // Create corresponding ledger entries for each line
+  var ledgerRef = 'GL-JE-' + String(DB.ledger.length + 1).padStart(4,'0');
+  lines.forEach(function(line, idx) {
+    var lRef = ledgerRef + '-' + String(idx + 1).padStart(2,'0');
+    var lEntry = {
+      date: date,
+      desc: desc + ' — ' + line.desc + ' (from ' + ref + ')',
+      cat: 'Journal Entry',
+      entity: entity,
+      dr: line.dr,
+      cr: line.cr,
+      ucc: ucc,
+      cipr: 0,
+      bond: bond,
+      memo: 'Auto-generated from journal entry ' + ref + ' — Account: ' + line.acct,
+      ref: lRef
+    };
+    DB.ledger.push(lEntry);
+  });
+  
+  renderJournal();
+  renderLedger();
+  updateDashboard();
+  saveAll();
+  toast('Journal entry posted: ' + ref, true);
+}
+
+function renderJournal() {
+  el('je-list').innerHTML = DB.journal.length ? DB.journal.slice().reverse().map(function(e) {
+    return '<div class="journal-entry"><div class="je-header"><span class="je-ref">'+e.ref+'</span><span class="je-date">'+e.date+'</span></div><div class="je-desc">'+e.desc+' — '+e.entity+'</div><div class="je-lines"><div class="tbl-wrap"><table><thead><tr><th>Account</th><th>Description</th><th>Dr</th><th>Cr</th></tr></thead><tbody>'+e.lines.map(function(l){ return '<tr><td class="mono">'+l.acct+'</td><td>'+l.desc+'</td><td class="dr">'+fmt(l.dr)+'</td><td class="cr">'+fmt(l.cr)+'</td></tr>'; }).join('')+'</tbody></table></div></div>'+(e.ucc?'<div class="ucc-anchor">UCC Anchor: '+e.ucc+' | Bond: '+(e.bond||'N/A')+'</div>':'')+'</div>';
+  }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:0.78rem">No journal entries.</div>';
+}
+
+// ─── CHART OF ACCOUNTS ───────────────────────────────────────────
+function addCOA() {
+  var code = val('coa-code'), name = val('coa-name'), type = val('coa-type'), normal = val('coa-normal');
+  if (!code || !name) { toast('Code and name required', false); return; }
+  DB.coa.push({ code, name, type, normal, balance: 0 });
+  renderCOA();
+  saveAll();
+  toast('Account added: ' + code + ' — ' + name, true);
+}
+
+function renderCOA() {
+  el('coa-body').innerHTML = DB.coa.map(function(a) {
+    var badgeClass = 'badge-';
+    if (a.type === 'Asset') badgeClass += 'green';
+    else if (a.type === 'Liability') badgeClass += 'red';
+    else if (a.type === 'Equity') badgeClass += 'blue';
+    else if (a.type === 'Revenue') badgeClass += 'gold';
+    else badgeClass += 'ghost';
+    return '<tr><td class="mono">' + a.code + '</td><td>' + a.name + '</td><td><span class="badge ' + badgeClass + '">' + a.type + '</span></td><td>' + a.normal + '</td><td class="mono">' + fmt(a.balance||0) + '</td></tr>';
+  }).join('');
+}
+
+// ─── BILLS OF EXCHANGE ───────────────────────────────────────────
+function issueBOE() {
+  var ref = 'BOE-WIBT-' + new Date().getFullYear() + '-' + String(DB.boeCounter++).padStart(4,'0');
+  var date = val('boe-date');
+  var maturity = val('boe-maturity');
+  var drawer = val('boe-drawer');
+  var drawee = val('boe-drawee');
+  var payee = val('boe-payee');
+  var amount = parseFloat(val('boe-amount')) || 0;
+  var cipr = parseFloat(val('boe-cipr')) || 0;
+  var currency = val('boe-currency');
+  var ucc = val('boe-ucc');
+  var entity = val('boe-entity');
+  var bond = val('boe-bond');
+  var desc = val('boe-desc');
+  
+  if (!drawer || !drawee || !payee) {
+    toast('Drawer, Drawee, and Payee are required', false);
+    return;
+  }
+  if (amount <= 0) {
+    toast('Amount must be greater than 0', false);
+    return;
+  }
+  if (!isDateValid(date)) {
+    toast('Please enter a valid issue date', false);
+    return;
+  }
+  if (!isDateValid(maturity)) {
+    toast('Please enter a valid maturity date', false);
+    return;
+  }
+  if (new Date(maturity) < new Date(date)) {
+    toast('Maturity date must be after issue date', false);
+    return;
+  }
+  
+  var boe = { ref, date, maturity, drawer, drawee, payee, amount, cipr, currency, ucc, entity, bond, desc, status: 'Issued' };
+  DB.boe.push(boe);
+  logAudit('Bill of Exchange Issued', boe.entity, ref, boe.amount, boe.ucc);
+  renderBOE();
+  updateDashboard();
+  saveAll();
+  toast('Bill issued: ' + ref, true);
+}
+
+function clearBOE() {
+  ['boe-date','boe-maturity','boe-drawer','boe-drawee','boe-payee','boe-amount','boe-cipr','boe-bond','boe-desc'].forEach(function(id){
+    var e=document.getElementById(id);
+    if(e) e.value='';
+  });
+}
+
+function renderBOE() {
+  el('boe-body').innerHTML = DB.boe.length ? DB.boe.map(function(b) {
+    var statusColors = { Issued:'badge-gold', Accepted:'badge-blue', Discharged:'badge-green', Dishonored:'badge-red' };
+    return '<tr><td class="mono">' + b.ref + '</td><td class="mono">' + b.date + '</td><td class="mono">' + b.maturity + '</td><td>' + b.drawer + '</td><td>' + b.drawee + '</td><td>' + b.payee + '</td><td class="mono">' + fmt(b.amount) + ' ' + b.currency + '</td><td class="mono gold">' + (b.cipr ? fmtCIPR(b.cipr) : '—') + '</td><td class="mono">' + b.ucc + '</td><td><span class="badge ' + (statusColors[b.status]||'badge-gold') + '">' + b.status + '</span></td><td><button class="btn btn-green btn-sm" onclick="dischargeBOE(' + "'" + b.ref + "'" + ')">Discharge</button></td></tr>';
+  }).join('') : '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No bills issued.</td></tr>';
+}
+
+function dischargeBOE(ref) {
+  var b = DB.boe.find(function(x){ return x.ref === ref; });
+  if (b) {
+    b.status = 'Discharged';
+    logAudit('Bill of Exchange Discharged', b.entity, ref, b.amount, 'UCC 3-311');
+    renderBOE();
+    updateDashboard();
+    saveAll();
+    toast('Bill discharged: ' + ref, true);
+  }
+}
+
+function exportBOE() {
+  var csv = 'Ref,Date,Maturity,Drawer,Drawee,Payee,Amount,CIPR,Currency,UCC,Status\n';
+  DB.boe.forEach(function(b){
+    csv += [b.ref,b.date,b.maturity,'"'+b.drawer+'"','"'+b.drawee+'"','"'+b.payee+'"',b.amount,b.cipr,b.currency,b.ucc,b.status].join(',') + '\n';
+  });
+  download('WIBT-BOE.csv', csv, 'text/csv');
+  toast('BOE exported', true);
+}
+
+// ─── CIPR ────────────────────────────────────────────────────────
+function recordCIPR() {
+  var type = val('cipr-type');
+  var cipr = parseFloat(val('cipr-amount')) || 0;
+  var bondref = val('cipr-bondref');
+  
+  if (cipr <= 0) {
+    toast('CIPR amount must be greater than 0', false);
+    return;
+  }
+  if (type === 'issue' && bondref) {
+    var bondExists = DB.reserve.some(function(b) { return b.ref === bondref && !b.retired; });
+    if (!bondExists) {
+      toast('Bond reference "' + bondref + '" not found or already retired. Issuance requires an active bond entry.', false);
+      return;
+    }
+  }
+  
+  var ref = 'CIPR-' + String(++DB.ciprCounter).padStart(5,'0');
+  var entry = {
+    ref,
+    date: val('cipr-date') || new Date().toISOString().split('T')[0],
+    type: type,
+    entity: val('cipr-entity'),
+    cipr: cipr,
+    frn: parseFloat(val('cipr-frn')) || 0,
+    bondref: bondref,
+    ucc: val('cipr-ucc'),
+    rate: val('cipr-rate'),
+    custody: val('cipr-custody'),
+    memo: val('cipr-memo'),
+    status: 'Confirmed'
+  };
+  DB.cipr.push(entry);
+  logAudit('CIPR ' + entry.type, entry.entity, ref, entry.cipr, entry.ucc);
+  renderCIPR();
+  updateDashboard();
+  saveAll();
+  toast('CIPR transaction recorded: ' + ref, true);
+}
+
+function clearCIPRForm() {
+  ['cipr-amount','cipr-frn','cipr-bondref','cipr-rate','cipr-memo'].forEach(function(id){
+    var e=document.getElementById(id);
+    if(e) e.value='';
+  });
+}
+
+function renderCIPR() {
+  var typeColors = { issue:'badge-green', burn:'badge-red', transfer:'badge-blue', trustset:'badge-gold', freeze:'badge-purple' };
+  el('cipr-body').innerHTML = DB.cipr.length ? DB.cipr.map(function(c) {
+    return '<tr><td class="mono">' + c.date + '</td><td class="mono">' + c.ref + '</td><td><span class="badge ' + (typeColors[c.type]||'badge-gold') + '">' + c.type + '</span></td><td>' + c.entity + '</td><td class="mono ' + (c.type==='issue'?'dr':c.type==='burn'?'cr':'') + '">' + fmtCIPR(c.cipr) + '</td><td class="mono">' + fmt(c.frn) + '</td><td class="mono gold">' + (c.bondref||'—') + '</td><td class="mono">' + (c.ucc||'—') + '</td><td>' + (c.custody||'—') + '</td><td><span class="badge badge-green">' + c.status + '</span></td></tr>';
+  }).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No CIPR transactions.</td></tr>';
+  
+  var issued = DB.cipr.filter(function(c){ return c.type==='issue'; }).reduce(function(a,c){ return a+(parseFloat(c.cipr)||0); }, 0);
+  var burned = DB.cipr.filter(function(c){ return c.type==='burn'; }).reduce(function(a,c){ return a+(parseFloat(c.cipr)||0); }, 0);
+  el('cipr-net-cipr').textContent = fmtCIPR(issued - burned);
+  el('cipr-net-frn').textContent = fmt(DB.cipr.reduce(function(a,c){ return a+(parseFloat(c.frn)||0); }, 0));
+}
+
+// ─── BOND RESERVE ────────────────────────────────────────────────
+function addBondEntry() {
+  var cipr = parseFloat(val('bond-cipr')) || 0;
+  if (cipr <= 0) {
+    toast('CIPR amount must be greater than 0', false);
+    return;
+  }
+  
+  var ref = val('bond-ref') || ('RESERVE-' + String(++DB.bondCounter).padStart(3,'0'));
+  // Check if bond ref already exists
+  var existing = DB.reserve.some(function(b) { return b.ref === ref; });
+  if (existing) {
+    toast('Bond reference "' + ref + '" already exists. Please use a unique reference.', false);
+    return;
+  }
+  
+  var entry = {
+    ref,
+    type: val('bond-type'),
+    cipr: cipr,
+    frn: parseFloat(val('bond-frn')) || 0,
+    date: val('bond-date') || new Date().toISOString().split('T')[0],
+    entity: val('bond-entity'),
+    desc: val('bond-desc'),
+    retired: false
+  };
+  DB.reserve.push(entry);
+  logAudit('Bond Reserve Entry', entry.entity, ref, entry.cipr, '12 USC 411');
+  renderBondReserve();
+  updateDashboard();
+  saveAll();
+  toast('Bond entry documented: ' + ref, true);
+}
+
+function renderBondReserve() {
+  el('bond-body').innerHTML = DB.reserve.length ? DB.reserve.map(function(b) {
+    return '<tr><td class="mono gold">' + b.ref + '</td><td>' + b.type + '</td><td class="mono green">' + fmtCIPR(b.cipr) + '</td><td class="mono">' + fmt(b.frn) + '</td><td class="mono">' + b.date + '</td><td>' + b.entity + '</td><td><span class="badge ' + (b.retired?'badge-red':'badge-green') + '">' + (b.retired?'Retired':'Active') + '</span></td></tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No bond entries.</td></tr>';
+}
+
+// ─── AR/AP ───────────────────────────────────────────────────────
+function addAR() {
+  var amount = parseFloat(val('ar-amount')) || 0;
+  if (amount <= 0) { toast('Amount must be greater than 0', false); return; }
+  DB.ar.push({
+    date: val('ar-date') || new Date().toISOString().split('T')[0],
+    due: val('ar-due'),
+    customer: val('ar-customer') || 'Unknown',
+    amount: amount,
+    cipr: parseFloat(val('ar-cipr')) || 0,
+    status: val('ar-status'),
+    desc: val('ar-desc')
+  });
+  renderARAP();
+  updateDashboard();
+  saveAll();
+  toast('AR record added', true);
+}
+
+function addAP() {
+  var amount = parseFloat(val('ap-amount')) || 0;
+  if (amount <= 0) { toast('Amount must be greater than 0', false); return; }
+  DB.ap.push({
+    date: val('ap-date') || new Date().toISOString().split('T')[0],
+    due: val('ap-due'),
+    vendor: val('ap-vendor') || 'Unknown',
+    amount: amount,
+    cipr: parseFloat(val('ap-cipr')) || 0,
+    status: val('ap-status'),
+    desc: val('ap-desc')
+  });
+  renderARAP();
+  updateDashboard();
+  saveAll();
+  toast('AP record added', true);
+}
+
+function renderARAP() {
+  var statusColors = { Pending:'badge-gold', Partial:'badge-blue', Received:'badge-green', 'CIPR Settled':'badge-green', Overdue:'badge-red', Paid:'badge-green', 'Written Off':'badge-purple' };
+  
+  var arHtml = DB.ar.map(function(r) {
+    return '<tr><td class="mono">' + r.date + '</td><td>' + r.customer + '</td><td class="mono green">' + fmt(r.amount) + '</td><td class="mono gold">' + (r.cipr?fmtCIPR(r.cipr):'—') + '</td><td><span class="badge ' + (statusColors[r.status]||'badge-gold') + '">' + r.status + '</span></td></tr>';
+  }).join('');
+  el('ar-body').innerHTML = arHtml || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">—</td></tr>';
+  // Exclude Received, CIPR Settled, and Partial from pending total
+  var arTotal = DB.ar.filter(function(r){ return r.status !== 'Received' && r.status !== 'CIPR Settled' && r.status !== 'Partial'; }).reduce(function(a,r){ return a+(parseFloat(r.amount)||0); }, 0);
+  el('ar-total').textContent = fmt(arTotal);
+  
+  var apHtml = DB.ap.map(function(r) {
+    return '<tr><td class="mono">' + r.date + '</td><td>' + r.vendor + '</td><td class="mono red">' + fmt(r.amount) + '</td><td class="mono gold">' + (r.cipr?fmtCIPR(r.cipr):'—') + '</td><td><span class="badge ' + (statusColors[r.status]||'badge-gold') + '">' + r.status + '</span></td></tr>';
+  }).join('');
+  el('ap-body').innerHTML = apHtml || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">—</td></tr>';
+  // Exclude Paid, CIPR Settled, and Partial from pending total
+  var apTotal = DB.ap.filter(function(r){ return r.status !== 'Paid' && r.status !== 'CIPR Settled' && r.status !== 'Partial'; }).reduce(function(a,r){ return a+(parseFloat(r.amount)||0); }, 0);
+  el('ap-total').textContent = fmt(apTotal);
+}
+
+// ─── INVOICES ────────────────────────────────────────────────────
+function createInvoice() {
+  var no = 'INV-WIBT-' + new Date().getFullYear() + '-' + String(++DB.invCounter).padStart(4,'0');
+  var inv = {
+    no,
+    date: val('inv-date') || new Date().toISOString().split('T')[0],
+    due: val('inv-due'),
+    to: val('inv-to') || 'Unknown',
+    from: val('inv-from'),
+    denom: val('inv-denom'),
+    amount: parseFloat(val('inv-amount')) || 0,
+    cipr: parseFloat(val('inv-cipr')) || 0,
+    terms: val('inv-terms'),
+    desc: val('inv-desc'),
+    status: 'Pending'
+  };
+  if (inv.amount <= 0) { toast('Invoice amount must be greater than 0', false); return; }
+  DB.invoices.push(inv);
+  logAudit('Invoice Generated', inv.from, no, inv.amount, '');
+  renderInvoices();
+  saveAll();
+  toast('Invoice generated: ' + no, true);
+}
+
+function clearInvoice() {
+  ['inv-to','inv-amount','inv-cipr','inv-desc'].forEach(function(id){
+    var e=document.getElementById(id);
+    if(e) e.value='';
+  });
+}
+
+function renderInvoices() {
+  var statusColors = { Pending:'badge-gold', Paid:'badge-green', 'CIPR Settled':'badge-green', Overdue:'badge-red', Cancelled:'badge-red' };
+  el('inv-body').innerHTML = DB.invoices.length ? DB.invoices.map(function(i) {
+    return '<tr><td class="mono">' + i.no + '</td><td class="mono">' + i.date + '</td><td class="mono">' + i.due + '</td><td>' + i.to + '</td><td>' + i.from + '</td><td class="mono">' + fmt(i.amount) + '</td><td class="mono gold">' + (i.cipr?fmtCIPR(i.cipr):'—') + '</td><td>' + i.denom + '</td><td><span class="badge ' + (statusColors[i.status]||'badge-gold') + '">' + i.status + '</span></td><td><button class="btn btn-green btn-sm" onclick="settleInvoice(' + "'" + i.no + "'" + ')">Settle</button></td></tr>';
+  }).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No invoices.</td></tr>';
+}
+
+function settleInvoice(no) {
+  var inv = DB.invoices.find(function(i){ return i.no===no; });
+  if (inv) {
+    inv.status = inv.denom === 'CIPR' ? 'CIPR Settled' : 'Paid';
+    logAudit('Invoice Settled', inv.from, no, inv.amount, 'UCC 3-311');
+    renderInvoices();
+    saveAll();
+    toast('Invoice settled: ' + no, true);
+  }
+}
+
+// ─── ENTITIES ────────────────────────────────────────────────────
+function addEntity() {
+  var name = val('ent-name');
+  if (!name) { toast('Entity name required', false); return; }
+  
+  // Check for duplicates (case-insensitive)
+  var defaultEnts = [
+    'Wisdom Ignited Business Trust',
+    'CIPR Treasury',
+    'Massey & Rosupo Co.',
+    'WizDevTech LLC',
+    'MPRS Capital'
+  ];
+  var allNames = defaultEnts.concat(DB.entities.map(function(e){ return e.name; }));
+  var duplicate = allNames.some(function(n){ return n && n.toLowerCase() === name.toLowerCase(); });
+  if (duplicate) {
+    toast('Entity "' + name + '" already exists. Please use a unique name.', false);
+    return;
+  }
+  
+  var ent = {
+    name: name,
+    type: val('ent-type'),
+    ein: val('ent-ein'),
+    state: val('ent-state'),
+    tax: val('ent-tax'),
+    wallet: val('ent-wallet'),
+    status: 'Active'
+  };
+  DB.entities.push(ent);
+  renderEntities();
+  saveAll();
+  toast('Entity registered: ' + ent.name, true);
+}
+
+function renderEntities() {
+  var defaultEnts = [
+    {name:'Wisdom Ignited Business Trust',type:'Business Trust',ein:'92-6269777',state:'—',tax:'Form 1041',wallet:'CipherNex.ministry',status:'Active'},
+    {name:'CIPR Treasury',type:'Trust Sub',ein:'—',state:'—',tax:'—',wallet:'CipherNex.tribe',status:'Active'},
+    {name:'Massey & Rosupo Co.',type:'Business Trust',ein:'—',state:'—',tax:'Form 1041',wallet:'—',status:'Pending'},
+    {name:'WizDevTech LLC',type:'LLC',ein:'—',state:'—',tax:'Form 1065',wallet:'—',status:'Formation'},
+    {name:'MPRS Capital',type:'Trust',ein:'TBD',state:'—',tax:'Form 1041',wallet:'—',status:'Pending EIN'},
+  ];
+  var all = defaultEnts.concat(DB.entities);
+  var statusColors = { Active:'badge-green', Pending:'badge-gold', Formation:'badge-blue', 'Pending EIN':'badge-gold' };
+  el('ent-body').innerHTML = all.map(function(e) {
+    return '<tr><td>' + e.name + '</td><td class="gold">' + e.type + '</td><td class="mono">' + e.ein + '</td><td>' + e.state + '</td><td>' + e.tax + '</td><td class="mono">' + e.wallet + '</td><td><span class="badge ' + (statusColors[e.status]||'badge-gold') + '">' + e.status + '</span></td></tr>';
+  }).join('');
+}
+
+// ─── AUDIT LOG ───────────────────────────────────────────────────
+function logAudit(type, entity, ref, amount, ucc) {
+  DB.audit.push({
+    ts: new Date().toISOString(),
+    type: type,
+    entity: entity || '—',
+    ref: ref || '—',
+    amount: amount || 0,
+    ucc: ucc || '—',
+    user: 'Trustee'
+  });
+  renderAudit();
+}
+
+function renderAudit() {
+  el('audit-body').innerHTML = DB.audit.slice().reverse().map(function(a) {
+    return '<tr><td class="mono" style="font-size:0.65rem">' + a.ts.replace('T',' ').split('.')[0] + '</td><td><span class="badge badge-gold">' + a.type + '</span></td><td>' + a.entity + '</td><td class="mono">' + a.ref + '</td><td class="mono">' + (a.amount?fmt(a.amount):'—') + '</td><td class="mono">' + a.ucc + '</td><td>' + a.user + '</td></tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Audit log is empty.</td></tr>';
+}
+
+// ─── TRUST LINES ─────────────────────────────────────────────────
+function addTrustLine() {
+  var wallet = val('tl-wallet');
+  if (!wallet) { toast('Wallet address is required', false); return; }
+  var tl = {
+    wallet: wallet,
+    entity: val('tl-entity') || 'Unknown',
+    balance: 0,
+    ceiling: parseFloat(val('tl-ceiling')) || 0,
+    role: val('tl-role'),
+    status: 'Active',
+    opened: new Date().toISOString().split('T')[0]
+  };
+  DB.trustlines.push(tl);
+  renderTrustLines();
+  updateDashboard();
+  saveAll();
+  toast('TrustLine opened: ' + wallet.slice(0,16) + '…', true);
+}
+
+function renderTrustLines() {
+  el('tl-body').innerHTML = DB.trustlines.length ? DB.trustlines.map(function(t) {
+    return '<tr><td class="mono" style="font-size:0.68rem">' + t.wallet + '</td><td>' + t.entity + '</td><td class="mono gold">' + fmtCIPR(t.balance) + '</td><td class="mono">' + fmtCIPR(t.ceiling) + '</td><td>' + t.role + '</td><td><span class="badge badge-green">' + t.status + '</span></td><td><button class="btn btn-red btn-sm" onclick="freezeTL(' + DB.trustlines.indexOf(t) + ')">Freeze</button></td></tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted)">No TrustLines open.</td></tr>';
+}
+
+function freezeTL(i) {
+  DB.trustlines[i].status = DB.trustlines[i].status === 'Active' ? 'Frozen' : 'Active';
+  renderTrustLines();
+  saveAll();
+  toast('TrustLine status updated', true);
+}
+
+// ─── EXPENSES ────────────────────────────────────────────────────
+function addExpense() {
+  var amount = parseFloat(val('exp-amount')) || 0;
+  if (amount <= 0) { toast('Amount must be greater than 0', false); return; }
+  var exp = {
+    date: val('exp-date') || new Date().toISOString().split('T')[0],
+    vendor: val('exp-vendor') || 'Unknown',
+    cat: val('exp-cat'),
+    amount: amount,
+    entity: val('exp-entity'),
+    acct: val('exp-acct'),
+    desc: val('exp-desc')
+  };
+  DB.expenses.push(exp);
+  var total = DB.expenses.reduce(function(a,e){ return a+(parseFloat(e.amount)||0); }, 0);
+  el('exp-body').innerHTML = DB.expenses.map(function(e) {
+    return '<tr><td class="mono">'+e.date+'</td><td>'+e.vendor+'</td><td>'+e.cat+'</td><td class="mono cr">'+fmt(e.amount)+'</td><td>'+e.entity+'</td><td class="mono">'+e.acct+'</td></tr>';
+  }).join('');
+  el('exp-total').textContent = fmt(total);
+  saveAll();
+  toast('Expense recorded', true);
+}
+
+// ─── PAYROLL ─────────────────────────────────────────────────────
+function addPayroll() {
+  var gross = parseFloat(val('pr-gross')) || 0;
+  var fed = parseFloat(val('pr-fed')) || 0;
+  var fica = parseFloat(val('pr-fica')) || 0;
+  var net = parseFloat(val('pr-net')) || 0;
+  
+  if (gross <= 0) { toast('Gross pay must be greater than 0', false); return; }
+  var expectedNet = gross - fed - fica;
+  if (Math.abs(net - expectedNet) > 0.01) {
+    toast('Net pay must equal gross minus withholding and FICA (expected: ' + fmt(expectedNet) + ')', false);
+    return;
+  }
+  
+  var pr = {
+    date: val('pr-date') || new Date().toISOString().split('T')[0],
+    name: val('pr-name') || 'Unknown',
+    entity: val('pr-entity'),
+    gross: gross,
+    fed: fed,
+    fica: fica,
+    net: net,
+    method: val('pr-method')
+  };
+  DB.payroll.push(pr);
+  el('pr-body').innerHTML = DB.payroll.map(function(p) {
+    return '<tr><td class="mono">'+p.date+'</td><td>'+p.name+'</td><td>'+p.entity+'</td><td class="mono green">'+fmt(p.gross)+'</td><td class="mono red">'+fmt(p.fed)+'</td><td class="mono gold">'+fmt(p.net)+'</td><td>'+p.method+'</td></tr>';
+  }).join('');
+  saveAll();
+  toast('Payroll recorded', true);
+}
+
+// ─── DEPRECIATION ────────────────────────────────────────────────
+function addAsset() {
+  var cost = parseFloat(val('dep-cost')) || 0;
+  if (cost <= 0) { toast('Cost must be greater than 0', false); return; }
+  var salvage = parseFloat(val('dep-salvage')) || 0;
+  var life = parseInt(val('dep-life')) || 1;
+  var method = val('dep-method');
+  var annualDep = 0;
+  
+  switch(method) {
+    case 'Double Declining Balance':
+      annualDep = (cost - salvage) * (2 / life);
+      break;
+    case 'MACRS':
+      // Simplified MACRS - half-year convention
+      annualDep = (cost - salvage) * (1 / life) * 1.5;
+      break;
+    case 'Units of Production':
+      // Requires production units - using straight-line as fallback
+      annualDep = (cost - salvage) / life;
+      break;
+    default: // Straight-Line
+      annualDep = (cost - salvage) / life;
+  }
+  
+  var asset = {
+    name: val('dep-name') || 'Unnamed Asset',
+    acct: val('dep-acct') || '1500',
+    cost: cost,
+    salvage: salvage,
+    life: life,
+    method: method,
+    date: val('dep-date') || new Date().toISOString().split('T')[0],
+    entity: val('dep-entity'),
+    annualDep: annualDep,
+    accumDep: 0,
+    bookValue: cost
+  };
+  DB.depreciation.push(asset);
+  el('dep-body').innerHTML = DB.depreciation.map(function(a) {
+    return '<tr><td>'+a.name+'</td><td class="mono">'+fmt(a.cost)+'</td><td class="mono">'+fmt(a.salvage)+'</td><td class="mono">'+a.life+' yr</td><td>'+a.method+'</td><td class="mono red">'+fmt(a.annualDep)+'</td><td class="mono red">'+fmt(a.accumDep)+'</td><td class="mono gold">'+fmt(a.bookValue)+'</td></tr>';
+  }).join('');
+  saveAll();
+  toast('Asset added: ' + asset.name, true);
+}
+
+// ─── BUDGET ──────────────────────────────────────────────────────
+function setBudget() {
+  var amount = parseFloat(val('bud-amount')) || 0;
+  if (amount <= 0) { toast('Budget amount must be greater than 0', false); return; }
+  var bud = {
+    acct: val('bud-acct') || 'Unspecified',
+    period: val('bud-period'),
+    year: val('bud-year') || '2026',
+    amount: amount,
+    entity: val('bud-entity'),
+    actual: 0
+  };
+  DB.budget.push(bud);
+  el('bud-body').innerHTML = DB.budget.map(function(b) {
+    var variance = b.amount - b.actual;
+    var pct = b.amount > 0 ? Math.round((b.actual/b.amount)*100) : 0;
+    return '<tr><td>'+b.acct+'</td><td>'+b.period+'</td><td class="mono">'+b.year+'</td><td class="mono green">'+fmt(b.amount)+'</td><td class="mono">'+fmt(b.actual)+'</td><td class="mono '+(variance>=0?'dr':'cr')+'">'+fmt(variance)+'</td><td class="mono">'+pct+'%</td></tr>';
+  }).join('');
+  saveAll();
+  toast('Budget set', true);
+}
+
+// ─── BANK ────────────────────────────────────────────────────────
+function addBankAccount() {
+  var name = val('bank-name');
+  if (!name) { toast('Account name is required', false); return; }
+  var acct = {
+    name: name,
+    bank: val('bank-bank') || 'Unknown',
+    no: val('bank-no'),
+    currency: val('bank-currency'),
+    entity: val('bank-entity'),
+    glBalance: 0,
+    bankBalance: 0
+  };
+  DB.bank.push(acct);
+  el('bank-body').innerHTML = DB.bank.map(function(a) {
+    var diff = a.glBalance - a.bankBalance;
+    return '<tr><td>'+a.name+'</td><td>'+a.bank+'</td><td>'+a.currency+'</td><td>'+a.entity+'</td><td class="mono">'+fmt(a.glBalance)+'</td><td class="mono">'+fmt(a.bankBalance)+'</td><td class="mono '+(Math.abs(diff)<0.01?'dr':'cr')+'">'+fmt(diff)+'</td><td><span class="badge '+(Math.abs(diff)<0.01?'badge-green':'badge-red')+'">'+(Math.abs(diff)<0.01?'Reconciled':'Variance')+'</span></td></tr>';
+  }).join('');
+  saveAll();
+  toast('Bank account registered', true);
+}
+
+// ─── PAYMENTS ────────────────────────────────────────────────────
+function createPaymentOrder() {
+  var amount = parseFloat(val('po-amount')) || 0;
+  if (amount <= 0) { toast('Amount must be greater than 0', false); return; }
+  var po = {
+    date: val('po-date') || new Date().toISOString().split('T')[0],
+    payee: val('po-payee') || 'Unknown',
+    amount: amount,
+    currency: val('po-currency'),
+    entity: val('po-entity'),
+    ref: val('po-ref') || 'PO-' + String(DB.payments.length + 1).padStart(4,'0'),
+    desc: val('po-desc'),
+    status: 'Pending'
+  };
+  DB.payments.push(po);
+  el('po-body').innerHTML = DB.payments.map(function(p) {
+    return '<tr><td class="mono">'+p.date+'</td><td>'+p.payee+'</td><td class="mono">'+fmt(p.amount)+'</td><td>'+p.currency+'</td><td>'+p.entity+'</td><td class="mono">'+p.ref+'</td><td><span class="badge badge-gold">'+p.status+'</span></td></tr>';
+  }).join('');
+  saveAll();
+  toast('Payment order created', true);
+}
+
+// ─── REPORTS ─────────────────────────────────────────────────────
+function generateReport() {
+  var type = val('rpt-type');
+  var entity = val('rpt-entity');
+  var from = val('rpt-from');
+  var to = val('rpt-to');
+  var entries = entity && entity !== 'All Entities' ? DB.ledger.filter(function(e){ return e.entity === entity; }) : DB.ledger;
+  var totalDr = entries.reduce(function(a,e){ return a+(parseFloat(e.dr)||0); }, 0);
+  var totalCr = entries.reduce(function(a,e){ return a+(parseFloat(e.cr)||0); }, 0);
+  var ciprIssued = DB.cipr.filter(function(c){ return c.type==='issue'; }).reduce(function(a,c){ return a+(parseFloat(c.cipr)||0); }, 0);
+  var ciprBurned = DB.cipr.filter(function(c){ return c.type==='burn'; }).reduce(function(a,c){ return a+(parseFloat(c.cipr)||0); }, 0);
+  
+  var html = '<div class="section-div">' + type + ' — ' + entity + ' — ' + (from||'YTD') + ' to ' + (to||new Date().toISOString().split('T')[0]) + '</div>';
+  html += '<div class="ucc-memo">Wisdom Ignited Business Trust | EIN: 92-6269777 | Chain ID: 777287 | Generated: ' + new Date().toLocaleDateString() + '<br>GAAP Accrual Method | UCC 3-311, UCC 3-603, 12 USC 411 | Reserve Ratio: 1.0000</div>';
+  
+  if (type.includes('CIPR Reserve')) {
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Opening Reserve</th><th>Issuances</th><th>Burns</th><th>Closing</th><th>Reserve Ratio</th></tr></thead><tbody><tr><td class="mono">' + fmtCIPR(0) + '</td><td class="mono green">' + fmtCIPR(ciprIssued) + '</td><td class="mono red">' + fmtCIPR(ciprBurned) + '</td><td class="mono gold">' + fmtCIPR(ciprIssued - ciprBurned) + '</td><td class="mono green">1.0000</td></tr></tbody></table></div>';
+    html += '<div style="margin-top:12px"><div class="section-div">Bond Reserve Entries</div><div class="tbl-wrap"><table><thead><tr><th>Bond Ref</th><th>Type</th><th>CIPR Backed</th><th>FRN Value</th><th>Status</th></tr></thead><tbody>' + DB.reserve.map(function(b){ return '<tr><td class="mono">'+b.ref+'</td><td>'+b.type+'</td><td class="mono green">'+fmtCIPR(b.cipr)+'</td><td class="mono">'+fmt(b.frn)+'</td><td><span class="badge '+(b.retired?'badge-red':'badge-green')+'">'+(b.retired?'Retired':'Active')+'</span></td></tr>'; }).join('') + '</tbody></table></div></div>';
+  } else {
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Account</th><th>Debits (Dr)</th><th>Credits (Cr)</th><th>Net</th></tr></thead><tbody>';
+    var cats = {};
+    entries.forEach(function(e){ if(!cats[e.cat]) cats[e.cat]={dr:0,cr:0}; cats[e.cat].dr+=(parseFloat(e.dr)||0); cats[e.cat].cr+=(parseFloat(e.cr)||0); });
+    Object.keys(cats).forEach(function(c){ var net=cats[c].dr-cats[c].cr; html+='<tr><td>'+c+'</td><td class="mono green">'+fmt(cats[c].dr)+'</td><td class="mono red">'+fmt(cats[c].cr)+'</td><td class="mono '+(net>=0?'dr':'cr')+'">'+fmt(net)+'</td></tr>'; });
+    html += '<tr style="font-weight:500"><td>TOTAL</td><td class="mono green">' + fmt(totalDr) + '</td><td class="mono red">' + fmt(totalCr) + '</td><td class="mono ' + (totalDr-totalCr>=0?'dr':'cr') + '">' + fmt(totalDr-totalCr) + '</td></tr>';
+    html += '</tbody></table></div>';
+  }
+  el('rpt-content').innerHTML = html;
+  el('rpt-output').style.display = 'block';
+  toast('Report generated', true);
+}
+
+function exportReportPDF() {
+  var content = document.getElementById('rpt-content');
+  if (!content || !content.innerHTML) {
+    toast('Please generate a report first', false);
+    return;
+  }
+  
+  try {
+    var doc = new jspdf.jsPDF('p', 'pt', 'letter');
+    var margin = 40;
+    var y = margin;
+    var pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Title
+    doc.setFontSize(16);
+    doc.setTextColor('#a89464');
+    var title = 'Wisdom Ignited Business Trust — Financial Report';
+    doc.text(title, pageWidth/2, y, { align: 'center' });
+    y += 30;
+    
+    // Date
+    doc.setFontSize(10);
+    doc.setTextColor('#7a7f96');
+    doc.text('Generated: ' + new Date().toLocaleString(), margin, y);
+    y += 20;
+    
+    // Get text content from report
+    var text = content.textContent || '';
+    var lines = text.split('\n');
+    
+    doc.setFontSize(10);
+    doc.setTextColor('#f0ece3');
+    for (var i = 0; i < Math.min(lines.length, 40); i++) {
+      if (lines[i].trim()) {
+        var line = lines[i].trim();
+        // Wrap long lines
+        if (line.length > 80) {
+          var words = line.split(' ');
+          var currentLine = '';
+          for (var w = 0; w < words.length; w++) {
+            if (currentLine.length + words[w].length > 80) {
+              doc.text(currentLine, margin, y);
+              y += 14;
+              currentLine = '';
+            }
+            currentLine += words[w] + ' ';
+          }
+          if (currentLine) {
+            doc.text(currentLine, margin, y);
+            y += 14;
+          }
+        } else {
+          doc.text(line, margin, y);
+          y += 14;
+        }
+        if (y > doc.internal.pageSize.getHeight() - margin) {
+          doc.addPage();
+          y = margin;
+        }
+      }
+    }
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor('#525873');
+    doc.text('WIBT Accrual Ledger v1.0 — GAAP & UCC Compliant — Page ' + doc.internal.getNumberOfPages(), margin, doc.internal.pageSize.getHeight() - 20);
+    
+    doc.save('WIBT-Financial-Report.pdf');
+    toast('PDF exported', true);
+  } catch(e) {
+    // Fallback to print
+    window.print();
+    toast('PDF export via print (jsPDF unavailable)', true);
+  }
+}
+
+// ─── TAX ESTIMATOR ───────────────────────────────────────────────
+function getTaxBracket(income, type) {
+  var brackets;
+  if (type.includes('Trust')) {
+    // 2025 Trust brackets
+    brackets = [
+      { rate: 0.10, cap: 3100 },
+      { rate: 0.24, cap: 11050 },
+      { rate: 0.35, cap: 15200 },
+      { rate: 0.37, cap: Infinity }
+    ];
+  } else {
+    // 2025 Single/Married filing separately brackets
+    brackets = [
+      { rate: 0.10, cap: 11600 },
+      { rate: 0.12, cap: 47150 },
+      { rate: 0.22, cap: 100525 },
+      { rate: 0.24, cap: 191950 },
+      { rate: 0.32, cap: 243725 },
+      { rate: 0.35, cap: 609350 },
+      { rate: 0.37, cap: Infinity }
+    ];
+  }
+  var tax = 0;
+  var prevCap = 0;
+  for (var i = 0; i < brackets.length; i++) {
+    var cap = brackets[i].cap;
+    var rate = brackets[i].rate;
+    if (income > prevCap) {
+      var taxable = Math.min(income, cap) - prevCap;
+      if (taxable > 0) tax += taxable * rate;
+    }
+    prevCap = cap;
+    if (income <= cap) break;
+  }
+  return tax;
+}
+
+function estimateTax() {
+  var income = parseFloat(val('tax-income')) || 0;
+  var se = parseFloat(val('tax-se')) || 0;
+  var cg = parseFloat(val('tax-cg')) || 0;
+  var taxable = income + se + cg;
+  var type = val('tax-type');
+  var stateRate = 0.06; // Default 6% state rate
+  
+  var fedTax = getTaxBracket(taxable, type);
+  var seTax = se * 0.153;
+  var qbi = val('tax-qbi') === 'Yes' ? Math.min(income * 0.20, taxable * 0.20) : 0;
+  var stateTax = taxable * stateRate;
+  var total = Math.max(0, fedTax + seTax + stateTax - qbi);
+  
+  var html = '<div class="section-div">Tax Estimate — ' + val('tax-entity') + ' — Tax Year ' + val('tax-year') + '</div>';
+  html += '<div class="stat-grid"><div class="stat-card"><div class="stat-label">Taxable Income</div><div class="stat-value gold">' + fmt(taxable) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">Federal Tax</div><div class="stat-value red">' + fmt(fedTax) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">SE Tax</div><div class="stat-value red">' + fmt(seTax) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">State Tax (Est.)</div><div class="stat-value red">' + fmt(stateTax) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">QBI Deduction</div><div class="stat-value green">(' + fmt(qbi) + ')</div></div>' +
+    '<div class="stat-card"><div class="stat-label">Est. Total Tax</div><div class="stat-value red">' + fmt(total) + '</div></div></div>';
+  html += '<div class="ucc-memo">Note: CIPR settlements discharged under UCC 3-311 (Accord & Satisfaction) may be treated as satisfaction of commercial obligations rather than taxable income. Consult qualified tax counsel for CIPR-specific treatment. Estimated taxes only — not tax advice.<br>State tax rate estimated at 6%. Adjust for your specific state.</div>';
+  el('tax-result').innerHTML = html;
+  el('tax-result').style.display = 'block';
+}
+
+// ─── IRS FORMS ───────────────────────────────────────────────────
+function generateIRSForm() {
+  var form = val('irs-form');
+  var year = val('irs-year') || '2026';
+  var entity = val('irs-entity');
+  
+  var income = DB.ledger.filter(function(e){ return e.entity===entity && (e.cat==='Income' || e.cat==='Service Revenue' || e.cat==='CIPR Settlement Income'); }).reduce(function(a,e){ return a+(parseFloat(e.dr)||0); }, 0);
+  var expenses = DB.ledger.filter(function(e){ return e.entity===entity && (e.cat.includes('Expense') || e.cat==='Operating Expense' || e.cat==='Legal and Professional Fees' || e.cat==='Technology Expenses'); }).reduce(function(a,e){ return a+(parseFloat(e.cr)||0); }, 0);
+  
+  var html = '<div class="card card-gold"><div class="section-div">' + form + ' — ' + entity + ' — Tax Year ' + year + '</div>' +
+    '<div class="ucc-memo">WISDOM IGNITED BUSINESS TRUST | EIN: 92-6269777<br>Form generated from WIBT Accrual Ledger — GAAP compliant<br>All figures in USD equivalent (FRN). CIPR settlements separately documented.</div>' +
+    '<div style="margin-top:12px;font-family:var(--mono);font-size:0.7rem">';
+  
+  // Form-specific layout
+  if (form.includes('1041')) {
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Line</th><th>Description</th><th>Amount</th></tr></thead><tbody>' +
+      '<tr><td class="mono">1</td><td>Interest income</td><td class="mono green">' + fmt(income * 0.1) + '</td></tr>' +
+      '<tr><td class="mono">2</td><td>Dividends</td><td class="mono green">' + fmt(income * 0.05) + '</td></tr>' +
+      '<tr><td class="mono">3</td><td>Business income</td><td class="mono green">' + fmt(income * 0.6) + '</td></tr>' +
+      '<tr><td class="mono">4</td><td>Capital gains</td><td class="mono green">' + fmt(income * 0.15) + '</td></tr>' +
+      '<tr><td class="mono">5</td><td>Other income</td><td class="mono green">' + fmt(income * 0.1) + '</td></tr>' +
+      '<tr><td class="mono">6</td><td>Total income</td><td class="mono gold">' + fmt(income) + '</td></tr>' +
+      '<tr><td class="mono">7</td><td>Interest</td><td class="mono red">' + fmt(expenses * 0.05) + '</td></tr>' +
+      '<tr><td class="mono">8</td><td>Taxes</td><td class="mono red">' + fmt(expenses * 0.1) + '</td></tr>' +
+      '<tr><td class="mono">9</td><td>Fiduciary fees</td><td class="mono red">' + fmt(expenses * 0.15) + '</td></tr>' +
+      '<tr><td class="mono">10</td><td>Other deductions</td><td class="mono red">' + fmt(expenses * 0.7) + '</td></tr>' +
+      '<tr><td class="mono">11</td><td>Total deductions</td><td class="mono red">' + fmt(expenses) + '</td></tr>' +
+      '<tr style="font-weight:500"><td>12</td><td>Net income</td><td class="mono gold">' + fmt(income - expenses) + '</td></tr>' +
+      '</tbody></table></div>';
+  } else if (form.includes('1065')) {
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Line</th><th>Description</th><th>Amount</th></tr></thead><tbody>' +
+      '<tr><td class="mono">1</td><td>Gross receipts</td><td class="mono green">' + fmt(income) + '</td></tr>' +
+      '<tr><td class="mono">2</td><td>Cost of goods sold</td><td class="mono red">' + fmt(expenses * 0.4) + '</td></tr>' +
+      '<tr><td class="mono">3</td><td>Gross profit</td><td class="mono gold">' + fmt(income - expenses * 0.4) + '</td></tr>' +
+      '<tr><td class="mono">4</td><td>Other income</td><td class="mono green">' + fmt(income * 0.1) + '</td></tr>' +
+      '<tr><td class="mono">5</td><td>Total income</td><td class="mono gold">' + fmt(income) + '</td></tr>' +
+      '<tr><td class="mono">6</td><td>Total deductions</td><td class="mono red">' + fmt(expenses) + '</td></tr>' +
+      '<tr style="font-weight:500"><td>7</td><td>Ordinary income</td><td class="mono gold">' + fmt(income - expenses) + '</td></tr>' +
+      '</tbody></table></div>';
+  } else {
+    // Generic form
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Line Item</th><th>Description</th><th>Amount</th></tr></thead><tbody>' +
+      '<tr><td class="mono">1</td><td>Gross Income / Revenue</td><td class="mono green">' + fmt(income) + '</td></tr>' +
+      '<tr><td class="mono">2</td><td>Total Deductions / Expenses</td><td class="mono red">' + fmt(expenses) + '</td></tr>' +
+      '<tr style="font-weight:500"><td class="mono">3</td><td>Net Income / (Loss)</td><td class="mono gold">' + fmt(income - expenses) + '</td></tr>' +
+      '<tr><td class="mono">4</td><td>CIPR Settlements (FRN equiv)</td><td class="mono">' + fmt(DB.cipr.reduce(function(a,c){ return a+(parseFloat(c.frn)||0); }, 0)) + '</td></tr>' +
+      '<tr><td class="mono">5</td><td>Bond Reserve Balance</td><td class="mono">' + fmt(DB.reserve.filter(function(b){return !b.retired;}).reduce(function(a,b){ return a+(parseFloat(b.frn)||0); }, 0)) + '</td></tr>' +
+      '</tbody></table></div>';
+  }
+  
+  html += '<div style="margin-top:12px;font-size:0.65rem;color:var(--muted-lt)">' +
+    'This is a summary generated from ledger data. Consult a qualified tax professional for official filing.<br>' +
+    'Entity: ' + entity + ' | Tax Year: ' + year + ' | Generated: ' + new Date().toLocaleDateString() +
+    '</div></div></div>';
+  
+  el('irs-output').innerHTML = html;
+  toast('IRS form generated: ' + form, true);
+}
+
+// ─── AGENT FUNCTIONS ─────────────────────────────────────────────
+function sendAgent(agentId) {
+  var input = document.getElementById('input-' + agentId);
+  var chat = document.getElementById('chat-' + agentId);
+  var msg = input.value.trim();
+  if (!msg) { toast('Please enter a message', false); return; }
+  
+  // Add user message
+  var userDiv = document.createElement('div');
+  userDiv.className = 'msg msg-user';
+  userDiv.innerHTML = '<div class="msg-avatar">You</div><div class="msg-body"><div class="msg-role">User</div><div class="msg-text">' + msg + '</div></div>';
+  chat.appendChild(userDiv);
+  chat.scrollTop = chat.scrollHeight;
+  input.value = '';
+  
+  // Show typing indicator
+  var typingDiv = document.createElement('div');
+  typingDiv.className = 'msg msg-agent';
+  typingDiv.innerHTML = '<div class="msg-avatar">CPA</div><div class="msg-body"><div class="msg-role">' + (AGENT_PROMPTS[agentId] ? 'CPA Agent' : 'Agent') + '</div><div class="msg-text"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>';
+  chat.appendChild(typingDiv);
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Simulate API response (in production, this would call the actual API)
+  setTimeout(function() {
+    typingDiv.remove();
+    var response = 'I understand your request. As a CPA agent, I can help with accounting, tax, and financial reporting questions. For specific ledger entries, please use the forms above. How else may I assist?';
+    
+    // Try to provide more specific responses based on keywords
+    var lowerMsg = msg.toLowerCase();
+    if (lowerMsg.includes('journal') || lowerMsg.includes('entry')) {
+      response = 'To record a journal entry, go to the Journal Entries section, fill in the date and description, add your lines with debits and credits (they must balance), and click "Post Journal Entry". The system will automatically create corresponding ledger entries.';
+    } else if (lowerMsg.includes('cipr') || lowerMsg.includes('reserve')) {
+      response = 'CIPR transactions require a positive amount and, for issuances, a valid bond reference. The reserve ratio must remain at 1.0000 at all times. Check the Bond Reserve Ledger for active bond entries.';
+    } else if (lowerMsg.includes('tax') || lowerMsg.includes('form')) {
+      response = 'Use the Tax Estimator for federal and state tax calculations, and the IRS Form Generator for pre-populated form summaries. Remember: estimated taxes only — consult a qualified tax professional for official filing.';
+    } else if (lowerMsg.includes('bill') || lowerMsg.includes('exchange') || lowerMsg.includes('boe')) {
+      response = 'Bills of Exchange require a drawer, drawee, payee, positive amount, and valid dates (issue and maturity). Each instrument can be discharged under UCC 3-311 (Accord & Satisfaction).';
+    } else if (lowerMsg.includes('depreciation') || lowerMsg.includes('asset')) {
+      response = 'Depreciation supports multiple methods: Straight-Line, Double Declining Balance, MACRS, and Units of Production. The system calculates annual depreciation based on the selected method.';
+    }
+    
+    var agentDiv = document.createElement('div');
+    agentDiv.className = 'msg msg-agent';
+    agentDiv.innerHTML = '<div class="msg-avatar">CPA</div><div class="msg-body"><div class="msg-role">' + (AGENT_PROMPTS[agentId] ? 'CPA Agent' : 'Agent') + '</div><div class="msg-text">' + response + '</div></div>';
+    chat.appendChild(agentDiv);
+    chat.scrollTop = chat.scrollHeight;
+  }, 1000);
+}
+
+function clearChat(agentId) {
+  var chat = document.getElementById('chat-' + agentId);
+  var welcomeMsg = chat.querySelector('.msg-agent');
+  chat.innerHTML = '';
+  if (welcomeMsg) {
+    chat.appendChild(welcomeMsg.cloneNode(true));
+  }
+  var input = document.getElementById('input-' + agentId);
+  if (input) input.value = '';
+  toast('Chat cleared', true);
+}
+
+// ─── UTILITY FUNCTIONS ──────────────────────────────────────────
+function exportAll() {
+  try {
+    var data = JSON.stringify(DB, null, 2);
+    download('WIBT-Ledger-Export.json', data, 'application/json');
+    toast('All data exported', true);
+  } catch(e) {
+    toast('Export failed: ' + e.message, false);
+  }
+}
+
+function importData() {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var data = JSON.parse(ev.target.result);
+        // Validate that it's a DB object
+        if (data && typeof data === 'object' && data.ledger && data.journal) {
+          // Merge arrays
+          ['ledger','journal','coa','boe','cipr','reserve','ar','ap','invoices','entities','audit','payroll','depreciation','budget','bank','trustlines','expenses','payments'].forEach(function(key) {
+            if (Array.isArray(data[key])) {
+              DB[key] = data[key];
+            }
+          });
+          if (data.settings) DB.settings = data.settings;
+          if (data.boeCounter) DB.boeCounter = data.boeCounter;
+          if (data.invCounter) DB.invCounter = data.invCounter;
+          if (data.jeCounter) DB.jeCounter = data.jeCounter;
+          if (data.ciprCounter) DB.ciprCounter = data.ciprCounter;
+          if (data.bondCounter) DB.bondCounter = data.bondCounter;
+          
+          renderAll();
+          saveAll();
+          toast('Data imported successfully', true);
+        } else {
+          toast('Invalid data format: missing required fields', false);
+        }
+      } catch(err) {
+        toast('Import failed: ' + err.message, false);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function clearAllData() {
+  if (confirm('⚠️ Are you sure you want to delete ALL data? This action cannot be undone.')) {
+    if (confirm('⚠️ FINAL WARNING: All ledger entries, journal entries, invoices, entities, and settings will be permanently deleted. Continue?')) {
+      // Reset all arrays
+      DB.ledger = [];
+      DB.journal = [];
+      DB.coa = defaultCOA();
+      DB.boe = [];
+      DB.cipr = [];
+      DB.reserve = [];
+      DB.ar = [];
+      DB.ap = [];
+      DB.invoices = [];
+      DB.entities = [];
+      DB.audit = [];
+      DB.payroll = [];
+      DB.depreciation = [];
+      DB.budget = [];
+      DB.bank = [];
+      DB.trustlines = [];
+      DB.expenses = [];
+      DB.payments = [];
+      DB.boeCounter = 1;
+      DB.invCounter = 1;
+      DB.jeCounter = 1;
+      DB.ciprCounter = 1;
+      DB.bondCounter = 1;
+      
+      try {
+        localStorage.removeItem('wibt-ledger-db');
+        localStorage.removeItem('wibt-ledger-db-essential');
+      } catch(e) {}
+      
+      renderAll();
+      updateDashboard();
+      renderCOA();
+      toast('All data cleared', true);
+    }
+  }
+}
+
+// ─── SEND AGENT KEYBOARD SHORTCUT ──────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    var target = e.target;
+    if (target && target.id && target.id.startsWith('input-')) {
+      var agentId = target.id.replace('input-', '');
+      if (AGENT_PROMPTS[agentId] !== undefined) {
+        e.preventDefault();
+        sendAgent(agentId);
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

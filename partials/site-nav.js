@@ -31,7 +31,7 @@
     document.body.insertBefore(frag, document.body.firstChild);
     // highlight active tab by filename
     var page = location.pathname.split('/').pop().toLowerCase();
-    var map = { 'entdash.html':'entity','litdash.html':'matters','securemaindash.html':'forms','orders-results.html':'orders','transactional-services.html':'txn','arbitration.html':'arbitration','my-account.html':'account' };
+    var map = { 'entdash.html':'entity','litdash.html':'matters','securemaindash.html':'forms','orders-results.html':'orders','transactional-services.html':'txn','ledger.html':'ledger','arbitration.html':'arbitration','my-account.html':'account' };
     var key = map[page];
     if (key) {
       var t = document.querySelector('.mr-nav-tab[data-nav="' + key + '"]');
