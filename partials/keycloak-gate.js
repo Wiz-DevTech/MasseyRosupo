@@ -60,9 +60,25 @@ function kcGoKeycloak(){
   });
 }
 
-/* Global logout -> shared logout.html (clears session + KC global logout). */
-function logout(){ location.href = "logout.html"; }
-window.logout = logout;
+/* Shared authenticated API helper for dashboards.
+   Returns parsed JSON. Throws on non-2xx. Uses the stored mrToken. */
+async function kcApi(path, opts = {}) {
+  const token = localStorage.getItem('mrToken');
+  const headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+  if (token) headers["Authorization"] = "Bearer " + token;
+  const res = await fetch(location.origin + "/api" + path, Object.assign({ headers }, opts));
+  if (res.status === 401 || res.status === 403) {
+    // Session expired or lost trustee role — send back to gate.
+    _kcShowGate();
+    throw new Error("unauthorized");
+  }
+  return res.json();
+}
+window.kcApi = kcApi;
+
+/* True once a trustee session is active (use to gate data loads). */
+function kcIsAuthed() { return _kcIsTrustee(); }
+window.kcIsAuthed = kcIsAuthed;
 
 (function _kcHandleCallback(){
   const params = new URLSearchParams(location.search);
@@ -78,7 +94,8 @@ window.logout = logout;
         if (j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
         sessionStorage.removeItem('kc_pkce_v');
         history.replaceState(null, '', KC_REDIRECT);
-        if (_kcIsTrustee()) _kcHideAll(); else _kcShowForbidden();
+        if (_kcIsTrustee()) { _kcHideAll(); window.dispatchEvent(new Event('kc:authed')); }
+        else _kcShowForbidden();
       } else {
         _kcShowGate();
       }

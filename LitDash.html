@@ -327,7 +327,7 @@
 // FULL ARBITRATION DATA (50 violations)
 const FEES = [];
 for(let i=1;i<=50;i++){FEES.push({code:`FS-${i.toString().padStart(2,'0')}`,cat:'process',name:i<=5?['Unsolicited interference','Offense against entities','RICO violation','Court refusal','Phone harassment'][i-1]:'Additional violation',amount:i===1?100000:i===2?300000:i===3?1000000:i===4?10000:7000});}
-let cases = JSON.parse(localStorage.getItem('MRSP_Cases') || '[]');
+let cases = [];  // populated from /api/arbitration (real backend), not localStorage
 const mockMatters = [{id:'M-101',title:'Breach of Contract',jurisdiction:'Delaware',status:'Active',filed:'2025-01-10'},{id:'M-102',title:'Shareholder Dispute',jurisdiction:'New York',status:'Discovery',filed:'2025-02-01'}];
 
 function showMainTab(tab){['matters','addresses','arbitration'].forEach(t=>{document.getElementById(`tab-${t}`).classList.add('hidden');let sb=document.getElementById(`sidebar-${t}`);if(sb)sb.classList.add('hidden');});document.getElementById(`tab-${tab}`).classList.remove('hidden');document.getElementById(`sidebar-${tab}`).classList.remove('hidden');if(tab==='arbitration')showArbView('dashboard');if(tab==='matters')searchMatters();}
@@ -338,10 +338,46 @@ function clearMatters(){document.getElementById('jurisdictionSelect').value='ALL
 function scrollToOffice(id){document.getElementById(`office-${id}`).scrollIntoView({behavior:'smooth'});}
 function renderNewCaseViolations(){document.getElementById('nc-violations').innerHTML=FEES.map(f=>`<div class="fee-item"><input type="checkbox" class="fee-check" data-code="${f.code}" onchange="ncCalc()"><span class="fee-code">${f.code}</span><span class="fee-name">${f.name}</span><span class="fee-amount">$${f.amount.toLocaleString()}</span><input type="number" class="fee-count" data-code="${f.code}" value="1" min="1" onchange="ncCalc()"></div>`).join('');document.getElementById('nc-id').value='MRSP-'+Date.now().toString(36).toUpperCase();}
 function ncCalc(){let total=0;FEES.forEach(f=>{let cb=document.querySelector(`.fee-check[data-code="${f.code}"]`);let ct=document.querySelector(`.fee-count[data-code="${f.code}"]`);if(cb&&cb.checked)total+=f.amount*(parseInt(ct?.value)||1);});document.getElementById('nc-total').textContent='$'+total.toLocaleString();}
-function createCase(){let resp=document.getElementById('nc-respondent').value.trim();if(!resp){alert('Respondent required');return;}let total=0;FEES.forEach(f=>{let cb=document.querySelector(`.fee-check[data-code="${f.code}"]`);let ct=document.querySelector(`.fee-count[data-code="${f.code}"]`);if(cb&&cb.checked)total+=f.amount*(parseInt(ct?.value)||1);});if(total===0){alert('Select at least one violation');return;}cases.push({id:document.getElementById('nc-id').value,respondent:resp,entity:document.getElementById('nc-entity').value,address:document.getElementById('nc-address').value,total,status:'NOTICE_PENDING',filed:new Date().toISOString().split('T')[0],awardDate:null,barDate:null});localStorage.setItem('MRSP_Cases',JSON.stringify(cases));showArbView('dashboard');}
+function createCase(){
+  let resp=document.getElementById('nc-respondent').value.trim();
+  if(!resp){alert('Respondent required');return;}
+  let total=0; FEES.forEach(f=>{let cb=document.querySelector(`.fee-check[data-code="${f.code}"]`);let ct=document.querySelector(`.fee-count[data-code="${f.code}"]`);if(cb&&cb.checked)total+=f.amount*(parseInt(ct?.value)||1);});
+  if(total===0){alert('Select at least one violation');return;}
+  const violations = FEES.filter(f=>{let cb=document.querySelector(`.fee-check[data-code="${f.code}"]`);return cb&&cb.checked;})
+    .map(f=>({code:f.code,name:f.name,amount:f.amount,count:parseInt(document.querySelector(`.fee-count[data-code="${f.code}"]`)?.value)||1,subtotal:f.amount*(parseInt(document.querySelector(`.fee-count[data-code="${f.code}"]`)?.value)||1)}));
+  const payload = {
+    case_ref: document.getElementById('nc-id').value,
+    respondent: resp,
+    entity: document.getElementById('nc-entity').value,
+    address: document.getElementById('nc-address').value,
+    violations, total, status: 'NOTICE_PENDING'
+  };
+  kcApi('/arbitration', { method: 'POST', body: JSON.stringify(payload) })
+    .then(() => loadArbitrationCases())
+    .then(() => showArbView('dashboard'))
+    .catch(e => alert('File failed: ' + e.message));
+}
+// Load real arbitration cases from the backend (trustee sees all).
+async function loadArbitrationCases(){
+  try {
+    const data = await kcApi('/arbitration');
+    cases = (data.cases || []).map(c => ({
+      id: c.case_ref || c.id,
+      respondent: c.respondent || '—',
+      status: c.status || 'NOTICE_PENDING',
+      total: parseFloat(c.total) || 0,
+      filed: (c.filed || c.created_at || '').slice(0,10),
+      barDate: c.bar_date || null
+    }));
+    renderDashboard();
+  } catch(e) { /* gate will re-show if unauthorized */ }
+}
 function renderDashboard(){let active=cases.filter(c=>c.status!=='SETTLED').length;let notice=cases.filter(c=>c.status==='NOTICE_PENDING').length;let bar90=cases.filter(c=>c.status==='PENDING_90DAY').length;let recv=cases.filter(c=>['RECEIVABLE','SETTLED'].includes(c.status)).reduce((s,c)=>s+c.total,0);document.getElementById('m-active').textContent=active;document.getElementById('m-notice').textContent=notice;document.getElementById('m-90day').textContent=bar90;document.getElementById('m-receivables').textContent='$'+recv.toLocaleString();let tbody=document.getElementById('case-list');if(!cases.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No cases filed. Create a new case to begin.</td></tr>';return;}let statusMap={'NOTICE_PENDING':'<span class="status-pill st-notice">Notice Pending</span>','HEARING':'<span class="status-pill st-hearing">Hearing</span>','AWARDED':'<span class="status-pill st-awarded">Awarded</span>'};tbody.innerHTML=cases.slice().reverse().map(c=>`<tr><td style="font-family:var(--mono);">${c.id}</td><td>${c.respondent}</td><td>${statusMap[c.status]||c.status}</td><td>$${c.total.toLocaleString()}</td><td>${c.filed}</td><td>${c.barDate||'—'}</td>`).join('');}
 function showArbView(id){['dashboard','newcase','schedule','notices','formation','hearing','award','limitation','financial'].forEach(v=>{let el=document.getElementById(`view-${v}`);if(el)el.classList.add('hidden');});document.getElementById(`view-${id}`).classList.remove('hidden');if(id==='dashboard')renderDashboard();if(id==='newcase')renderNewCaseViolations();if(id==='schedule')document.getElementById('schedule-list').innerHTML=FEES.map(f=>`<div class="fee-item"><span class="fee-code">${f.code}</span><span class="fee-name">${f.name}</span><span class="fee-amount">$${f.amount.toLocaleString()}</span></div>`).join('');}
 showMainTab('matters');
+// Load real arbitration data once the trustee session is established.
+window.addEventListener('kc:authed', loadArbitrationCases);
+if (window.kcIsAuthed && window.kcIsAuthed()) loadArbitrationCases();
 </script>
   <script src="partials/site-nav.js"></script>
 </body>

@@ -458,9 +458,57 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- LIVE: Forms Library (from /api/forms) -->
+                <section class="card" style="margin-top:32px;">
+                    <div class="card-title">Forms Library <span style="font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em;">LIVE</span></div>
+                    <div id="forms-list"><div class="empty" style="padding:20px;color:var(--muted);font-size:.85rem;">Loading forms…</div></div>
+                </section>
+
+                <!-- LIVE: Document Register (from /api/documents) -->
+                <section class="card" style="margin-top:16px;">
+                    <div class="card-title">Document Register <span style="font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em;">LIVE · CipherNex Doc IDs</span></div>
+                    <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+                        <thead><tr style="text-align:left;font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid var(--border);"><th style="padding:10px 12px;">Doc ID</th><th style="padding:10px 12px;">Title</th><th style="padding:10px 12px;">Type</th><th style="padding:10px 12px;">Status</th></tr></thead>
+                        <tbody id="documents-list"><tr><td colspan="4" style="padding:16px;color:var(--muted);">Loading documents…</td></tr></tbody>
+                    </table>
+                </section>
             </main>
         </div>
     </div>
   <script src="partials/site-nav.js"></script>
+  <script>
+    // Live data for the Forms & Databases console (trustee session).
+    async function loadSecureData(){
+      try {
+        const forms = await kcApi('/forms');
+        const fl = document.getElementById('forms-list');
+        if (!forms.length) { fl.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:.85rem;">No forms configured.</div>'; }
+        else {
+          fl.innerHTML = '<ul style="list-style:none;">' + forms.map(f =>
+            '<li style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;">' +
+            '<span><strong>' + (f.code||f.name||'Form') + '</strong> — ' + (f.name||'') + '</span>' +
+            '<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted);">' + (f.category||'') + '</span></li>'
+          ).join('') + '</ul>';
+        }
+      } catch(e) {}
+      try {
+        const docs = await kcApi('/documents');
+        const tb = document.getElementById('documents-list');
+        const rows = docs.documents || docs || [];
+        if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" style="padding:16px;color:var(--muted);">No documents registered.</td></tr>'; return; }
+        tb.innerHTML = rows.map(d =>
+          '<tr style="border-bottom:1px solid var(--border);">' +
+          '<td style="padding:10px 12px;font-family:var(--mono);font-size:.75rem;">' + (d.documentId||d.doc_id||'—') + '</td>' +
+          '<td style="padding:10px 12px;">' + (d.title||'—') + '</td>' +
+          '<td style="padding:10px 12px;">' + (d.documentType||d.type||'—') + '</td>' +
+          '<td style="padding:10px 12px;"><span style="font-family:var(--mono);font-size:.65rem;color:var(--gold);">' + (d.status||'active') + '</span></td>' +
+          '</tr>'
+        ).join('');
+      } catch(e) {}
+    }
+    window.addEventListener('kc:authed', loadSecureData);
+    if (window.kcIsAuthed && window.kcIsAuthed()) loadSecureData();
+  </script>
 </body>
 </html>

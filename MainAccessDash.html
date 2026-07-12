@@ -829,6 +829,19 @@
                         </div>
                     </section>
                     <section class="mr-doc-section dashboard-section">
+                        <h2 class="section-header">Live Operations <span class="mr-doc-badge">M&amp;R Backend</span></h2>
+                        <p class="mr-doc-sub">Real-time operations ledger from the Massey &amp; Rosupo backend (trustee view).</p>
+                        <div class="mr-doc-card">
+                            <h3 class="mr-doc-h3">Operations Register <button id="mrOpsRefresh" class="mr-doc-refresh">↻ Refresh</button></h3>
+                            <div class="mr-doc-table-wrap">
+                                <table class="mr-doc-table">
+                                    <thead><tr><th>Kind</th><th>Reference</th><th>Status</th><th>Detail</th><th>Created</th></tr></thead>
+                                    <tbody id="mrOpsBody"><tr><td colspan="5" class="mr-doc-empty">Loading…</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="mr-doc-section dashboard-section">
                         <h2 class="section-header">Secure Documents <span class="mr-doc-badge">CipherNex Linked</span></h2>
                         <p class="mr-doc-sub">Trustee-secured uploads. Each file is hashed (SHA-256) and minted with a tamper-proof CipherNex Document ID, tracked on-chain by document type.</p>
 
@@ -1025,5 +1038,31 @@
         });
     </script>
   <script src="partials/site-nav.js"></script>
+  <script>
+    // Live Operations register for the Combined Dashboard (trustee session).
+    (function () {
+      function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+      async function loadOps() {
+        const body = document.getElementById('mrOpsBody');
+        if (!body) return;
+        try {
+          const data = await kcApi('/operations');
+          const rows = (data.local || []).concat(Array.isArray(data.upstream) ? data.upstream : (data.upstream ? [data.upstream] : []));
+          if (!rows.length) { body.innerHTML = '<tr><td colspan="5" class="mr-doc-empty">No operations recorded.</td></tr>'; return; }
+          body.innerHTML = rows.map(o =>
+            '<tr><td>' + esc(o.kind || '—') + '</td>' +
+            '<td>' + esc(o.reference || '—') + '</td>' +
+            '<td>' + esc(o.status || 'open') + '</td>' +
+            '<td>' + esc(o.detail || '') + '</td>' +
+            '<td style="font-family:monospace;font-size:11px;color:#9aa3b2;">' + esc((o.created_at||'').slice(0,10)) + '</td></tr>'
+          ).join('');
+        } catch (e) { body.innerHTML = '<tr><td colspan="5" class="mr-doc-empty">Log in as a Trustee to view operations.</td></tr>'; }
+      }
+      var rb = document.getElementById('mrOpsRefresh');
+      if (rb) rb.addEventListener('click', loadOps);
+      window.addEventListener('kc:authed', loadOps);
+      if (window.kcIsAuthed && window.kcIsAuthed()) loadOps();
+    })();
+  </script>
 </body>
 </html>
