@@ -1,40 +1,18 @@
-Here is the complete, updated HTML file that merges the full-featured management platform with the original Firebase authentication and all navigation links preserved.
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: ***
-            authDomain: "masseyrosupo.firebaseapp.com",
-            projectId: "masseyrosupo",
-            storageBucket: "masseyrosupo.firebasestorage.app",
-            messagingSenderId: "335180500143",
-            appId: "1:335180500143:web:12b7e6f3778ad706cc585a",
-            measurementId: "G-TLVDZ69BVC"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                /* PREVIEW BYPASS (remove to re-enable auth): window.location.href = 'portal-login.html'; */
-            }
-        });
-
-        window.logout = async function() {
-            try {
-                await signOut(auth);
-                window.location.href = 'portal-login.html';
-            } catch (error) {
-                console.error("Logout error:", error);
-            }
-        };
-    </script>
+    <style>
+      /* Keycloak trustee gate (loaded by partials/keycloak-gate.js) */
+      .kc-gate, .kc-forbidden { position: fixed; inset: 0; z-index: 1000; background: linear-gradient(180deg,#15171e,#0d0f14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 28px; text-align: center; }
+      .kc-gate .mark, .kc-forbidden .mark { font-family: 'DM Mono',monospace; font-size: 11px; letter-spacing: .30em; text-transform: uppercase; color: #a89464; }
+      .kc-gate .name, .kc-forbidden .name { font-family: 'Cormorant Garamond',serif; font-size: 26px; letter-spacing: .06em; color: #faf8f4; font-weight: 600; }
+      .kc-gate .label, .kc-forbidden .label { font-family: 'DM Mono',monospace; font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #c8ae7e; }
+      .kc-gate .rule, .kc-forbidden .rule { height: 1px; width: 64%; background: linear-gradient(90deg, transparent, #a89464, transparent); }
+      .kc-gate .signin, .kc-forbidden .signin { margin-top: 10px; font-family: 'Cormorant Garamond',serif; font-weight: 600; font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: #c8ae7e; background: rgba(168,148,100,.12); border: 1px solid #a89464; border-radius: 2px; padding: 12px 30px; cursor: pointer; }
+      .kc-gate .signin:hover, .kc-forbidden .signin:hover { background: #a89464; color: #0d0f14; }
+      .kc-gate .return, .kc-forbidden .return { font-family: 'DM Mono',monospace; font-size: 11px; letter-spacing: .10em; color: rgba(168,148,100,.7); text-decoration: none; }
+      .kc-gate .ciphernex, .kc-forbidden .ciphernex { position: fixed; bottom: 18px; font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: rgba(168,148,100,.55); }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Massey &amp; Rosupo Co. — Complete Management Platform</title>
@@ -179,6 +157,26 @@ Here is the complete, updated HTML file that merges the full-featured management
     </style>
 </head>
 <body>
+<!-- Keycloak trustee gate (Firebase retired) -->
+<div id="kc-gate" class="kc-gate">
+  <div class="mark">M&amp;R</div>
+  <div class="name">MASSEY &amp; ROSUPO CO.</div>
+  <div class="label">Trustee Console Access</div>
+  <div class="rule"></div>
+  <button class="signin" id="kc-signin">Sign In</button>
+  <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
+  <div class="ciphernex">CipherNex Federation &middot; Secure Fiduciary Access</div>
+</div>
+<div id="kc-forbidden" class="kc-forbidden" style="display:none">
+  <div class="mark">M&amp;R</div>
+  <div class="name">ACCESS RESTRICTED</div>
+  <div class="label">Trustee role required</div>
+  <div class="rule"></div>
+  <div class="return" style="color:#c8ae7e">Your account does not hold the required Trustee role.</div>
+  <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
+  <div class="ciphernex">CipherNex Federation &middot; Secure Fiduciary Access</div>
+</div>
+<script src="partials/keycloak-gate.js"></script>
 
 <!-- TOP BAR (with Firebase logout) -->
 <div class="topbar">
@@ -348,4 +346,3 @@ showMainTab('matters');
   <script src="partials/site-nav.js"></script>
 </body>
 </html>
-```
