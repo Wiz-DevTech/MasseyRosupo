@@ -2,37 +2,41 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="bec37a1">
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
+  <!-- CACHE-BUST end -->
+<!-- CACHE-BUST start -->
   <meta name="x-page-version" content="c0b1e7e">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="5c85a34">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="5178444">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="51e3112">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="9b000df">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="685c08a">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
     <style>
       /* Keycloak trustee gate (loaded by partials/keycloak-gate.js) */
       .kc-gate, .kc-forbidden { position: fixed; inset: 0; z-index: 1000; background: linear-gradient(180deg,#15171e,#0d0f14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 28px; text-align: center; }
       .kc-gate .mark, .kc-forbidden .mark { font-family: 'DM Mono',monospace; font-size: 11px; letter-spacing: .30em; text-transform: uppercase; color: #a89464; }
-      .kc-gate .name, .kc-forbidden .name { font-family: 'Cormorant Garamond',serif; font-size: 26px; letter-spacing: .06em; color: #faf8f4; font-weight: 600; }
+      .kc-gate .name, .kc-forbidden .name { font-family: var(--sans); font-size: 26px; letter-spacing: .06em; color: #faf8f4; font-weight: 600; }
       .kc-gate .label, .kc-forbidden .label { font-family: 'DM Mono',monospace; font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #c8ae7e; }
       .kc-gate .rule, .kc-forbidden .rule { height: 1px; width: 64%; background: linear-gradient(90deg, transparent, #a89464, transparent); }
-      .kc-gate .signin, .kc-forbidden .signin { margin-top: 10px; font-family: 'Cormorant Garamond',serif; font-weight: 600; font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: #c8ae7e; background: rgba(168,148,100,.12); border: 1px solid #a89464; border-radius: 2px; padding: 12px 30px; cursor: pointer; }
+      .kc-gate .signin, .kc-forbidden .signin { margin-top: 10px; font-family: var(--sans); font-weight: 600; font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: #c8ae7e; background: rgba(168,148,100,.12); border: 1px solid #a89464; border-radius: 2px; padding: 12px 30px; cursor: pointer; }
       .kc-gate .signin:hover, .kc-forbidden .signin:hover { background: #a89464; color: #0d0f14; }
       .kc-gate .return, .kc-forbidden .return { font-family: 'DM Mono',monospace; font-size: 11px; letter-spacing: .10em; color: rgba(168,148,100,.7); text-decoration: none; }
       .kc-gate .ciphernex, .kc-forbidden .ciphernex { position: fixed; left:0; right:0; text-align:center; padding-top:8px; border-top:1px solid rgba(168,148,100,0.15); bottom: 18px; font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: rgba(168,148,100,.55); }
@@ -43,14 +47,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1a2e4a;
-            --secondary: #4a5c7a;
-            --accent: #284a68;
-            --light: #f9fafc;
-            --gold: #b89f6b;
-            --border: #e0e6ed;
-            --blue-light: #e0e7ff;
-            --blue-hover: #c7d2fe;
+            --ink:#0d0f14; --ink-soft:#161921; --ink-mid:#1e2230; --ink-light:#252a38;
+            --primary:#a89464; --accent:#c8ae7e; --secondary:#c8ae7e;
+            --gold:#a89464; --gold-lt:#c8ae7e; --gold-glow:rgba(168,148,100,0.14);
+            --light:#1e2230; --muted:#525873; --muted-lt:#7a7f96;
+            --border:rgba(168,148,100,0.18); --border-s:rgba(168,148,100,0.09);
+            --green:#2ecc71; --blue:#5dade2; --amber:#f39c12;
+            --serif:'Cormorant Garamond',serif; --sans:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
         }
 
         * {
@@ -60,10 +63,10 @@
         }
 
         body {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: var(--sans);
             line-height: 1.8;
             color: var(--secondary);
-            background-color: #f5f7fa;
+            background-color: var(--ink);
             -webkit-font-smoothing: antialiased;
         }
 
@@ -72,7 +75,7 @@
             background: var(--primary);
             color: white;
             padding: 8px 0;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.85rem;
         }
 
@@ -103,7 +106,7 @@
             text-decoration: none;
             background: none;
             border: none;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.85rem;
             cursor: pointer;
             padding: 0;
@@ -161,7 +164,7 @@
             padding: 10px 20px;
             border: none;
             cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.9rem;
             transition: background 0.3s ease;
             border-right: 1px solid rgba(255,255,255,0.1);
@@ -178,7 +181,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
-            background-color: white;
+            background-color: var(--ink-soft);
             min-height: calc(100vh - 120px);
         }
 
@@ -199,7 +202,7 @@
         }
 
         .sidebar-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.8rem;
             color: var(--accent);
             font-weight: 600;
@@ -244,7 +247,7 @@
             gap: 30px;
             margin-bottom: 40px;
             padding: 30px;
-            background: linear-gradient(135deg, var(--light) 0%, #e8f2ff 100%);
+            background: linear-gradient(135deg, var(--ink-soft) 0%, var(--ink-mid, #1e2230) 100%);
             border-radius: 0.5rem;
             border-left: 3px solid var(--gold);
         }
@@ -279,7 +282,7 @@
         }
 
         .info-card {
-            background: white;
+            background: var(--ink-soft);
             border: 1px solid var(--border);
             border-radius: 0.5rem;
             overflow: hidden;
@@ -319,7 +322,7 @@
         .card-link {
             color: var(--accent);
             text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.9rem;
             font-weight: 500;
             display: inline-flex;
@@ -385,7 +388,7 @@
 </div>
 <!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
 <script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
-<script src="partials/keycloak-gate.js?v=c0b1e7e"></script>
+<script src="partials/keycloak-gate.js?v=bec37a1"></script>
     <!-- Top Navigation -->
     <nav class="top-nav">
         <div class="top-nav-content">
@@ -408,7 +411,7 @@
     <nav class="main-nav">
         <div class="main-nav-content">
             <a href="MainAccessDash.html" class="logo">
-                <div style="width: 24px; height: 24px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
+                <div style="width: 24px; height: 24px; background: var(--ink-soft); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
                 Admin
             </a>
             <div class="nav-tabs">
@@ -502,7 +505,7 @@
             </main>
         </div>
     </div>
-  <script src="partials/site-nav.js?v=c0b1e7e"></script>
+  <script src="partials/site-nav.js?v=bec37a1"></script>
   <script>
     // Live data for the Forms & Databases console (trustee session).
     async function loadSecureData(){

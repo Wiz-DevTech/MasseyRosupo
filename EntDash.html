@@ -2,37 +2,41 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="bec37a1">
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
+  <!-- CACHE-BUST end -->
+<!-- CACHE-BUST start -->
   <meta name="x-page-version" content="c0b1e7e">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="5c85a34">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="5178444">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="51e3112">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="9b000df">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
 <!-- CACHE-BUST start -->
   <meta name="x-page-version" content="685c08a">
-  <script src="partials/cache-bust.js?v=c0b1e7e"></script>
+  <script src="partials/cache-bust.js?v=bec37a1"></script>
   <!-- CACHE-BUST end -->
     <style>
       /* Keycloak trustee gate (loaded by partials/keycloak-gate.js) */
       .kc-gate, .kc-forbidden { position: fixed; inset: 0; z-index: 1000; background: linear-gradient(180deg,#15171e,#0d0f14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 28px; text-align: center; }
       .kc-gate .mark, .kc-forbidden .mark { font-family: 'DM Mono',monospace; font-size: 11px; letter-spacing: .30em; text-transform: uppercase; color: #a89464; }
-      .kc-gate .name, .kc-forbidden .name { font-family: 'Cormorant Garamond',serif; font-size: 26px; letter-spacing: .06em; color: #faf8f4; font-weight: 600; }
+      .kc-gate .name, .kc-forbidden .name { font-family: var(--sans); font-size: 26px; letter-spacing: .06em; color: #faf8f4; font-weight: 600; }
       .kc-gate .label, .kc-forbidden .label { font-family: 'DM Mono',monospace; font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #c8ae7e; }
       .kc-gate .rule, .kc-forbidden .rule { height: 1px; width: 64%; background: linear-gradient(90deg, transparent, #a89464, transparent); }
-      .kc-gate .signin, .kc-forbidden .signin { margin-top: 10px; font-family: 'Cormorant Garamond',serif; font-weight: 600; font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: #c8ae7e; background: rgba(168,148,100,.12); border: 1px solid #a89464; border-radius: 2px; padding: 12px 30px; cursor: pointer; }
+      .kc-gate .signin, .kc-forbidden .signin { margin-top: 10px; font-family: var(--sans); font-weight: 600; font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: #c8ae7e; background: rgba(168,148,100,.12); border: 1px solid #a89464; border-radius: 2px; padding: 12px 30px; cursor: pointer; }
       .kc-gate .signin:hover, .kc-forbidden .signin:hover { background: #a89464; color: #0d0f14; }
       .kc-gate .return, .kc-forbidden .return { font-family: 'DM Mono',monospace; font-size: 11px; letter-spacing: .10em; color: rgba(168,148,100,.7); text-decoration: none; }
       .kc-gate .ciphernex, .kc-forbidden .ciphernex { position: fixed; left:0; right:0; text-align:center; padding-top:8px; border-top:1px solid rgba(168,148,100,0.15); bottom: 18px; font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: rgba(168,148,100,.55); }
@@ -43,14 +47,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1a2e4a;
-            --secondary: #4a5c7a;
-            --accent: #284a68;
-            --light: #f9fafc;
-            --gold: #b89f6b;
-            --border: #e0e6ed;
-            --blue-light: #e0e7ff;
-            --blue-hover: #c7d2fe;
+            --ink:#0d0f14; --ink-soft:#161921; --ink-mid:#1e2230; --ink-light:#252a38;
+            --primary:#a89464; --accent:#c8ae7e; --secondary:#c8ae7e;
+            --gold:#a89464; --gold-lt:#c8ae7e; --gold-glow:rgba(168,148,100,0.14);
+            --light:#1e2230; --muted:#525873; --muted-lt:#7a7f96;
+            --border:rgba(168,148,100,0.18); --border-s:rgba(168,148,100,0.09);
+            --green:#2ecc71; --blue:#5dade2; --amber:#f39c12;
+            --serif:'Cormorant Garamond',serif; --sans:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
         }
 
         * {
@@ -60,20 +63,21 @@
         }
 
         body {
-            font-family: 'Cormorant Garamond', serif;
-            line-height: 1.8;
-            color: var(--secondary);
-            background-color: #f5f7fa;
+            font-family: var(--sans);
+            line-height: 1.6;
+            color: var(--parchment, #f0ece3);
+            background-color: var(--ink);
             -webkit-font-smoothing: antialiased;
         }
 
         /* Header Navigation */
         .top-nav {
-            background: var(--primary);
-            color: white;
+            background: var(--ink-soft);
+            color: var(--gold-lt);
             padding: 8px 0;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.85rem;
+            font-family: var(--mono);
+            font-size: 0.72rem; letter-spacing: 0.08em;
+            border-bottom: 1px solid var(--border);
         }
 
         .top-nav-content {
@@ -89,6 +93,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            color: var(--gold-lt); text-transform: uppercase; letter-spacing: 0.14em;
         }
 
         .user-actions {
@@ -99,30 +104,31 @@
 
         .user-actions a,
         .user-actions button {
-            color: white;
+            color: var(--cream, #faf8f4);
             text-decoration: none;
             background: none;
             border: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.85rem;
+            font-family: var(--mono);
+            font-size: 0.72rem;
             cursor: pointer;
             padding: 0;
-            transition: opacity 0.2s;
+            transition: color 0.2s;
         }
 
         .user-actions a:hover,
         .user-actions button:hover {
-            opacity: 0.75;
+            color: var(--gold);
         }
 
         .user-actions .sep {
-            opacity: 0.4;
+            color: var(--gold); opacity: 0.4;
         }
 
         .main-nav {
-            background: var(--accent);
-            padding: 12px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: var(--ink-soft);
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+            border-bottom: 1px solid var(--border);
         }
 
         .main-nav-content {
@@ -132,21 +138,21 @@
             align-items: center;
             padding: 0 20px;
             gap: 30px;
+            min-height: 56px;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
+            color: var(--cream, #faf8f4);
+            font-family: var(--serif); font-weight: 600; font-size: 1.15rem; letter-spacing: 0.04em;
             text-decoration: none;
             white-space: nowrap;
         }
 
         .logo:hover {
-            opacity: 0.85;
+            color: var(--gold-lt);
         }
 
         .nav-tabs {
@@ -156,21 +162,23 @@
         }
 
         .nav-tab {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            padding: 10px 20px;
+            background: transparent;
+            color: var(--cream, #faf8f4);
+            padding: 18px 20px;
             border: none;
             cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            transition: background 0.3s ease;
-            border-right: 1px solid rgba(255,255,255,0.1);
+            font-family: var(--sans);
+            font-size: 0.82rem; letter-spacing: 0.05em;
+            transition: background 0.25s, color 0.25s, border-color 0.25s;
+            border-bottom: 2px solid transparent;
             text-decoration: none;
             display: inline-block;
         }
 
         .nav-tab:hover, .nav-tab.active {
-            background: rgba(255,255,255,0.2);
+            background: rgba(168,148,100,0.10);
+            color: var(--gold-lt);
+            border-bottom-color: var(--gold);
         }
 
         /* Main Content */
@@ -178,7 +186,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
-            background-color: white;
+            background-color: var(--ink);
             min-height: calc(100vh - 120px);
         }
 
@@ -199,7 +207,7 @@
         }
 
         .sidebar-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.8rem;
             color: var(--accent);
             font-weight: 600;
@@ -276,7 +284,7 @@
 </div>
 <!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
 <script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
-<script src="partials/keycloak-gate.js?v=c0b1e7e"></script>
+<script src="partials/keycloak-gate.js?v=bec37a1"></script>
     <!-- Top Navigation -->
     <nav class="top-nav">
         <div class="top-nav-content">
@@ -299,7 +307,7 @@
     <nav class="main-nav">
         <div class="main-nav-content">
             <a href="MainAccessDash.html" class="logo">
-                <div style="width: 24px; height: 24px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
+                <div style="width: 24px; height: 24px; background: var(--ink-soft); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent);">MR</div>
                 Admin
             </a>
             <div class="nav-tabs">
@@ -347,18 +355,18 @@
                         </div>
                         <h1 style="font-size: 1.8rem; color: var(--primary); margin: 0;">Company Management</h1>
                     </div>
-                    <div style="color: var(--gold); font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 2px;">
+                    <div style="color: var(--gold); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 2px;">
                         ENTITY MANAGEMENT
                     </div>
                 </div>
 
                 <!-- Search Form -->
-                <div style="background: white; border: 1px solid var(--border); border-radius: 0.5rem; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="background: var(--ink-soft); border: 1px solid var(--border); border-radius: 0.5rem; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--primary); margin-bottom: 8px;">
+                        <label style="display: block; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--primary); margin-bottom: 8px;">
                             Jurisdiction
                         </label>
-                        <select style="width: 200px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--secondary);">
+                        <select style="width: 200px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 1rem; color: var(--secondary);">
                             <option>ALL</option>
                             <option>Delaware</option>
                             <option>New York</option>
@@ -368,17 +376,17 @@
                     </div>
 
                     <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
-                        <button style="background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">
+                        <button style="background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">
                             SEARCH
                         </button>
                         <span style="color: var(--secondary); font-size: 0.9rem;">|</span>
-                        <button style="background: transparent; color: var(--secondary); border: none; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: color 0.3s ease;">
+                        <button style="background: transparent; color: var(--secondary); border: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: color 0.3s ease;">
                             CLEAR
                         </button>
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <a href="#" style="color: var(--accent); text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 500;">
+                        <a href="#" style="color: var(--accent); text-decoration: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;">
                             Entity Registration &amp; Amendment Form
                         </a>
                     </div>
@@ -392,35 +400,35 @@
                 </div>
 
                 <!-- Results Area -->
-                <div style="background: white; border: 1px solid var(--border); border-radius: 0.5rem; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-height: 200px;">
+                <div style="background: var(--ink-soft); border: 1px solid var(--border); border-radius: 0.5rem; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-height: 200px;">
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
                         <p style="font-style: italic; font-size: 1rem;">Select a jurisdiction, or "ALL" to view all managed entities</p>
                     </div>
                 </div>
 
                 <!-- LIVE: Entity Filings (from /api/filings) -->
-                <div style="margin-top:16px;background:white;border:1px solid var(--border);border-radius:0.5rem;padding:25px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <div style="margin-top:16px;background:var(--ink-soft);border:1px solid var(--border);border-radius:0.5rem;padding:25px;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                         <h2 style="font-size:1.3rem;color:var(--primary);margin:0;">Entity Filings <span style="font-family:var(--mono);font-size:.6rem;color:var(--gold);letter-spacing:.1em;">LIVE</span></h2>
-                        <button onclick="showNewFiling()" class="admin-only" style="background:var(--accent);color:white;border:none;padding:8px 16px;border-radius:4px;font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;">+ New Filing</button>
+                        <button onclick="showNewFiling()" class="admin-only" style="background:var(--accent);color:var(--ink);border:none;padding:8px 16px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;">+ New Filing</button>
                     </div>
                     <div id="new-filing" style="display:none;margin-bottom:16px;padding:16px;background:var(--light);border-radius:4px;">
                         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
-                            <div style="min-width:180px;"><label style="display:block;font-family:'Montserrat',sans-serif;font-size:.8rem;font-weight:600;color:var(--primary);margin-bottom:6px;">Type</label><input id="nf-type" placeholder="e.g. UCC-1" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:4px;"></div>
-                            <div style="min-width:200px;"><label style="display:block;font-family:'Montserrat',sans-serif;font-size:.8rem;font-weight:600;color:var(--primary);margin-bottom:6px;">Reference</label><input id="nf-ref" placeholder="Entity / matter ref" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:4px;"></div>
-                            <button onclick="submitFiling()" style="background:var(--gold);color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;">Submit</button>
+                            <div style="min-width:180px;"><label style="display:block;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;color:var(--gold-lt);margin-bottom:6px;">Type</label><input id="nf-type" placeholder="e.g. UCC-1" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:4px;background:var(--ink-mid,#1e2230);color:var(--cream,#faf8f4);"></div>
+                            <div style="min-width:200px;"><label style="display:block;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;color:var(--gold-lt);margin-bottom:6px;">Reference</label><input id="nf-ref" placeholder="Entity / matter ref" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:4px;background:var(--ink-mid,#1e2230);color:var(--cream,#faf8f4);"></div>
+                            <button onclick="submitFiling()" style="background:var(--gold);color:var(--ink);border:none;padding:8px 16px;border-radius:4px;cursor:pointer;">Submit</button>
                             <button onclick="document.getElementById('new-filing').style.display='none'" style="background:transparent;color:var(--secondary);border:1px solid var(--border);padding:8px 16px;border-radius:4px;cursor:pointer;">Cancel</button>
                         </div>
                     </div>
                     <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
-                        <thead><tr style="text-align:left;font-family:'Montserrat',sans-serif;font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--gold);"><th style="padding:10px 12px;">Type</th><th style="padding:10px 12px;">Reference</th><th style="padding:10px 12px;">Status</th><th style="padding:10px 12px;">Filed</th></tr></thead>
+                        <thead><tr style="text-align:left;font-family:'DM Sans',sans-serif;font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--gold);"><th style="padding:10px 12px;">Type</th><th style="padding:10px 12px;">Reference</th><th style="padding:10px 12px;">Status</th><th style="padding:10px 12px;">Filed</th></tr></thead>
                         <tbody id="filings-list"><tr><td colspan="4" style="padding:16px;color:var(--muted);text-align:center;">Loading filings…</td></tr></tbody>
                     </table>
                 </div>
             </main>
         </div>
     </div>
-  <script src="partials/site-nav.js?v=c0b1e7e"></script>
+  <script src="partials/site-nav.js?v=bec37a1"></script>
   <script>
     // Live entity filings for the Entity Management console (trustee session).
     function showNewFiling(){ document.getElementById('new-filing').style.display='block'; }
