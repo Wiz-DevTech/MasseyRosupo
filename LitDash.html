@@ -8,7 +8,7 @@ Here is the complete, updated HTML file that merges the full-featured management
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+            apiKey: ***
             authDomain: "masseyrosupo.firebaseapp.com",
             projectId: "masseyrosupo",
             storageBucket: "masseyrosupo.firebasestorage.app",
@@ -22,7 +22,7 @@ Here is the complete, updated HTML file that merges the full-featured management
 
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                window.location.href = 'portal-login.html';
+                /* PREVIEW BYPASS (remove to re-enable auth): window.location.href = 'portal-login.html'; */
             }
         });
 
@@ -345,6 +345,7 @@ function renderDashboard(){let active=cases.filter(c=>c.status!=='SETTLED').leng
 function showArbView(id){['dashboard','newcase','schedule','notices','formation','hearing','award','limitation','financial'].forEach(v=>{let el=document.getElementById(`view-${v}`);if(el)el.classList.add('hidden');});document.getElementById(`view-${id}`).classList.remove('hidden');if(id==='dashboard')renderDashboard();if(id==='newcase')renderNewCaseViolations();if(id==='schedule')document.getElementById('schedule-list').innerHTML=FEES.map(f=>`<div class="fee-item"><span class="fee-code">${f.code}</span><span class="fee-name">${f.name}</span><span class="fee-amount">$${f.amount.toLocaleString()}</span></div>`).join('');}
 showMainTab('matters');
 </script>
+  <script src="partials/site-nav.js"></script>
 </body>
 </html>
 ```

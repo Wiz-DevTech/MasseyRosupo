@@ -7,112 +7,342 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --ink:        #0d0f14;
-      --ink-soft:   #15171e;
-      --gold:       #a89464;
-      --gold-lt:    #c8ae7e;
-      --parchment:  #f5f0e8;
-      --cream:      #faf8f4;
-      --muted:      #5a5f74;
+    :root{
+      --ink:#0d0f14;--ink-soft:#15171e;--ink-mid:#1e2230;--ink-light:#252a38;
+      --border:rgba(168,148,100,0.18);--border-s:rgba(168,148,100,0.09);
+      --gold:#a89464;--gold-lt:#c8ae7e;--gold-glow:rgba(168,148,100,0.14);
+      --parchment:#f0ece3;--cream:#faf8f4;--muted:#525873;--muted-lt:#7a7f96;
+      --green:#2ecc71;--red:#e74c3c;--blue:#5dade2;--amber:#f39c12;
+      --r:6px;--sidebar-w:220px;--header-h:58px;
+      --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;--sans:'DM Sans',sans-serif;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
-    body {
-      /* Subtle, softer background — ink base with a faint gold vignette */
-      background:
-        radial-gradient(820px 460px at 50% -8%, rgba(168,148,100,0.10), transparent 58%),
-        linear-gradient(180deg, #15171e 0%, #0d0f14 100%);
-      color: var(--cream);
-      font-family: 'Cormorant Garamond', serif;
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 18px;
-      padding: 28px;
-    }
-    .mark {
-      font-family: 'DM Mono', monospace; font-size: 11px;
-      letter-spacing: .30em; text-transform: uppercase; color: var(--gold);
-    }
-    .name {
-      font-size: 26px; letter-spacing: .06em; color: var(--cream);
-      font-weight: 600; text-align: center;
-    }
-    .label {
-      font-family: 'DM Mono', monospace; font-size: 10px;
-      letter-spacing: .26em; text-transform: uppercase; color: var(--gold-lt);
-      text-align: center; margin-top: -6px;
-    }
-    .rule {
-      height: 1px; width: 64%; margin: 4px auto 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
-    /* Sign In button — themed gold outline → fill on hover (kept from M&R theme) */
-    .signin {
-      margin-top: 10px;
-      font-family: 'Cormorant Garamond', serif; font-weight: 600;
-      font-size: 16px; letter-spacing: .06em; text-transform: uppercase;
-      color: var(--gold-lt);
-      background: rgba(168,148,100,0.12);
-      border: 1px solid var(--gold);
-      border-radius: 2px;
-      padding: 12px 30px;
-      cursor: pointer;
-      transition: background .15s ease, color .15s ease, border-color .15s ease;
-    }
-    .signin:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
-    .return {
-      font-family: 'DM Mono', monospace; font-size: 11px;
-      letter-spacing: .10em; color: var(--muted); text-decoration: none;
-      margin-top: 4px; transition: color .15s ease;
-    }
-    .return:hover { color: var(--gold); }
-    .ciphernex {
-      position: fixed; bottom: 18px;
-      font-family: 'DM Mono', monospace; font-size: 9px;
-      letter-spacing: .22em; text-transform: uppercase; color: rgba(168,148,100,0.55);
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:15px}
+    body{font-family:var(--sans);background:var(--ink);color:var(--parchment);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}button{font-family:var(--sans);cursor:pointer}
+    input,select,textarea{font-family:var(--sans)}
+
+    .header{height:var(--header-h);background:var(--ink-soft);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+    .header-brand{display:flex;align-items:center;gap:12px}
+    .header-logo{font-family:var(--serif);font-size:1.3rem;font-weight:500;color:var(--gold-lt);letter-spacing:0.03em}
+    .header-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted-lt);letter-spacing:0.1em;text-transform:uppercase}
+    .header-right{display:flex;align-items:center;gap:16px}
+    .header-user{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:0.65rem;color:var(--gold-lt)}
+    .header-user .avatar{width:26px;height:26px;border-radius:50%;background:var(--gold-glow);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:0.7rem}
+    .btn-logout{background:transparent;border:1px solid var(--border);color:var(--gold-lt);font-family:var(--mono);font-size:0.6rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:var(--r);cursor:pointer}
+    .btn-logout:hover{background:var(--gold-glow)}
+
+    .layout{display:flex;flex:1}
+    .sidebar{width:var(--sidebar-w);background:var(--ink-soft);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;position:sticky;top:var(--header-h);height:calc(100vh - var(--header-h))}
+    .sb-section{padding:8px 16px;margin-bottom:4px}
+    .sb-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px}
+    .sb-item{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:0.85rem;color:var(--muted-lt);cursor:pointer;border-radius:var(--r);transition:all 0.15s;margin:1px 0}
+    .sb-item:hover{background:var(--ink-mid);color:var(--parchment)}
+    .sb-item.active{background:var(--gold-glow);color:var(--gold-lt);border-left:2px solid var(--gold)}
+    .sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+    .main{flex:1;padding:24px;overflow-y:auto}
+    .page-title{font-family:var(--serif);font-size:1.6rem;font-weight:400;color:var(--gold-lt);margin-bottom:4px}
+    .page-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:24px}
+
+    .card{background:var(--ink-soft);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
+    .card-title{font-family:var(--serif);font-size:1.1rem;color:var(--gold-lt);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-s)}
+
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+    .metric{background:var(--ink-mid);border:1px solid var(--border-s);border-radius:var(--r);padding:14px;text-align:center}
+    .metric-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+    .metric-value{font-family:var(--mono);font-size:1.4rem;font-weight:500;color:var(--gold-lt)}
+
+    table{width:100%;border-collapse:collapse;font-size:0.8rem}
+    th{text-align:left;padding:8px 10px;font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--ink-mid)}
+    td{padding:8px 10px;border-bottom:1px solid var(--border-s);color:var(--parchment)}
+    tr:hover td{background:var(--ink-mid)}
+    .status-pill{display:inline-block;padding:2px 8px;border-radius:12px;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.05em}
+    .st-notice{background:rgba(93,173,226,0.15);color:var(--blue);border:1px solid rgba(93,173,226,0.3)}
+    .st-hearing{background:rgba(243,156,18,0.15);color:var(--amber);border:1px solid rgba(243,156,18,0.3)}
+    .st-awarded{background:rgba(168,148,100,0.15);color:var(--gold-lt);border:1px solid var(--border)}
+    .st-90day{background:rgba(243,156,18,0.15);color:var(--amber);border:1px solid rgba(243,156,18,0.3)}
+    .st-receivable{background:rgba(46,204,113,0.15);color:var(--green);border:1px solid rgba(46,204,113,0.3)}
+    .st-settled{background:rgba(46,204,113,0.25);color:var(--green);border:1px solid rgba(46,204,113,0.4)}
+
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:none;border-radius:var(--r);font-size:0.8rem;font-weight:500;transition:all 0.15s}
+    .btn-gold{background:var(--gold);color:var(--ink)}
+    .btn-gold:hover{background:var(--gold-lt)}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--gold-lt)}
+    .btn-ghost:hover{background:var(--gold-glow)}
+    .empty{text-align:center;padding:40px;color:var(--muted);font-family:var(--mono);font-size:0.75rem}
+    .row-actions{display:flex;gap:6px}
+
+    select.sm,input.sm{padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--ink-mid);color:var(--parchment);font-size:0.78rem;font-family:var(--mono)}
+
+    /* Login gate */
+    .login-gate{position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,#15171e 0%,#0d0f14 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center}
+    .login-gate .mark{font-family:var(--mono);font-size:11px;letter-spacing:.30em;text-transform:uppercase;color:var(--gold)}
+    .login-gate .name{font-family:var(--serif);font-size:26px;letter-spacing:.06em;color:var(--cream);font-weight:600}
+    .login-gate .label{font-family:var(--mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-lt)}
+    .login-gate .rule{height:1px;width:64%;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+    .login-gate .signin{margin-top:10px;font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-lt);background:rgba(168,148,100,0.12);border:1px solid var(--gold);border-radius:2px;padding:12px 30px;cursor:pointer}
+    .login-gate .signin:hover{background:var(--gold);color:var(--ink)}
+    .login-gate .return{font-family:var(--mono);font-size:11px;letter-spacing:.10em;color:rgba(168,148,100,0.7);text-decoration:none}
+    .login-gate .ciphernex{position:fixed;bottom:18px;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(168,148,100,0.55)}
+    .hidden{display:none}
   </style>
 </head>
 <body>
+
+<!-- Login gate (Keycloak PKCE, massey-admin) -->
+<div class="login-gate" id="login-gate" style="display:none">
   <div class="mark">M&amp;R</div>
   <div class="name">MASSEY &amp; ROSUPO CO.</div>
   <div class="label">Trustee Admin Portal</div>
   <div class="rule"></div>
-
   <button class="signin" id="signin">Sign In</button>
   <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
+  <div class="ciphernex">CipherNex Federation &middot; Secure Trustee Access</div>
+</div>
 
-  <div class="ciphernex">CipherNex Federation · Secure Trustee Access</div>
+<div id="app-shell" style="display:none">
+  <header class="header">
+    <div class="header-brand">
+      <div>
+        <div class="header-logo">Massey &amp; Rosupo Co.</div>
+        <div class="header-sub">Trustee Admin Portal</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-status" style="font-family:var(--mono);font-size:0.65rem;color:var(--green)"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px"></span> Trustee Session</div>
+      <div class="header-user" id="header-user">
+        <span class="avatar" id="user-initial">T</span>
+        <span id="user-name">trustee</span>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+  </header>
 
-  <script>
-    // Authorization Code + PKCE redirect to the CipherNex Keycloak Trustee Login.
-    function goKeycloak() {
-      var KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
-      var CLIENT   = "massey-admin";
-      var REDIRECT = window.location.origin + "/";
-      function b64url(buf) {
-        return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
-          .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-      }
-      function rand(n) { return b64url(crypto.getRandomValues(new Uint8Array(n))); }
-      var verifier = rand(32);
-      crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)).then(function (h) {
-        var challenge = b64url(h);
-        var state = rand(16);
-        sessionStorage.setItem("mr_pkce_v", verifier);
-        window.location.href = KC_AUTH + "?" + new URLSearchParams({
-          client_id: CLIENT,
-          response_type: "code",
-          scope: "openid",
-          redirect_uri: REDIRECT,
-          state: state,
-          code_challenge: challenge,
-          code_challenge_method: "S256"
-        }).toString();
-      });
-    }
-    document.getElementById("signin").addEventListener("click", goKeycloak);
-  </script>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-section">
+        <div class="sb-label">Console</div>
+        <div class="sb-item active" onclick="showTab('cases')"><span class="sb-dot" style="background:var(--gold)"></span> Arbitration Cases</div>
+        <div class="sb-item" onclick="showTab('operations')"><span class="sb-dot" style="background:var(--blue)"></span> Operations</div>
+        <div class="sb-item" onclick="showTab('documents')"><span class="sb-dot" style="background:var(--green)"></span> Documents</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Links</div>
+        <a href="arbitration.html" class="sb-item"><span class="sb-dot" style="background:var(--muted)"></span> Case Manager</a>
+        <a href="https://masseyrosupo.com/" class="sb-item"><span class="sb-dot" style="background:var(--muted)"></span> Main Site</a>
+      </div>
+    </aside>
+
+    <div class="main">
+      <!-- CASES -->
+      <div id="tab-cases">
+        <div class="page-title">Arbitration Cases</div>
+        <div class="page-sub">All filings across member accounts &middot; trustee console</div>
+        <div class="metrics" id="case-metrics"></div>
+        <div class="card">
+          <div class="card-title">Case Register</div>
+          <table>
+            <thead><tr><th>Case</th><th>Respondent</th><th>Owner</th><th>Status</th><th>Amount</th><th>Award</th><th>Bar</th><th>Actions</th></tr></thead>
+            <tbody id="case-list"><tr><td colspan="8" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- OPERATIONS -->
+      <div id="tab-operations" class="hidden">
+        <div class="page-title">Operations</div>
+        <div class="page-sub">Fiduciary &amp; administrative operations log</div>
+        <div class="card">
+          <div class="card-title">Operation Records</div>
+          <table>
+            <thead><tr><th>ID</th><th>Kind</th><th>Reference</th><th>Status</th><th>Detail</th><th>Created</th></tr></thead>
+            <tbody id="ops-list"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div id="tab-documents" class="hidden">
+        <div class="page-title">Documents</div>
+        <div class="page-sub">CipherNex-minted instrument records (Document IDs)</div>
+        <div class="card">
+          <div class="card-title">Document Register</div>
+          <table>
+            <thead><tr><th>Local ID</th><th>Document ID</th><th>Entity</th><th>Visibility</th><th>Uploaded By</th><th>Created</th></tr></thead>
+            <tbody id="doc-list"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = location.origin + '/api';
+const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
+const KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
+const CLIENT   = "massey-admin";
+const REDIRECT = location.origin + "/admin-portal.html";
+
+function b64url(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+function rnd(n){return b64url(crypto.getRandomValues(new Uint8Array(n)));}
+function decodeJWT(t){try{return JSON.parse(atob(t.split('.')[1]));}catch(e){return null;}}
+
+let token = localStorage.getItem('mrToken') || null;
+let account = token ? decodeJWT(token) : null;
+
+// ── PKCE callback ─────────────────────────────────────────────────────────────
+(function handleCallback(){
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  if(!code) return;
+  const verifier = sessionStorage.getItem('mr_admin_pkce_v');
+  if(!verifier) return;
+  fetch(KC_TOKEN,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({grant_type:"authorization_code",client_id:CLIENT,code,redirect_uri:REDIRECT,code_verifier:verifier})})
+    .then(r=>r.json()).then(j=>{
+      if(j.access_token){
+        token=j.access_token; account=decodeJWT(token);
+        localStorage.setItem('mrToken', token);
+        if(j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
+        sessionStorage.removeItem('mr_admin_pkce_v');
+        history.replaceState(null,'',REDIRECT);
+        boot();
+      } else { alert("Trustee sign-in failed: "+(j.error_description||j.error)); }
+    });
+})();
+
+function goKeycloak(){
+  const verifier = rnd(32);
+  crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)).then(h=>{
+    const challenge = b64url(h); const state = rnd(16);
+    sessionStorage.setItem('mr_admin_pkce_v', verifier);
+    location.href = KC_AUTH + "?" + new URLSearchParams({
+      client_id:CLIENT, response_type:"code", scope:"openid",
+      redirect_uri:REDIRECT, state, code_challenge:challenge, code_challenge_method:"S256"
+    }).toString();
+  });
+}
+
+function logout(){
+  localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh');
+  token=null; account=null;
+  location.reload();
+}
+
+async function api(path, opts={}){
+  const headers={"Content-Type":"application/json"};
+  if(token) headers["Authorization"]="Bearer "+token;
+  const res = await fetch(API+path, {...opts, headers});
+  if(res.status===401){ alert("Session expired. Please sign in again."); showGate(); throw new Error("unauthorized"); }
+  return res.json();
+}
+
+function showGate(){ document.getElementById('login-gate').style.display=''; document.getElementById('app-shell').style.display='none'; }
+function showApp(){
+  document.getElementById('login-gate').style.display='none';
+  document.getElementById('app-shell').style.display='';
+  const disp = account?.preferred_username || account?.email || 'T';
+  document.getElementById('user-name').textContent = disp;
+  document.getElementById('user-initial').textContent = (disp[0]||'T').toUpperCase();
+}
+
+function showTab(id){
+  ['cases','operations','documents'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hidden', t!==id);
+  });
+  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  if(id==='cases') loadCases();
+  if(id==='operations') loadOps();
+  if(id==='documents') loadDocs();
+}
+
+const STATUS_MAP = {
+  'NOTICE_PENDING':'<span class="status-pill st-notice">Notice Pending</span>',
+  'HEARING':'<span class="status-pill st-hearing">Hearing</span>',
+  'AWARDED':'<span class="status-pill st-awarded">Awarded</span>',
+  'PENDING_90DAY':'<span class="status-pill st-90day">90-Day Window</span>',
+  'RECEIVABLE':'<span class="status-pill st-receivable">Receivable</span>',
+  'SETTLED':'<span class="status-pill st-settled">Settled</span>'
+};
+
+async function loadCases(){
+  const data = await api('/arbitration');
+  const rows = data.cases || [];
+  const total = rows.reduce((s,c)=>s+(parseFloat(c.total)||0),0);
+  document.getElementById('case-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">Total Cases</div><div class="metric-value">${rows.length}</div></div>
+    <div class="metric"><div class="metric-label">Pending Notice</div><div class="metric-value">${rows.filter(c=>c.status==='NOTICE_PENDING').length}</div></div>
+    <div class="metric"><div class="metric-label">90-Day Window</div><div class="metric-value">${rows.filter(c=>c.status==='PENDING_90DAY').length}</div></div>
+    <div class="metric"><div class="metric-label">Total Claimed</div><div class="metric-value">$${total.toLocaleString()}</div></div>`;
+  const tb = document.getElementById('case-list');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="8" class="empty">No cases filed.</td></tr>'; return; }
+  tb.innerHTML = rows.map(c=>`
+    <tr>
+      <td style="font-family:var(--mono);font-size:0.75rem">${c.case_ref||c.id}</td>
+      <td>${c.respondent||'—'}</td>
+      <td style="font-family:var(--mono);font-size:0.7rem;color:var(--muted)">${c.owner_name||'—'}</td>
+      <td>${STATUS_MAP[c.status]||c.status}</td>
+      <td style="font-family:var(--mono);color:var(--green)">$${(parseFloat(c.total)||0).toLocaleString()}</td>
+      <td style="font-family:var(--mono);font-size:0.7rem;color:var(--muted)">${c.award_date||'—'}</td>
+      <td style="font-family:var(--mono);font-size:0.7rem;color:var(--muted)">${c.bar_date||'—'}</td>
+      <td><div class="row-actions">
+        <select class="sm" data-id="${c.id}" onchange="updateStatus(this)">
+          <option value="">Set status…</option>
+          <option value="NOTICE_PENDING">Notice Pending</option>
+          <option value="HEARING">Hearing</option>
+          <option value="AWARDED">Awarded</option>
+          <option value="PENDING_90DAY">90-Day Window</option>
+          <option value="RECEIVABLE">Receivable</option>
+          <option value="SETTLED">Settled</option>
+        </select>
+      </div></td>
+    </tr>`).join('');
+}
+
+async function updateStatus(sel){
+  const id = sel.getAttribute('data-id');
+  const status = sel.value;
+  if(!status) return;
+  await api('/arbitration/'+id, {method:'PATCH', body: JSON.stringify({status})});
+  loadCases();
+}
+
+async function loadOps(){
+  const rows = await api('/operations').then(d=>d.local||[]);
+  const tb = document.getElementById('ops-list');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="6" class="empty">No operations recorded.</td></tr>'; return; }
+  tb.innerHTML = rows.map(o=>`
+    <tr><td style="font-family:var(--mono);font-size:0.7rem">${(o.id||'').slice(0,8)}</td>
+    <td>${o.kind||'—'}</td><td>${o.reference||'—'}</td>
+    <td>${o.status||'—'}</td><td style="color:var(--muted)">${(o.detail||'').slice(0,60)}</td>
+    <td style="font-family:var(--mono);font-size:0.7rem;color:var(--muted)">${(o.created_at||'').slice(0,10)}</td></tr>`).join('');
+}
+
+async function loadDocs(){
+  const rows = await api('/documents');
+  const tb = document.getElementById('doc-list');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="6" class="empty">No documents minted.</td></tr>'; return; }
+  tb.innerHTML = rows.map(d=>`
+    <tr><td style="font-family:var(--mono);font-size:0.7rem">${(d.id||'').slice(0,8)}</td>
+    <td style="font-family:var(--mono);font-size:0.7rem;color:var(--gold-lt)">${d.documentId||'—'}</td>
+    <td>${d.entity||'—'}</td><td>${d.visibility||'—'}</td>
+    <td style="font-family:var(--mono);font-size:0.7rem;color:var(--muted)">${d.uploadedBy||'—'}</td>
+    <td style="font-family:var(--mono);font-size:0.7rem;color:var(--muted)">${(d.createdAt||'').slice(0,10)}</td></tr>`).join('');
+}
+
+function boot(){
+  if(!token || !account){ showGate(); return; }
+  // Trustee role required for this console.
+  const roles = (account.realm_access && account.realm_access.roles) || [];
+  if(!roles.includes('trustee')){ alert('This console requires Trustee access.'); showGate(); return; }
+  showApp();
+  loadCases();
+}
+
+document.getElementById('signin').addEventListener('click', goKeycloak);
+boot();
+</script>
 </body>
 </html>

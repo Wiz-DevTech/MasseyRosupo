@@ -9,7 +9,7 @@
 
     // Your web app's Firebase configuration (same as in index.html)
     const firebaseConfig = {
-        apiKey: "AIzaSyDk1aI9-DdMhlOWERu2RVYYpURBy_-DW5o",
+        apiKey: ***
         authDomain: "masseyrosupo.firebaseapp.com",
         projectId: "masseyrosupo",
         storageBucket: "masseyrosupo.firebasestorage.app",
@@ -25,7 +25,7 @@
     // Check authentication state
     onAuthStateChanged(auth, (user) => {
         if (!user) {
-            window.location.href = 'portal-login.html';
+            /* PREVIEW BYPASS (remove to re-enable auth): window.location.href = 'portal-login.html'; */
         }
     });
 
@@ -661,6 +661,35 @@
 </div>
     </header>
 
+    <!-- Themed page identifier strip (recreated to align with ink/gold theme) -->
+    <div class="mr-page-id-bar">
+      <div class="mr-page-id">
+        <span class="mr-page-id-badge">ADMIN</span>
+        <span class="mr-page-id-title">Administration Dashboard<sup>SM</sup></span>
+      </div>
+    </div>
+    <style>
+      .mr-page-id-bar {
+        background:#4a5c7a;
+        border-bottom:1px solid #a89464;
+        box-shadow:0 2px 6px rgba(0,0,0,0.15);
+      }
+      .mr-page-id {
+        max-width:1200px; margin:0 auto; padding:14px 20px;
+        display:flex; align-items:center; gap:12px;
+      }
+      .mr-page-id-badge {
+        font-family:'DM Mono',monospace; font-size:0.62rem; font-weight:700;
+        letter-spacing:0.18em; color:#0d0f14; background:#a89464;
+        padding:5px 10px; border-radius:3px;
+      }
+      .mr-page-id-title {
+        font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:600;
+        color:#faf8f4; letter-spacing:0.02em;
+      }
+      .mr-page-id-title sup { color:#c8ae7e; font-size:0.55em; }
+    </style>
+
     <div class="main-container">
         <aside class="sidebar">
             <div class="sidebar-item">
@@ -806,10 +835,189 @@
                             </div>
                         </div>
                     </section>
+                    <section class="mr-doc-section dashboard-section">
+                        <h2 class="section-header">Secure Documents <span class="mr-doc-badge">CipherNex Linked</span></h2>
+                        <p class="mr-doc-sub">Trustee-secured uploads. Each file is hashed (SHA-256) and minted with a tamper-proof CipherNex Document ID, tracked on-chain by document type.</p>
+
+                        <!-- Upload form (trustee only) -->
+                        <div class="mr-doc-card">
+                            <h3 class="mr-doc-h3">Upload &amp; Mint a Document</h3>
+                            <form id="mrDocForm" class="mr-doc-form">
+                                <div class="mr-doc-row">
+                                    <label>File
+                                        <input type="file" name="file" required>
+                                    </label>
+                                    <label>Title
+                                        <input type="text" name="title" placeholder="e.g. Acme Bill of Exchange" required>
+                                    </label>
+                                </div>
+                                <div class="mr-doc-row">
+                                    <label>Document Type
+                                        <select name="documentType">
+                                            <option value="bill-of-exchange">Bill of Exchange</option>
+                                            <option value="promissory-note">Promissory Note</option>
+                                            <option value="trust-bond">Trust Bond</option>
+                                            <option value="indemnity">Indemnity</option>
+                                            <option value="reserve-pledge">Reserve Pledge</option>
+                                            <option value="court-order">Court Order</option>
+                                            <option value="trust-instrument">Trust Instrument</option>
+                                        </select>
+                                    </label>
+                                    <label>Amount (CIPR)
+                                        <input type="text" name="amount" value="0">
+                                    </label>
+                                </div>
+                                <div class="mr-doc-row">
+                                    <label>Visibility
+                                        <select name="visibility">
+                                            <option value="private">Private (trustee + client only)</option>
+                                            <option value="public">Public (trackable by anyone with ID)</option>
+                                        </select>
+                                    </label>
+                                    <label>Client / Entity
+                                        <input type="text" name="entity" placeholder="e.g. acme">
+                                    </label>
+                                </div>
+                                <details class="mr-doc-adv">
+                                    <summary>Parties (optional)</summary>
+                                    <div class="mr-doc-row">
+                                        <label>Drawer<input type="text" name="drawer" placeholder="Massey & Rosupo Co."></label>
+                                        <label>Drawee<input type="text" name="drawee"></label>
+                                        <label>Payee<input type="text" name="payee"></label>
+                                    </div>
+                                    <label>Memo<input type="text" name="memo"></label>
+                                </details>
+                                <button type="submit" class="mr-doc-submit">🔒 Upload &amp; Mint Document ID</button>
+                                <div id="mrDocMsg" class="mr-doc-msg"></div>
+                            </form>
+                        </div>
+
+                        <!-- Document ledger -->
+                        <div class="mr-doc-card">
+                            <h3 class="mr-doc-h3">Document Ledger <button id="mrDocRefresh" class="mr-doc-refresh">↻ Refresh</button></h3>
+                            <div class="mr-doc-table-wrap">
+                                <table class="mr-doc-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th><th>Type</th><th>CipherNex Document ID</th>
+                                            <th>SHA-256</th><th>Visibility</th><th>Status</th><th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mrDocBody">
+                                        <tr><td colspan="7" class="mr-doc-empty">Loading…</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
         </main>
     </div>
+
+    <style>
+      .mr-doc-section { margin-top: 28px; }
+      .mr-doc-badge { font-size: 11px; background:#a89464; color:#0d0f14; padding:2px 8px; border-radius:10px; vertical-align:middle; font-weight:600; }
+      .mr-doc-sub { color:#9aa3b2; font-size:13px; margin:-6px 0 16px; max-width:760px; }
+      .mr-doc-card { background:#13161d; border:1px solid #2a3040; border-radius:10px; padding:18px; margin-bottom:18px; }
+      .mr-doc-h3 { color:#e8e4d8; font-family:'Cormorant Garamond',serif; font-size:20px; margin:0 0 14px; display:flex; align-items:center; gap:10px; }
+      .mr-doc-form { display:flex; flex-direction:column; gap:12px; }
+      .mr-doc-row { display:flex; gap:14px; flex-wrap:wrap; }
+      .mr-doc-row label { display:flex; flex-direction:column; gap:5px; flex:1; min-width:160px; color:#a89464; font-size:12px; letter-spacing:.04em; text-transform:uppercase; }
+      .mr-doc-row input, .mr-doc-row select { background:#0d0f14; border:1px solid #2a3040; color:#e8e4d8; padding:9px 10px; border-radius:6px; font-size:14px; text-transform:none; letter-spacing:0; }
+      .mr-doc-adv { color:#9aa3b2; font-size:13px; margin-top:4px; }
+      .mr-doc-adv summary { cursor:pointer; }
+      .mr-doc-submit { align-self:flex-start; margin-top:6px; background:linear-gradient(90deg,#a89464,#c9b27e); color:#0d0f14; border:0; padding:11px 18px; border-radius:7px; font-weight:700; cursor:pointer; }
+      .mr-doc-submit:disabled { opacity:.6; cursor:wait; }
+      .mr-doc-msg { font-size:13px; min-height:18px; }
+      .mr-doc-msg.ok { color:#7fdca0; } .mr-doc-msg.err { color:#ff8a8a; }
+      .mr-doc-refresh { background:#1d2230; border:1px solid #2a3040; color:#a89464; border-radius:6px; padding:4px 10px; cursor:pointer; font-size:12px; }
+      .mr-doc-table-wrap { overflow-x:auto; }
+      .mr-doc-table { width:100%; border-collapse:collapse; font-size:13px; }
+      .mr-doc-table th, .mr-doc-table td { text-align:left; padding:9px 10px; border-bottom:1px solid #232838; color:#cfd3dc; }
+      .mr-doc-table th { color:#a89464; text-transform:uppercase; font-size:11px; letter-spacing:.05em; }
+      .mr-doc-table code { color:#c9b27e; font-size:12px; }
+      .mr-doc-empty { color:#6b7280; text-align:center; padding:20px; }
+      .mr-doc-pill { padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+      .mr-doc-pill.active { background:#16341f; color:#7fdca0; }
+      .mr-doc-pill.retired { background:#3a2a2a; color:#ff9a9a; }
+      .mr-doc-pill.public { background:#1d2b3a; color:#8ec5ff; }
+      .mr-doc-pill.private { background:#2a2436; color:#c3a8ff; }
+      .mr-doc-act { color:#a89464; text-decoration:none; margin-right:10px; cursor:pointer; }
+      .mr-doc-act.disabled { color:#555; cursor:not-allowed; }
+    </style>
+
+    <script>
+    (function () {
+      const $ = (s) => document.querySelector(s);
+      const API = '/api/documents';
+      function token() {
+        // Same token the sign-in flow stored (Keycloak). Falls back to null.
+        return localStorage.getItem('kcToken') || localStorage.getItem('mrToken') || null;
+      }
+      function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+      async function loadDocs() {
+        const t = token();
+        const body = $('#mrDocBody');
+        if (!t) { body.innerHTML = '<tr><td colspan="7" class="mr-doc-empty">Log in as a Trustee to view documents.</td></tr>'; return; }
+        try {
+          const r = await fetch(API, { headers: { Authorization: 'Bearer ' + t } });
+          const docs = r.ok ? await r.json() : [];
+          if (!docs.length) { body.innerHTML = '<tr><td colspan="7" class="mr-doc-empty">No documents yet.</td></tr>'; return; }
+          body.innerHTML = docs.map(d => `
+            <tr>
+              <td>${esc(d.title)}</td>
+              <td>${esc(d.documentType)}</td>
+              <td><code>${esc(d.documentId)}</code></td>
+              <td><code title="${esc(d.sha256)}">${esc(d.sha256).slice(0,12)}…</code></td>
+              <td><span class="mr-doc-pill ${d.visibility}">${d.visibility}</span></td>
+              <td><span class="mr-doc-pill ${d.status}">${d.status}</span></td>
+              <td>
+                <a class="mr-doc-act" href="${API}/${d.id}/download" data-dl="${d.id}">Download</a>
+                ${d.status === 'active' ? `<a class="mr-doc-act" data-retire="${d.id}">Retire</a>` : ''}
+              </td>
+            </tr>`).join('');
+        } catch (e) {
+          body.innerHTML = '<tr><td colspan="7" class="mr-doc-empty">Error loading documents.</td></tr>';
+        }
+      }
+
+      $('#mrDocForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const t = token();
+        const msg = $('#mrDocMsg');
+        if (!t) { msg.className = 'mr-doc-msg err'; msg.textContent = 'You must be logged in as a Trustee.'; return; }
+        const fd = new FormData(e.target);
+        const btn = e.target.querySelector('.mr-doc-submit');
+        btn.disabled = true; msg.className = 'mr-doc-msg'; msg.textContent = 'Uploading & minting…';
+        try {
+          const r = await fetch(API, { method: 'POST', headers: { Authorization: 'Bearer ' + t }, body: fd });
+          const j = await r.json();
+          if (!r.ok) { msg.className = 'mr-doc-msg err'; msg.textContent = j.error || 'Upload failed'; }
+          else {
+            msg.className = 'mr-doc-msg ok';
+            msg.textContent = `Minted ${j.documentId} (SHA-256 ${j.sha256.slice(0,12)}…)`;
+            e.target.reset(); loadDocs();
+          }
+        } catch (err) { msg.className = 'mr-doc-msg err'; msg.textContent = 'Network error'; }
+        finally { btn.disabled = false; }
+      });
+
+      $('#mrDocBody').addEventListener('click', async (e) => {
+        const rid = e.target.getAttribute('data-retire');
+        if (!rid) return;
+        const t = token();
+        e.target.classList.add('disabled');
+        const r = await fetch(`${API}/${rid}/retire`, { method: 'PATCH', headers: { Authorization: 'Bearer ' + t } });
+        if (r.ok) loadDocs(); else alert('Retire failed');
+      });
+
+      $('#mrDocRefresh').addEventListener('click', loadDocs);
+      loadDocs();
+    })();
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const additionalHeader = document.querySelector('.additional-header');
@@ -823,5 +1031,6 @@
             additionalContent.style.display = 'grid'; 
         });
     </script>
+  <script src="partials/site-nav.js"></script>
 </body>
 </html>

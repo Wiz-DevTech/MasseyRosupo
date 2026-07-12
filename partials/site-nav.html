@@ -1,0 +1,94 @@
+<!-- ============================================================
+     M&R SHARED CONSOLE NAV  (SecureMainDash two-bar structure,
+     recolored to the ink/gold theme to blend like the sign-in page)
+     Namespaced mr- so it never collides with a page's own CSS.
+     Inject at the very top of <body> on every page; remove the
+     page's original nav markup.
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mr-ink:#0d0f14; --mr-ink-soft:#15171e; --mr-ink-mid:#1c1f28;
+    --mr-gold:#a89464; --mr-gold-lt:#c8ae7e; --mr-cream:#faf8f4;
+    --mr-border:rgba(168,148,100,0.22);
+  }
+  /* ── Top strip (was --primary blue → ink) ── */
+  .mr-top-nav {
+    background:var(--mr-ink);
+    color:var(--mr-cream);
+    padding:8px 0;
+    font-family:'DM Mono',monospace;
+    font-size:0.72rem; letter-spacing:0.08em;
+    border-bottom:1px solid var(--mr-border);
+  }
+  .mr-top-nav-content { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; padding:0 20px; }
+  .mr-user-info { display:flex; align-items:center; gap:15px; color:var(--mr-gold-lt); text-transform:uppercase; letter-spacing:0.14em; }
+  .mr-user-actions { display:flex; align-items:center; gap:10px; }
+  .mr-user-actions a, .mr-user-actions button {
+    color:var(--mr-cream); text-decoration:none; background:none; border:none;
+    font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.06em;
+    cursor:pointer; padding:0; transition:color .2s;
+  }
+  .mr-user-actions a:hover, .mr-user-actions button:hover { color:var(--mr-gold); }
+  .mr-user-actions .mr-sep { color:var(--mr-gold); opacity:0.4; }
+  /* ── Main bar (was --accent blue → ink-soft with gold accents) ── */
+  .mr-main-nav {
+    background:var(--mr-ink-soft);
+    padding:0; box-shadow:0 2px 10px rgba(0,0,0,0.35);
+    border-bottom:1px solid var(--mr-border);
+    position:sticky; top:0; z-index:90;
+  }
+  .mr-main-nav-content { max-width:1200px; margin:0 auto; display:flex; align-items:center; padding:0 20px; gap:30px; min-height:56px; }
+  .mr-logo { display:flex; align-items:center; gap:10px; color:var(--mr-cream); font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.15rem; letter-spacing:0.04em; text-decoration:none; white-space:nowrap; }
+  .mr-logo:hover { color:var(--mr-gold-lt); }
+  .mr-logo .mr-logo-mark { width:26px; height:26px; background:var(--mr-gold); border-radius:3px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-weight:700; font-size:0.75rem; color:var(--mr-ink); }
+  .mr-nav-tabs { display:flex; gap:0; flex-wrap:nowrap; overflow-x:auto; }
+  .mr-nav-tab {
+    background:transparent; color:var(--mr-cream);
+    padding:18px 20px; border:none; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:0.82rem; letter-spacing:0.05em;
+    transition:background .25s,color .25s, border-color .25s;
+    border-bottom:2px solid transparent; text-decoration:none; display:inline-block;
+  }
+  .mr-nav-tab:hover, .mr-nav-tab.active { background:rgba(168,148,100,0.10); color:var(--mr-gold-lt); border-bottom-color:var(--mr-gold); }
+  .mr-nav-tab.dim { color:rgba(250,248,244,0.45); cursor:default; }
+  .mr-nav-tab.dim:hover { background:transparent; color:rgba(250,248,244,0.45); border-bottom-color:transparent; }
+</style>
+
+<nav class="mr-top-nav">
+  <div class="mr-top-nav-content">
+    <div class="mr-user-info">
+      <span class="mr-pulse">CipherNex Node &middot; Active</span>
+    </div>
+    <div class="mr-user-actions">
+      <a href="index.html">&#8592; Main Site</a>
+      <span class="mr-sep">|</span>
+      <a href="MainAccessDash.html">Dashboard</a>
+      <span class="mr-sep">|</span>
+      <a href="portal-login.html">Client Portal</a>
+      <span class="mr-sep">|</span>
+      <a href="admin-portal.html">Trustee Login</a>
+      <span class="mr-sep">|</span>
+      <button onclick="if(window.logout){logout()}else{location.href='logout.html'}">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<nav class="mr-main-nav">
+  <div class="mr-main-nav-content">
+    <a href="index.html" class="mr-logo">
+      <span class="mr-logo-mark">MR</span>
+      Massey &amp; Rosupo Co.
+    </a>
+    <div class="mr-nav-tabs">
+      <a href="EntDash.html" class="mr-nav-tab" data-nav="entity">Entity Management</a>
+      <span class="mr-nav-tab dim">Transactional Services</span>
+      <a href="LitDash.html" class="mr-nav-tab" data-nav="matters">Matters &amp; SOP</a>
+      <span class="mr-nav-tab dim">Orders &amp; Results</span>
+      <a href="SecureMainDash.html" class="mr-nav-tab" data-nav="forms">Forms &amp; Tools</a>
+      <a href="LitDash.html" class="mr-nav-tab" data-nav="arbitration">Arbitration</a>
+      <span class="mr-nav-tab dim">My Account</span>
+    </div>
+  </div>
+</nav>

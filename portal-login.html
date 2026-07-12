@@ -53,19 +53,54 @@
 
   <script>
     // Authorization Code + PKCE redirect to the CipherNex Keycloak Client Portal login.
+    var KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
+    var KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
+    var CLIENT   = "massey-client";
+    var REDIRECT = window.location.origin + "/portal-login.html";
+
+    function b64url(buf) {
+      return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
+        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+    function rand(n) { return b64url(crypto.getRandomValues(new Uint8Array(n))); }
+
+    // ── Callback: if we came back with ?code=, exchange it for tokens ────────
+    (function handleCallback() {
+      var params = new URLSearchParams(window.location.search);
+      var code = params.get("code");
+      if (!code) return; // not a redirect callback — normal page load
+      var verifier = sessionStorage.getItem("mr_portal_pkce_v");
+      if (!verifier) { console.error("PKCE verifier missing"); return; }
+      fetch(KC_TOKEN, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          client_id: CLIENT,
+          code: code,
+          redirect_uri: REDIRECT,
+          code_verifier: verifier
+        })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.access_token) {
+          // Shared key the dashboards read for API auth.
+          localStorage.setItem("mrToken", j.access_token);
+          if (j.refresh_token) localStorage.setItem("mrRefresh", j.refresh_token);
+          sessionStorage.removeItem("mr_portal_pkce_v");
+          window.location.replace(REDIRECT.split("/portal-login.html")[0] + "/MainAccessDash.html");
+        } else {
+          console.error("token exchange failed", j);
+          alert("Sign-in failed: " + (j.error_description || j.error));
+        }
+      }).catch(function (e) { console.error("token exchange error", e); });
+    })();
+
     function goKeycloak() {
-      var KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
-      var CLIENT   = "massey-client";
-      var REDIRECT = window.location.origin + "/portal-login.html";
-      function b64url(buf) {
-        return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
-          .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-      }
-      function rand(n) { return b64url(crypto.getRandomValues(new Uint8Array(n))); }
-      var verifier = rand(32);
+      function rnd(n) { return b64url(crypto.getRandomValues(new Uint8Array(n))); }
+      var verifier = rnd(32);
       crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)).then(function (h) {
         var challenge = b64url(h);
-        var state = rand(16);
+        var state = rnd(16);
         sessionStorage.setItem("mr_portal_pkce_v", verifier);
         window.location.href = KC_AUTH + "?" + new URLSearchParams({
           client_id: CLIENT,

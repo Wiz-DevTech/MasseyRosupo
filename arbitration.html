@@ -31,6 +31,22 @@ input,select,textarea{font-family:var(--sans)}
 .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
+/* Login gate (Keycloak PKCE) */
+.login-gate{position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,#15171e 0%,#0d0f14 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center}
+.login-gate .mark{font-family:var(--mono);font-size:11px;letter-spacing:.30em;text-transform:uppercase;color:var(--gold)}
+.login-gate .name{font-family:var(--serif);font-size:26px;letter-spacing:.06em;color:var(--cream);font-weight:600}
+.login-gate .label{font-family:var(--mono);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-lt)}
+.login-gate .rule{height:1px;width:64%;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.login-gate .signin{margin-top:10px;font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-lt);background:rgba(168,148,100,0.12);border:1px solid var(--gold);border-radius:2px;padding:12px 30px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.login-gate .signin:hover{background:var(--gold);color:var(--ink)}
+.login-gate .return{font-family:var(--mono);font-size:11px;letter-spacing:.10em;color:rgba(168,148,100,0.7);text-decoration:none}
+.login-gate .ciphernex{position:fixed;bottom:18px;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(168,148,100,0.55)}
+
+.header-user{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:0.65rem;color:var(--gold-lt)}
+.header-user .avatar{width:26px;height:26px;border-radius:50%;background:var(--gold-glow);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold-lt);font-size:0.7rem}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--gold-lt);font-family:var(--mono);font-size:0.6rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:var(--r);cursor:pointer}
+.btn-logout:hover{background:var(--gold-glow)}
+
 .layout{display:flex;flex:1}
 .sidebar{width:var(--sidebar-w);background:var(--ink-soft);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;position:sticky;top:var(--header-h);height:calc(100vh - var(--header-h))}
 .sb-section{padding:8px 16px;margin-bottom:4px}
@@ -128,6 +144,18 @@ tr:hover td{background:var(--ink-mid)}
 </head>
 <body>
 
+<!-- Login gate (Keycloak PKCE, massey-client) -->
+<div class="login-gate" id="login-gate" style="display:none">
+  <div class="mark">M&amp;R</div>
+  <div class="name">MASSEY &amp; ROSUPO CO.</div>
+  <div class="label">Arbitration Case Management</div>
+  <div class="rule"></div>
+  <button class="signin" id="arb-signin">Sign In</button>
+  <a class="return" href="https://masseyrosupo.com/">&larr; Return to main page</a>
+  <div class="ciphernex">CipherNex Federation &middot; Secure Beneficiary Access</div>
+</div>
+
+<div id="app-shell">
 <header class="header">
   <div class="header-brand">
     <div>
@@ -138,6 +166,11 @@ tr:hover td{background:var(--ink-mid)}
   <div class="header-right">
     <div class="header-status"><span class="pulse-dot"></span> FAA Protocol Active</div>
     <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">9 U.S.C. §§ 1-16</div>
+    <div class="header-user" id="header-user" style="display:none">
+      <span class="avatar" id="user-initial">M</span>
+      <span id="user-name">account</span>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
   </div>
 </header>
 
@@ -553,7 +586,121 @@ const FEES=[
 {code:'FS-50',cat:'property',name:'Impounding / towing / forced removal',amount:7000,per:'per day'}
 ];
 
-let cases = JSON.parse(localStorage.getItem('MRSP_Cases') || '[]');
+const API = location.origin + '/api';
+const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
+const KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
+const CLIENT   = "massey-client";
+const REDIRECT = location.origin + "/arbitration.html";
+
+function b64url(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+function rnd(n){return b64url(crypto.getRandomValues(new Uint8Array(n)));}
+
+// ── Auth state ───────────────────────────────────────────────────────────────
+let token = localStorage.getItem('mrToken') || null;
+let account = token ? decodeJWT(token) : null;
+
+function decodeJWT(t){
+  try { return JSON.parse(atob(t.split('.')[1])); } catch(e){ return null; }
+}
+function isAuthed(){ return !!token && !!account; }
+
+// ── PKCE sign-in (Keycloak, massey-client) ───────────────────────────────────
+(function handleCallback(){
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  if(!code) return;
+  const verifier = sessionStorage.getItem('mr_arb_pkce_v');
+  if(!verifier) return;
+  fetch(KC_TOKEN,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({grant_type:"authorization_code",client_id:CLIENT,code,redirect_uri:REDIRECT,code_verifier:verifier})})
+    .then(r=>r.json()).then(j=>{
+      if(j.access_token){
+        token = j.access_token; account = decodeJWT(token);
+        localStorage.setItem('mrToken', token);
+        if(j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
+        sessionStorage.removeItem('mr_arb_pkce_v');
+        history.replaceState(null,'',REDIRECT);
+        loadCases();
+      } else { alert("Sign-in failed: "+(j.error_description||j.error)); }
+    });
+})();
+
+function goKeycloak(){
+  const verifier = rnd(32);
+  crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)).then(h=>{
+    const challenge = b64url(h); const state = rnd(16);
+    sessionStorage.setItem('mr_arb_pkce_v', verifier);
+    location.href = KC_AUTH + "?" + new URLSearchParams({
+      client_id:CLIENT, response_type:"code", scope:"openid",
+      redirect_uri:REDIRECT, state, code_challenge:challenge, code_challenge_method:"S256"
+    }).toString();
+  });
+}
+
+function logout(){
+  localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh');
+  token=null; account=null; cases=[];
+  showLoginGate();
+}
+
+// ── API-backed case store (replaces localStorage) ─────────────────────────────
+let cases = [];
+
+async function api(path, opts={}){
+  const headers = {"Content-Type":"application/json"};
+  if(token) headers["Authorization"] = "Bearer " + token;
+  const res = await fetch(API + path, {...opts, headers});
+  if(res.status === 401){ showLoginGate(); throw new Error("unauthorized"); }
+  return res.json();
+}
+
+async function loadCases(){
+  try {
+    const data = await api('/arbitration');
+    cases = (data.cases || []).map(normalize);
+    renderDashboard();
+    const gate = document.getElementById('login-gate');
+    if(gate) gate.style.display = 'none';
+    const app = document.getElementById('app-shell');
+    if(app) app.style.display = '';
+  } catch(e){ /* loadCases handles 401 internally */ }
+}
+
+// Map DB rows -> the shape the UI expects.
+function normalize(r){
+  let viol = [];
+  try { viol = typeof r.violations === 'string' ? JSON.parse(r.violations) : (r.violations||[]); } catch(e){}
+  return {
+    id: r.case_ref || r.id,
+    dbId: r.id,
+    respondent: r.respondent,
+    entity: r.entity || 'Individual',
+    address: r.address || '',
+    agreement: r.agreement || '',
+    commerce: r.commerce || '',
+    violations: viol,
+    total: parseFloat(r.total||'0') || 0,
+    status: r.status || 'NOTICE_PENDING',
+    filed: (r.created_at||'').slice(0,10),
+    awardDate: r.award_date || null,
+    barDate: r.bar_date || null,
+    owner: r.owner_name || ''
+  };
+}
+
+// ── Login gate UI ─────────────────────────────────────────────────────────────
+function showLoginGate(){
+  const gate = document.getElementById('login-gate');
+  const app = document.getElementById('app-shell');
+  if(gate) gate.style.display = '';
+  if(app) app.style.display = 'none';
+}
+function showApp(){
+  const gate = document.getElementById('login-gate');
+  const app = document.getElementById('app-shell');
+  if(gate) gate.style.display = 'none';
+  if(app) app.style.display = '';
+}
 
 function showView(id) {
   document.querySelectorAll('.main > div').forEach(d => {d.classList.add('hidden');d.classList.remove('tab-active')});
@@ -564,6 +711,7 @@ function showView(id) {
   if(id === 'schedule') renderScheduleList();
   if(id === 'dashboard') renderDashboard();
   if(id === 'limitation') renderCountdowns();
+  if(id === 'dashboard' && isAuthed()) loadCases();
 }
 
 function renderFeeItem(f, prefix, showCheck) {
@@ -602,6 +750,7 @@ function createCase() {
   const id = document.getElementById('nc-id').value;
   const respondent = document.getElementById('nc-respondent').value;
   if(!respondent) { alert('Respondent name required.'); return; }
+  if(!isAuthed()) { alert('Please sign in to file a case.'); goKeycloak(); return; }
   let violations = [];
   let total = 0;
   FEES.forEach(f => {
@@ -613,21 +762,20 @@ function createCase() {
       total += f.amount * count;
     }
   });
-  const c = {
-    id, respondent,
+  const payload = {
+    case_ref: id,
+    respondent,
     entity: document.getElementById('nc-entity').value,
     address: document.getElementById('nc-address').value,
     agreement: document.getElementById('nc-agreement').value,
     commerce: document.getElementById('nc-commerce').value,
     violations, total,
-    status: 'NOTICE_PENDING',
-    filed: new Date().toISOString().split('T')[0],
-    awardDate: null,
-    barDate: null
+    status: 'NOTICE_PENDING'
   };
-  cases.push(c);
-  localStorage.setItem('MRSP_Cases', JSON.stringify(cases));
-  showView('dashboard');
+  api('/arbitration', {method:'POST', body: JSON.stringify(payload)})
+    .then(() => loadCases())
+    .then(() => showView('dashboard'))
+    .catch(() => alert('Could not save case. Check your connection and sign-in.'));
 }
 
 function renderDashboard() {
@@ -665,7 +813,7 @@ function renderDashboard() {
   }).join('');
 }
 
-function renderCountdowns() {
+renderCountdowns() {
   const pending = cases.filter(c=>c.status==='PENDING_90DAY' && c.awardDate);
   const el = document.getElementById('countdown-list');
   if(!pending.length) { el.innerHTML = '<div class="empty">No awards pending confirmation.</div>'; return; }
@@ -683,7 +831,36 @@ function renderCountdowns() {
   }).join('');
 }
 
-renderDashboard();
+// ── Bootstrap: show gate if not signed in, else load persisted cases ──────────
+document.getElementById('arb-signin').addEventListener('click', goKeycloak);
+
+function applyUserChip() {
+  const chip = document.getElementById('header-user');
+  const name = document.getElementById('user-name');
+  const init = document.getElementById('user-initial');
+  if (account && chip) {
+    const disp = account.preferred_username || account.email || 'M';
+    name.textContent = disp;
+    init.textContent = (disp[0] || 'M').toUpperCase();
+    chip.style.display = '';
+  } else if (chip) {
+    chip.style.display = 'none';
+  }
+}
+
+// Override loadCases to also reveal the app + chip once authed.
+const _loadCases = loadCases;
+loadCases = async function() {
+  await _loadCases();
+  applyUserChip();
+};
+
+if (isAuthed()) {
+  loadCases();
+} else {
+  showLoginGate();
+}
 </script>
+</div><!-- /app-shell -->
 </body>
 </html>
