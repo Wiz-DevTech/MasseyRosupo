@@ -486,9 +486,10 @@
         if (!forms.length) { fl.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:.85rem;">No forms configured.</div>'; }
         else {
           fl.innerHTML = '<ul style="list-style:none;">' + forms.map(f =>
-            '<li style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;">' +
-            '<span><strong>' + (f.code||f.name||'Form') + '</strong> — ' + (f.name||'') + '</span>' +
-            '<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted);">' + (f.category||'') + '</span></li>'
+            '<li style="padding:10px 0;border-bottom:1px solid var(--border);">' +
+            '<div style="font-weight:600;color:var(--primary);">' + (f.title||'Form') + '</div>' +
+            '<div style="font-size:.82rem;color:var(--secondary);margin-top:2px;">' + (f.description||'') + '</div>' +
+            '<span style="font-family:var(--mono);font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">' + (f.category||'') + '</span></li>'
           ).join('') + '</ul>';
         }
       } catch(e) {}
