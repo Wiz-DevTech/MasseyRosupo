@@ -993,7 +993,7 @@
     <script>
     (function () {
       const $ = (s) => document.querySelector(s);
-      const API = '/api/documents';
+      const API = (location.origin.indexOf("localhost")>-1||location.origin.indexOf("127.0.0.1")>-1||location.origin.indexOf("95.217.151.38")>-1)?location.origin+"/api":"https://api.masseyrosupo.wisdomignited.com/api" + '/documents';
       function token() {
         // Same token the sign-in flow stored (Keycloak). Falls back to null.
         return localStorage.getItem('kcToken') || localStorage.getItem('mrToken') || null;

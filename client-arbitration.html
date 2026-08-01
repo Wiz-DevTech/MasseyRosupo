@@ -161,7 +161,7 @@
 </div>
 
 <script>
-const API = location.origin + '/api';
+const API = (location.origin.indexOf("localhost")>-1||location.origin.indexOf("127.0.0.1")>-1||location.origin.indexOf("95.217.151.38")>-1)?location.origin+"/api":"https://api.masseyrosupo.wisdomignited.com/api";
 const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
 const KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
 const CLIENT   = "massey-client";
