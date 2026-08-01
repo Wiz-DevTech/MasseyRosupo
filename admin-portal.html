@@ -250,6 +250,7 @@ let account = token ? decodeJWT(token) : null;
         token=j.access_token; account=decodeJWT(token);
         localStorage.setItem('mrToken', token);
         if(j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
+        if(j.id_token) localStorage.setItem('mrIdToken', j.id_token);
         sessionStorage.removeItem('mr_admin_pkce_v');
         history.replaceState(null,'',REDIRECT);
         boot();
@@ -263,17 +264,35 @@ function goKeycloak(){
     const challenge = b64url(h); const state = rnd(16);
     sessionStorage.setItem('mr_admin_pkce_v', verifier);
     location.href = KC_AUTH + "?" + new URLSearchParams({
-      client_id:CLIENT, response_type:"code", scope:"openid",
+      client_id:CLIENT, response_type:"code", scope:"openid", prompt:"select_account",
       redirect_uri:REDIRECT, state, code_challenge:challenge, code_challenge_method:"S256"
     }).toString();
   });
 }
 
-function logout(){
-  localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh');
+function kcEndSession(backTo){
+  var idt = localStorage.getItem('mrIdToken') || '';
+  localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh'); localStorage.removeItem('mrIdToken');
   token=null; account=null;
-  location.reload();
+  var p = new URLSearchParams({ client_id: CLIENT });
+  if(idt) p.set('id_token_hint', idt);
+  if(backTo) p.set('post_logout_redirect_uri', backTo);
+  location.href = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/logout?" + p.toString();
 }
+function logout(){ kcEndSession(location.origin + "/"); }
+function switchUser(){ kcEndSession(location.origin + "/admin-portal.html"); }
+window.logout = logout; window.switchUser = switchUser;
+(function(){
+  var g = document.getElementById('login-gate');
+  if(g && !document.getElementById('switch-link')){
+    var a = document.createElement('a');
+    a.id='switch-link'; a.href='javascript:void(0)';
+    a.textContent='Switch user';
+    a.style.cssText='display:block;margin-top:14px;font-size:13px;color:#8a8a8a;text-decoration:underline;cursor:pointer';
+    a.onclick = switchUser;
+    g.appendChild(a);
+  }
+})();
 
 async function api(path, opts={}){
   const headers={"Content-Type":"application/json"};

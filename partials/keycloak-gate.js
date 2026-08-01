@@ -65,7 +65,7 @@ function kcGoKeycloak(){
     const state = _kcRnd(16);
     sessionStorage.setItem('kc_pkce_v', verifier);
     location.href = KC_AUTH + "?" + new URLSearchParams({
-      client_id: KC_CLIENT, response_type: "code", scope: "openid",
+      client_id: KC_CLIENT, response_type: "code", scope: "openid", prompt: "select_account",
       redirect_uri: KC_REDIRECT, state, code_challenge: challenge, code_challenge_method: "S256"
     }).toString();
   });
@@ -110,6 +110,7 @@ window.kcApplyAdminVisible = kcApplyAdminVisible;
       if (j.access_token) {
         localStorage.setItem('mrToken', j.access_token);
         if (j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
+        if (j.id_token) localStorage.setItem('mrIdToken', j.id_token);
         sessionStorage.removeItem('kc_pkce_v');
         history.replaceState(null, '', KC_REDIRECT);
         if (_kcAuthorized()) { _kcHideAll(); kcApplyAdminVisible(); window.dispatchEvent(new Event('kc:authed')); }
@@ -130,4 +131,29 @@ document.addEventListener('DOMContentLoaded', function(){
   const btn = document.getElementById('kc-signin');
   if (btn) btn.addEventListener('click', kcGoKeycloak);
   kcApplyAdminVisible();
+  ['kc-gate', 'kc-forbidden'].forEach(function(id){
+    const host = document.getElementById(id);
+    if (host && !document.getElementById('switch-link')){
+      const a = document.createElement('a');
+      a.id = 'switch-link'; a.href = 'javascript:void(0)';
+      a.textContent = 'Switch user';
+      a.style.cssText = 'display:block;margin-top:14px;font-size:13px;color:#8a8a8a;text-decoration:underline;cursor:pointer';
+      a.onclick = function(){ kcEndSession(location.origin + location.pathname); };
+      host.appendChild(a);
+    }
+  });
 });
+
+/* Real logout: clear local tokens AND end the Keycloak realm session so a
+ * different user can sign in (switch user). */
+function kcEndSession(backTo){
+  const idt = localStorage.getItem('mrIdToken') || '';
+  localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh'); localStorage.removeItem('mrIdToken');
+  const p = new URLSearchParams({ client_id: KC_CLIENT });
+  if (idt) p.set('id_token_hint', idt);
+  if (backTo) p.set('post_logout_redirect_uri', backTo);
+  location.href = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/logout?" + p.toString();
+}
+window.kcEndSession = kcEndSession;
+window.logout = function(){ kcEndSession(location.origin + "/"); };
+window.switchUser = function(){ kcEndSession(location.origin + location.pathname); };
