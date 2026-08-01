@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function(){
       a.id = 'switch-link'; a.href = 'javascript:void(0)';
       a.textContent = 'Switch user';
       a.style.cssText = 'display:block;margin-top:14px;font-size:13px;color:#8a8a8a;text-decoration:underline;cursor:pointer';
-      a.onclick = function(){ kcEndSession(location.origin + location.pathname); };
+      a.onclick = function(){ window.switchUser(); };
       host.appendChild(a);
     }
   });
@@ -156,4 +156,8 @@ function kcEndSession(backTo){
 }
 window.kcEndSession = kcEndSession;
 window.logout = function(){ kcEndSession(location.origin + "/"); };
-window.switchUser = function(){ kcEndSession(location.origin + location.pathname); };
+/* Switch user: always bounce to an EXACTLY-registered redirect URI per client —
+ * Keycloak's logout endpoint does not accept wildcard post_logout targets. */
+window.switchUser = function(){
+  kcEndSession(location.origin + (KC_CLIENT === "massey-client" ? "/portal-login.html" : "/admin-portal.html"));
+};
