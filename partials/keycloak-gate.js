@@ -156,8 +156,10 @@ function kcEndSession(backTo){
 }
 window.kcEndSession = kcEndSession;
 window.logout = function(){ kcEndSession(location.origin + "/"); };
-/* Switch user: always bounce to an EXACTLY-registered redirect URI per client —
- * Keycloak's logout endpoint does not accept wildcard post_logout targets. */
+/* Switch user: no end-session hop — Keycloak's account chooser
+ * (prompt=select_account) handles switching natively. Drop the local
+ * identity, then go straight to the chooser. */
 window.switchUser = function(){
-  kcEndSession(location.origin + (KC_CLIENT === "massey-client" ? "/portal-login.html" : "/admin-portal.html"));
+  localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh'); localStorage.removeItem('mrIdToken');
+  kcGoKeycloak();
 };
