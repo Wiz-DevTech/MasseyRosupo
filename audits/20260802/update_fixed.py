@@ -11,7 +11,7 @@ DONE = {
     "P1-11": "Yes", "P1-14": "Yes", "P1-15": "Yes",
     "P2-16": "Yes", "P2-17": "Yes", "P2-19": "Yes",
     "P3-24": "Yes", "P3-26": "Yes",
-    "P0-03": "Partial",  # origin + code + nginx done; public DNS record still required
+    "P0-03": "Yes",  # origin + code + nginx + DNS record created + public TLS verified 2026-08-02
 }
 
 rows = list(csv.reader(open(CSV, encoding="utf-8-sig")))
