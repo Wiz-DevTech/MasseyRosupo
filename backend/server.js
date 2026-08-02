@@ -856,7 +856,10 @@ async function anchorDocument(documentId, sha256, documentType, title) {
       const j = await sub.json().catch(() => ({}));
       return { status: "queued", detail: j.error || "submit failed" };
     }
-    const mined = await fetch(`${CIPHERNEX_PUBLIC_API}/api/mine`, { method: "POST" });
+    const mined = await fetch(`${CIPHERNEX_PUBLIC_API}/api/mine`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rewardAddress: from }),
+    });
     const m = await mined.json().catch(() => ({}));
     const blockHash = (m.block && m.block.hash) || m.hash || m.blockHash;
     return blockHash ? { status: "anchored", blockHash } : { status: "queued", detail: "mined without hash" };
