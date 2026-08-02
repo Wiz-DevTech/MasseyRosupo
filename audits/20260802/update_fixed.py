@@ -12,6 +12,11 @@ DONE = {
     "P2-16": "Yes", "P2-17": "Yes", "P2-19": "Yes",
     "P3-24": "Yes", "P3-26": "Yes",
     "P0-03": "Yes",  # origin + code + nginx + DNS record created + public TLS verified 2026-08-02
+    # Deferred-items pass (2026-08-02):
+    "P1-12": "Yes", "P1-13": "Yes", "P2-18": "Yes", "P2-20": "Yes", "P2-21": "Yes",
+    "P3-22": "Yes", "P3-23": "Yes", "P3-25": "Yes",
+    "DI-2": "Yes", "WF1-1": "Yes", "BIZ-5": "Yes", "BIZ-6": "Yes",
+    "NOTIF-1": "Yes", "NOTIF-2": "Yes", "SEC-2": "Yes", "SEC-3": "Yes", "SYNC-1": "Yes",
 }
 
 rows = list(csv.reader(open(CSV, encoding="utf-8-sig")))

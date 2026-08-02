@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="dd7ff45">
-  <script src="partials/cache-bust.js?v=dd7ff45"></script>
+  <meta name="x-page-version" content="cbc1cc9">
+  <script src="partials/cache-bust.js?v=cbc1cc9"></script>
   <!-- CACHE-BUST end -->
     <style>
       /* Keycloak trustee gate (loaded by partials/keycloak-gate.js) */
@@ -364,7 +364,7 @@
 </div>
 <!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
 <script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
-<script src="partials/keycloak-gate.js?v=dd7ff45"></script>
+<script src="partials/keycloak-gate.js?v=cbc1cc9"></script>
     <!-- Top Navigation -->
     <nav class="top-nav">
         <div class="top-nav-content">
@@ -409,9 +409,9 @@
                 <div class="sidebar-section">
                     <h3 class="sidebar-title">Forms Library</h3>
                     <ul class="sidebar-links">
-                        <li><a href="SecureMainDash.html" class="active">UCC Filing Forms</a></li>
-                        <li><a href="SecureMainDash.html">State and Admin Forms</a></li>
-                        <li><a href="SecureMainDash.html">International Forms</a></li>
+                        <li><a href="SecureMainDash.html?cat=ucc" class="active">UCC Filing Forms</a></li>
+                        <li><a href="SecureMainDash.html?cat=state">State and Admin Forms</a></li>
+                        <li><a href="SecureMainDash.html?cat=international">International Forms</a></li>
                         <li><a href="SecureMainDash.html">Procedural Summaries</a></li>
                         <li><a href="SecureMainDash.html">Packets</a></li>
                     </ul>
@@ -466,7 +466,7 @@
 
                 <!-- LIVE: Forms Library (from /api/forms) -->
                 <section class="card" style="margin-top:32px;">
-                    <div class="card-title">Forms Library <span style="font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em;">LIVE</span></div>
+                    <div class="card-title" id="forms-title">Forms Library <span style="font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em;">LIVE</span></div>
                     <div id="forms-list"><div class="empty" style="padding:20px;color:var(--muted);font-size:.85rem;">Loading forms…</div></div>
                 </section>
 
@@ -481,14 +481,18 @@
             </main>
         </div>
     </div>
-  <script src="partials/site-nav.js?v=dd7ff45"></script>
+  <script src="partials/site-nav.js?v=cbc1cc9"></script>
   <script>
     // Live data for the Forms & Databases console (trustee session).
     async function loadSecureData(){
+      const urlCat = (new URLSearchParams(location.search)).get('cat') || '';
       try {
-        const forms = await kcApi('/forms');
+        const all = await kcApi('/forms');
+        const forms = urlCat ? all.filter(f => String(f.category||'').toLowerCase() === urlCat.toLowerCase()) : all;
         const fl = document.getElementById('forms-list');
-        if (!forms.length) { fl.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:.85rem;">No forms configured.</div>'; }
+        const title = document.getElementById('forms-title');
+        if (title && urlCat) title.innerHTML = 'Forms Library — ' + urlCat.toUpperCase() + ' <a href="SecureMainDash.html" style="font-family:var(--mono);font-size:.6rem;color:var(--gold);letter-spacing:.1em;">(ALL)</a>';
+        if (!forms.length) { fl.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:.85rem;">' + (urlCat ? 'No forms in this category.' : 'No forms configured.') + '</div>'; }
         else {
           fl.innerHTML = '<ul style="list-style:none;">' + forms.map(f =>
             '<li style="padding:10px 0;border-bottom:1px solid var(--border);">' +

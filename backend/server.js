@@ -39,8 +39,8 @@ const KC_CLIENT_CLIENT = process.env.KC_CLIENT_CLIENT || "massey-client";
 const KC_REQUIRED_ROLE_CLIENT = process.env.KC_REQUIRED_ROLE_CLIENT || "beneficiary";
 const KC_REDIRECT_CLIENT = process.env.KC_REDIRECT_CLIENT || "https://masseyrosupo.com/portal-login.html";
 
-const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-prod-masseyrosupo";
 const WISDOM_BACKEND_API = process.env.WISDOM_BACKEND_API || "https://wisdomignited.com/api";
+const mailer = require("./mailer");
 
 // ── CipherNex DocumentService (mints on-chain Document IDs) ───────────────────
 const CIPHERNEX_DOCS_API = process.env.CIPHERNEX_DOCS_API || "http://localhost:3004";
@@ -222,6 +222,33 @@ function requireRole(role) {
   };
 }
 
+// ── At-rest encryption (SEC-3): AES-256-GCM for PII fields ────────────────
+// ENCRYPTION_KEY must be 64 hex chars. Rows are stored as
+// "enc:<iv b64>:<ct b64>:<authTag b64>"; anything else stays plaintext.
+const CRYPTO_KEY = Buffer.from(String(process.env.ENCRYPTION_KEY || "").padEnd(64, "0").slice(0, 64), "hex");
+function encPII(s) {
+  if (!s) return s;
+  try {
+    const iv = crypto.randomBytes(12);
+    const c = crypto.createCipheriv("aes-256-gcm", CRYPTO_KEY, iv);
+    const ct = Buffer.concat([c.update(String(s), "utf8"), c.final()]);
+    return "enc:" + iv.toString("base64") + ":" + ct.toString("base64") + ":" + c.getAuthTag().toString("base64");
+  } catch (e) {
+    return s; // never break a write because encryption failed
+  }
+}
+function decPII(s) {
+  if (!s || !String(s).startsWith("enc:")) return s;
+  try {
+    const [ivB, ctB, tagB] = String(s).slice(4).split(":");
+    const d = crypto.createDecipheriv("aes-256-gcm", CRYPTO_KEY, Buffer.from(ivB, "base64"));
+    d.setAuthTag(Buffer.from(tagB, "base64"));
+    return Buffer.concat([d.update(Buffer.from(ctB, "base64")), d.final()]).toString("utf8");
+  } catch (e) {
+    return s;
+  }
+}
+
 // ── Audit trail (P3-26 remediation 2026-08-02) ──────────────────────────────
 function logAudit(kind, ref, detail, actor) {
   try {
@@ -255,6 +282,20 @@ app.post("/api/auth/oidc-callback", strictLimiter, async (req, res) => {
   if (!code || !code_verifier) return res.status(400).json({ error: "missing code" });
 
   const isClient = portal === "client";
+  // P2-21 remediation: pin redirect_uri to registered origins/pages. The body
+  // value is still honored (Keycloak requires the exact URI from the auth
+  // request) but only when it parses to an allowlisted origin and a plain
+  // .html path — arbitrary values are rejected outright.
+  const allowedRedirects = (process.env.KC_ALLOWED_REDIRECTS ||
+    "https://masseyrosupo.com,https://www.masseyrosupo.com,http://localhost:3019,http://127.0.0.1:3019"
+  ).split(",").map(s => s.trim());
+  if (redirect_uri) {
+    let u = null;
+    try { u = new URL(redirect_uri); } catch (e) { u = null; }
+    if (!u || !allowedRedirects.includes(u.origin) || !/^\/[a-zA-Z0-9\-_]*\.html$/.test(u.pathname)) {
+      return res.status(400).json({ error: "redirect_uri not allowed" });
+    }
+  }
   const clientId = isClient ? KC_CLIENT_CLIENT : KC_CLIENT_TRUSTEE;
   const requiredRole = isClient ? KC_REQUIRED_ROLE_CLIENT : KC_REQUIRED_ROLE_TRUSTEE;
   const fallbackRedirect = isClient ? KC_REDIRECT_CLIENT : KC_REDIRECT_TRUSTEE;
@@ -295,15 +336,25 @@ app.post("/api/auth/oidc-callback", strictLimiter, async (req, res) => {
 // ── Operations API (proxies to wisdomignited backend; M&R-local records too) ──
 // The substantial Operations APIs + wisdomignited links live upstream.
 // Operations ledger is fiduciary — trustee-only read (matches POST).
+let _opsCache = { at: 0, data: null };
 app.get("/api/operations", requireRole(KC_REQUIRED_ROLE_TRUSTEE), async (req, res) => {
   const local = db.prepare("SELECT * FROM operations ORDER BY created_at DESC").all();
+  // SYNC-1 remediation: 60s TTL read-through cache for the upstream status sync
+  // (SLA: upstream changes reflect within ≤60s; no push/webhook yet).
   try {
-    const upstream = await fetch(`${WISDOM_BACKEND_API}/operations`, {
-      headers: { Authorization: req.headers.authorization || "" },
-    });
-    const up = upstream.ok ? await upstream.json() : [];
-    res.json({ local, upstream: up });
+    let up = null;
+    if (_opsCache.at && Date.now() - _opsCache.at < 60000) {
+      up = _opsCache.data;
+    } else {
+      const upstream = await fetch(`${WISDOM_BACKEND_API}/operations`, {
+        headers: { Authorization: req.headers.authorization || "" },
+      });
+      up = upstream.ok ? await upstream.json() : [];
+      _opsCache = { at: Date.now(), data: up };
+    }
+    res.json({ local, upstream: up, sync: "cache-ttl-60s" });
   } catch (e) {
+    if (_opsCache.at) return res.json({ local, upstream: _opsCache.data, sync: "cache-stale" });
     res.json({ local, upstream: [], note: "upstream unavailable" });
   }
 });
@@ -345,6 +396,13 @@ app.post("/api/arbitration", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) =
     violations, total, status, clause, detail, beneficiary_sub,
   } = req.body || {};
   if (!respondent) return res.status(400).json({ error: "respondent is required" });
+  // BIZ-6 remediation: block arbitration against a discharged or unknown instrument.
+  const linkedDocId = req.body?.documentId;
+  if (linkedDocId) {
+    const ld = db.prepare("SELECT * FROM documents WHERE document_id = ?").get(linkedDocId);
+    if (!ld) return res.status(400).json({ error: "referenced instrument not found" });
+    if (ld.status === "retired") return res.status(409).json({ error: "instrument is discharged — arbitration against it is blocked" });
+  }
   const owner_sub = req.user?.sub || "";
   const owner_name = req.user?.preferred_username || req.user?.email || owner_sub;
   db.prepare(`INSERT INTO arbitrations
@@ -456,7 +514,7 @@ app.post("/api/documents", requireRole(KC_REQUIRED_ROLE_TRUSTEE), docUpload.sing
     const {
       title, documentType, amount = "0", currency = "CIPR",
       visibility = "private", entity = "", memo = "",
-      drawer = "", drawee = "", payee = "",
+      drawer = "", drawee = "", payee = "", walletAddress = "",
     } = req.body || {};
 
     if (!title || !documentType) {
@@ -480,6 +538,30 @@ app.post("/api/documents", requireRole(KC_REQUIRED_ROLE_TRUSTEE), docUpload.sing
       fs.unlink(req.file.path, () => {});
       logAudit("document.mint", dup.document_id, "duplicate suppressed (sha256 match)", req.user?.sub || "");
       return res.status(200).json({ ok: true, id: dup.id, documentId: dup.document_id, sha256, duplicate: true, note: "Instrument already registered — returned existing Document ID." });
+    }
+
+    // 1c. Validation (DI-2/SEC-2 remediation): amount/currency/wallet checked
+    //     server-side — never trust client-side checks for ledger-bound values.
+    if (!/^\d+(\.\d{1,8})?$/.test(String(amount))) {
+      fs.unlink(req.file.path, () => {});
+      return res.status(400).json({ error: "amount must be a positive number (max 8 decimals)" });
+    }
+    if (!["CIPR", "USD", "XRP"].includes(String(currency).toUpperCase())) {
+      fs.unlink(req.file.path, () => {});
+      return res.status(400).json({ error: "currency must be CIPR, USD, or XRP" });
+    }
+    if (walletAddress) {
+      const wal = String(walletAddress).trim();
+      if (!/^(r[1-9A-HJ-NP-Za-km-z]{24,34}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(wal)) {
+        fs.unlink(req.file.path, () => {});
+        return res.status(400).json({ error: "walletAddress format invalid (expected XRP r-address or BTC address)" });
+      }
+    }
+    // 1d. Discharge guard (BIZ-5): a settled instrument cannot be re-registered.
+    const retired = db.prepare("SELECT * FROM documents WHERE sha256 = ? AND status = 'retired'").get(sha256);
+    if (retired) {
+      fs.unlink(req.file.path, () => {});
+      return res.status(409).json({ error: "Instrument previously discharged — re-registration of a settled Document ID is blocked" });
     }
 
     // 2. Mint the CipherNex Document ID — forward the trustee's Keycloak token.
@@ -522,6 +604,10 @@ app.post("/api/documents", requireRole(KC_REQUIRED_ROLE_TRUSTEE), docUpload.sing
       String(amount), currency, JSON.stringify(parties), memo, JSON.stringify(chainReceipt || {})
     );
     logAudit("document.mint", documentId, `${documentType} ${title}`, req.user?.sub || "");
+    // NOTIF-2: notify trustees a new instrument awaits review (best-effort).
+    mailer.send(mailer.TRUSTEES.join(","),
+      `[M&R] New instrument registered: ${documentId}`,
+      `A new instrument was registered:\n\n  Document ID: ${documentId}\n  Type: ${documentType}\n  Title: ${title}\n  Amount: ${amount} ${currency}\n  SHA-256: ${sha256}\n\nReview it in MainAccessDash.`);
 
     res.status(201).json({
       ok: true, id, documentId, sha256,
@@ -591,6 +677,18 @@ app.patch("/api/documents/:id/retire", requireRole(KC_REQUIRED_ROLE_TRUSTEE), as
   res.json({ ok: true, id: req.params.id, status: "retired" });
 });
 
+// PATCH /api/documents/:id/reject — trustee rejects a submission (WF1-1).
+// Local status flips to 'rejected' with an audit row; rejected documents are
+// never minted chain-side by this path, so the entity sees a clear terminal
+// state instead of hanging in limbo.
+app.patch("/api/documents/:id/reject", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) => {
+  const row = db.prepare("SELECT * FROM documents WHERE id=?").get(req.params.id);
+  if (!row) return res.status(404).json({ error: "Not found" });
+  db.prepare("UPDATE documents SET status='rejected' WHERE id=?").run(req.params.id);
+  logAudit("document.reject", row.document_id, String(req.body?.reason || "").slice(0, 300), req.user?.sub || "");
+  res.json({ ok: true, id: req.params.id, status: "rejected" });
+});
+
 // Enrich a local gateway row with authoritative detail from CipherNex.
 // CipherNex is the single source of truth for title/type/parties/amount/status/sha256.
 async function enrichWithCiphernex(r) {
@@ -623,12 +721,15 @@ app.post("/api/contact", apiLimiter, async (req, res) => {
   const id = uuidv4();
   db.prepare("INSERT INTO inquiries (id, name, email, nature, message) VALUES (?,?,?,?,?)")
     .run(id,
-      String(name || "").slice(0, 200),
-      String(email).slice(0, 200),
+      encPII(String(name || "").slice(0, 200)),
+      encPII(String(email).slice(0, 200)),
       String(nature || "").slice(0, 100),
-      String(message).slice(0, 4000));
+      encPII(String(message).slice(0, 4000)));
   console.log("[contact] inquiry", id, "from", email, "re:", nature);
   logAudit("inquiry.submit", id, `${email} re: ${nature || ""}`, "public");
+  // NOTIF-1: auto-acknowledgment to the submitter (best-effort, gated by MAIL_ENABLED).
+  mailer.send(String(email), "Massey & Rosupo — inquiry received",
+    `Hi ${name || "there"},\n\nWe received your inquiry${nature ? " about " + nature : ""}. A trustee will respond within 2 business days.\n\nReference: ${id}\n\n— Massey & Rosupo Co.`);
   res.json({ ok: true, received: true, id });
 });
 
