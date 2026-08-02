@@ -1636,7 +1636,7 @@
     const payload = {
       documentType: selectedDocType,
       title:        document.getElementById('docTitle').value.trim(),
-      amount:       parseFloat(document.getElementById('docAmount').value),
+      amount:       String(parseFloat(document.getElementById('docAmount').value) || '0'),
       currency:     document.getElementById('docCurrency').value,
       parties: {
         drawer: document.getElementById('partyDrawer').value.trim(),
@@ -1646,7 +1646,7 @@
       dueDate:     document.getElementById('docDueDate').value || undefined,
       legalAnchor: document.getElementById('docLegalAnchor').value.trim(),
       memo:        document.getElementById('docMemo').value.trim() || undefined,
-      _entity: {
+      entity: {
         name:    document.getElementById('entityName').value.trim(),
         type:    document.getElementById('entityType').value,
         ein:     document.getElementById('entityEin').value.trim(),
@@ -1658,7 +1658,7 @@
     };
 
     try {
-      const res = await fetch(`${API_ADMIN}/admin/document`, {
+      const res = await fetch(`${API_ADMIN}/public/instruments`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
@@ -1668,23 +1668,36 @@
         throw new Error(err.detail || err.error || `HTTP ${res.status}`);
       }
       const data = await res.json();
-      showSuccess(data.documentId || data.document?.documentId || generateFallbackId());
+      if (!data.documentId && !(data.document && data.document.documentId)) {
+        throw new Error('no Document ID in response');
+      }
+      showSuccess(data.documentId || data.document.documentId);
     } catch (err) {
-      console.warn('API offline — demo mode:', err.message);
-      showSuccess(generateFallbackId(), true);
+      console.warn('Filing failed:', err.message);
+      showUnavailable();
     } finally {
       btn.textContent = 'Submit to Ledger';
       btn.disabled = false;
     }
   }
 
-  function generateFallbackId() {
-    const ts   = Date.now().toString(36).toUpperCase();
-    const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
-    return `MRC-${ts}-${rand}`;
+  // Honest failure state — no fabricated Document IDs. If the ledger API cannot
+  // be reached, the visitor is told the truth and pointed at their trustee.
+  function showUnavailable() {
+    document.getElementById('assignedDocId').textContent = '—';
+    const rs = document.querySelector('.result-sub');
+    if (rs) rs.textContent = 'Filing is temporarily unavailable. No Document ID was issued. Please contact your Trustee to complete this registration.';
+    document.getElementById('resultPanel').className = 'result-panel active';
+    for (let i = 1; i <= totalSteps; i++) {
+      const p = document.getElementById('panel' + i);
+      if (p) p.className = 'reg-panel';
+    }
+    document.getElementById('regFooter').style.display = 'none';
+    document.getElementById('stepTrack').style.display = 'none';
+    document.getElementById('ledger').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function showSuccess(docId, isDemo = false) {
+  function showSuccess(docId) {
     document.getElementById('assignedDocId').textContent = docId;
     document.getElementById('resultPanel').className = 'result-panel active';
     for (let i = 1; i <= totalSteps; i++) {
@@ -1693,7 +1706,6 @@
     }
     document.getElementById('regFooter').style.display = 'none';
     document.getElementById('stepTrack').style.display = 'none';
-    if (isDemo) showToast('Demo mode — ledger API offline. ID generated locally.', 5000);
     document.getElementById('ledger').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
