@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- CACHE-BUST start -->
+  <meta name="x-page-version" content="dd7ff45">
+  <script src="partials/cache-bust.js?v=dd7ff45"></script>
+  <!-- CACHE-BUST end -->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manifold Registry Tracker — Massey &amp; Rosupo</title>
+<style>
+  :root{--bg:#0c1320;--card:#121d30;--line:#22344f;--txt:#e8eef7;--muted:#8aa2c2;--gold:#b8860b;--ok:#39d98a;--blue:#4A90D9;--bad:#ff6b6b}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 20px}
+  header{text-align:center;border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:28px}
+  header .brand{font-size:13px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+  header h1{font-size:26px;margin:8px 0 6px;font-weight:600}
+  header p{color:var(--muted);margin:0;font-size:14px}
+  .search{display:flex;gap:10px;margin-bottom:26px}
+  input{flex:1;background:#0a1322;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:14px 16px;font-size:15px}
+  button{background:var(--gold);color:#0a1628;border:none;border-radius:8px;padding:0 24px;font-weight:600;font-size:15px;cursor:pointer}
+  button:hover{background:#e0b84a}
+  .result{display:none}
+  .result.on{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px}
+  .card h2{margin:0 0 4px;font-size:20px;color:var(--gold)}
+  .tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid var(--line);color:var(--muted);margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin-top:10px}
+  .field{background:#0a1322;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  .field label{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .field .v{font-size:15px;word-break:break-word}
+  .full{grid-column:1/-1}
+  .imgs{display:flex;gap:16px;margin-top:18px;flex-wrap:wrap}
+  .imgs figure{margin:0;flex:1;min-width:220px}
+  .imgs img{width:100%;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+  .imgs figcaption{font-size:11px;color:var(--muted);margin-top:6px;text-align:center;text-transform:uppercase;letter-spacing:.05em}
+  .stat{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid var(--line)}
+  .stat.pending{color:var(--gold);border-color:var(--gold)}
+  .stat.mailed{color:var(--blue);border-color:var(--blue)}
+  .stat.delivered,.stat.served{color:var(--ok);border-color:var(--ok)}
+  .err{display:none;background:#2a1216;border:1px solid var(--bad);color:#ffb3b3;padding:16px;border-radius:10px;text-align:center}
+  .err.on{display:block}
+  .lb{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;z-index:50}
+  .lb.on{display:flex}.lb img{max-width:94vw;max-height:94vh}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:36px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Massey &amp; Rosupo Co.</div>
+    <h1>Secure Party Manifold Registry</h1>
+    <p>Track mailed documents, evidentiary notices &amp; certified service of process by mailing number</p>
+  </header>
+
+  <div class="search">
+    <input id="mn" placeholder="Enter mailing / process number (e.g. 0001 or SVC-0001)" onkeydown="if(event.key==='Enter')track()"/>
+    <button onclick="track()">Track</button>
+  </div>
+
+  <div class="err" id="err">No record found for that mailing number. Verify the number with the issuing party.</div>
+
+  <div class="result" id="res">
+    <div class="card">
+      <h2 id="r_title"></h2>
+      <div><span class="tag" id="r_type"></span> <span class="stat" id="r_status"></span></div>
+      <div class="grid" id="r_grid"></div>
+      <div class="imgs" id="r_imgs"></div>
+    </div>
+  </div>
+
+  <footer>This tracker is read-only. Records are maintained by the Trustee of the Private Trust. © Massey &amp; Rosupo Co.</footer>
+</div>
+
+<div class="lb" id="lb"><img id="lbimg" src=""/></div>
+
+<script>
+const API="https://wisdomignited.com/api/registry/public/";
+
+function esc(s){return (s||"—").toString().replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+
+async function track(){
+  const mn=document.getElementById("mn").value.trim();
+  document.getElementById("err").classList.remove("on");
+  document.getElementById("res").classList.remove("on");
+  if(!mn){return;}
+  try{
+    const r=await fetch(API+encodeURIComponent(mn),{mode:"cors"});
+    if(!r.ok){document.getElementById("err").classList.add("on");return;}
+    const d=await r.json();
+    const rec=d.record;
+    document.getElementById("r_title").textContent=rec.title;
+    document.getElementById("r_type").textContent=rec.type==="service"?"Certified Service of Process":"Mailed Document / Notice";
+    const st=document.getElementById("r_status");
+    st.textContent=(rec.status||"pending").toUpperCase();
+    st.className="stat "+(rec.status||"pending");
+    const fields=[
+      ["Mailing / Process #",rec.mailingNumber],
+      ["Date Mailed / Served",rec.dateMailed],
+      ["Recipient",rec.recipientName],
+      ["Recipient Address",rec.recipientAddress],
+      ["Post Office / Origin",rec.postOffice],
+      ["Carrier",rec.carrier],
+      ["Tracking Number",rec.trackingNumber],
+      ["Green Card Number",rec.greenCardNumber],
+      ["Green Card Delivery Date",rec.greenCardDeliveryDate],
+      ["Signed By",rec.signedBy],
+    ];
+    if(rec.type==="service"){
+      fields.push(["Server Name",rec.serverName],["Server Details",rec.serverDetails]);
+    }
+    document.getElementById("r_grid").innerHTML=fields.map(([l,v])=>`
+      <div class="field"><label>${l}</label><div class="v">${esc(v)}</div></div>`).join("");
+    const imgs=[];
+    if(rec.imageLetter)imgs.push(["Mailed Letter / Document",rec.imageLetter]);
+    if(rec.imageGreenLabel)imgs.push(["Green Return Label",rec.imageGreenLabel]);
+    document.getElementById("r_imgs").innerHTML=imgs.map(([c,fn])=>`
+      <figure><img src="${API.replace('/public/','/image/')}${encodeURIComponent(fn)}" onclick="zoom('${encodeURIComponent(fn)}')"/><figcaption>${c}</figcaption></figure>`).join("");
+    document.getElementById("res").classList.add("on");
+  }catch(e){
+    document.getElementById("err").textContent="Unable to reach the registry service. Please try again.";
+    document.getElementById("err").classList.add("on");
+  }
+}
+function zoom(fn){document.getElementById("lbimg").src="https://wisdomignited.com/api/registry/image/"+fn;document.getElementById("lb").classList.add("on");}
+document.getElementById("lb").onclick=()=>document.getElementById("lb").classList.remove("on");
+</script>
+</body>
+</html>

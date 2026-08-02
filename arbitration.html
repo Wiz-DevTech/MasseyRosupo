@@ -2,48 +2,8 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="20260802">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="a6b5003">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="d545e46">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="a3fa263">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="bec37a1">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="c0b1e7e">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="5c85a34">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="5178444">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="51e3112">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="9b000df">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="685c08a">
-  <script src="partials/cache-bust.js?v=20260802"></script>
+  <meta name="x-page-version" content="dd7ff45">
+  <script src="partials/cache-bust.js?v=dd7ff45"></script>
   <!-- CACHE-BUST end -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -652,7 +612,7 @@ function loadScheduleFees(){
     }).catch(()=>{ /* keep FEES_LOCAL */ });
 }
 
-const API = (location.origin.indexOf("localhost")>-1||location.origin.indexOf("127.0.0.1")>-1||location.origin.indexOf("95.217.151.38")>-1)?location.origin+"/api":"https://api.masseyrosupo.wisdomignited.com/api";
+const API = (location.origin.indexOf("localhost")>-1||location.origin.indexOf("127.0.0.1")>-1||location.origin.indexOf("95.217.151.38")>-1)?location.origin+"/api":"https://massey-api.wisdomignited.com/api";
 const KC_AUTH  = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/auth";
 const KC_TOKEN = "https://ciphernexid.wisdomignited.com/realms/ciphernex/protocol/openid-connect/token";
 const CLIENT   = "massey-admin";
@@ -845,7 +805,9 @@ function createCase() {
 }
 
 function renderDashboard() {
-  const active = cases.filter(c=>c.status!=='SETTLED').length;
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+const active = cases.filter(c=>c.status!=='SETTLED').length;
   const notice = cases.filter(c=>c.status==='NOTICE_PENDING').length;
   const bar90 = cases.filter(c=>c.status==='PENDING_90DAY').length;
   const recv = cases.filter(c=>['RECEIVABLE','SETTLED'].includes(c.status)).reduce((s,c)=>s+c.total,0);
@@ -869,12 +831,12 @@ function renderDashboard() {
     };
     const bar = c.barDate || '—';
     return `<tr>
-      <td style="font-family:var(--mono);font-size:0.75rem">${c.id}</td>
-      <td>${c.respondent}</td>
-      <td>${statusMap[c.status]||c.status}</td>
-      <td style="font-family:var(--mono);color:var(--green)">$${c.total.toLocaleString()}</td>
-      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">${c.filed}</td>
-      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">${bar}</td>
+      <td style="font-family:var(--mono);font-size:0.75rem">${esc(c.id)}</td>
+      <td>${esc(c.respondent)}</td>
+      <td>${statusMap[c.status]||esc(c.status)}</td>
+      <td style="font-family:var(--mono);color:var(--green)">$${Number(c.total||0).toLocaleString()}</td>
+      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">${esc(c.filed)}</td>
+      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">${esc(bar)}</td>
     </tr>`;
   }).join('');
 }
@@ -889,7 +851,7 @@ renderCountdowns() {
     const now = new Date();
     const remaining = Math.max(0, Math.ceil((bar - now)/(24*60*60*1000)));
     return `<div style="padding:16px;border-bottom:1px solid var(--border-s)">
-      <div style="font-size:0.85rem;color:var(--parchment);margin-bottom:4px">${c.id} — ${c.respondent}</div>
+      <div style="font-size:0.85rem;color:var(--parchment);margin-bottom:4px">${esc(c.id)} — ${esc(c.respondent)}</div>
       <div class="countdown">${remaining} days</div>
       <div class="countdown-label">remaining until absolute bar</div>
       <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-align:center;margin-top:4px">Award: ${c.awardDate} | Bar: ${bar.toISOString().split('T')[0]}</div>

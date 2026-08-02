@@ -32,8 +32,10 @@ BLOCK = "<!-- CACHE-BUST start -->\n" + META + "\n" + SCRIPT + "\n  <!-- CACHE-B
 # (otherwise a cached old keycloak-gate.js/site-nav.js keeps stale behaviour).
 PARTIAL_RE = re.compile(r'(<script src="partials/[^"]+\.js)(?:\?v=[0-9a-f]+)?("></script>)')
 
-# Remove any existing CACHE-BUST block (idempotent)
-re_block = re.compile(r"  <!-- CACHE-BUST start -->.*?<!-- CACHE-BUST end -->\n", re.S)
+# Remove any existing CACHE-BUST block (idempotent) — robust to any
+# indentation and CRLF/LF line endings (P2-16: old regex only matched
+# exactly-2-space-indented blocks, so drifted files accumulated 11 copies).
+re_block = re.compile(r"[ \t]*<!-- CACHE-BUST start -->.*?<!-- CACHE-BUST end -->[ \t]*\r?\n?", re.S)
 
 count = 0
 for fn in sorted(os.listdir(ROOT)):

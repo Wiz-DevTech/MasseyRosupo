@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""Compile the Massey & Rosupo Co. master audit spreadsheet (2026-08-02)."""
+import csv, sys, os
+
+OUT = "/opt/masseyrosupo.com/audits/20260802/reports"
+
+ROWS = [
+# (Area, FindingID, Feature, Expected, Actual, PassFail, Severity, AssignedTo, Fixed, Evidence)
+# ── P0 CRITICAL ─────────────────────────────────────────────────────────────
+("Security", "P0-01", "Public file-upload endpoint (POST /api/upload)", "Requires a real, rotated shared secret; auth'd; dest whitelist", "Hardcoded default key 'mr-drop-2026' in source; .env does NOT set UPLOAD_KEY; endpoint publicly reachable (wisdomignited.com/api/upload 403-probed; also 95.217.151.38:3019 open); with default key attacker writes arbitrary files to /opt/masseyrosupo.com AND /opt/wisdom-platform-git/frontend/public (both served web roots) - stored XSS / defacement / site takeover", "FAIL", "Critical", "Backend", "No", "backend/upload.js:9; ufw 3019/tcp ALLOW Anywhere; off-box TCP connect OK from 5 nodes"),
+("Security", "P0-02", "Public filing wizard (Journey A: register instrument)", "Entity registers instrument -> Document ID issued -> retrievable", "Wizard POSTs to `${API_ADMIN}/admin/document` where CIPHERNEX_API_HOST = api.masseyrosupo.wisdomignited.com/api (TLS-dead) and server.js defines NO /api/admin/document route. Wizard cannot register an instrument from any origin today", "FAIL", "Critical", "Backend+Frontend", "No", "index.html:1539,1701; js/config.js:29; server.js route inventory"),
+("API/Infra", "P0-03", "Public API hostname TLS (api.masseyrosupo.wisdomignited.com)", "Resolves and serves over TLS", "Cloudflare edge cert covers only *.wisdomignited.com (1 label); 2-level subdomain fails handshake (sslv3 alert 552). Origin vhost OK (Host-header probe 200). DNS correct (104.21.59.138/172.67.178.114 proxied). Single root cause of login/API spool on live site", "FAIL", "Critical", "Infra/Cloudflare", "No", "curl -sv -> sslv3 alert handshake failure; origin nginx 200; dig via 1.1.1.1"),
+("Security", "P0-04", "Backend port 3019 internet exposure", "Only 443/80 exposed", "ufw: explicit '3019/tcp ALLOW Anywhere # M&R site backend' (v4+v6). Full static site + all APIs served plaintext HTTP on public IP; Bearer tokens in transit if used; upload+contact directly reachable; trustee APIs exposed to world (JWT-gated)", "FAIL", "Critical", "Infra", "No", "ufw status full output; off-box TCP connect OK from bg1/ch1/de2/hk1/si1"),
+("Security", "P0-05", "Security response headers (site + API)", "HSTS, CSP, X-Frame-Options, X-Content-Type-Options", "None on masseyrosupo.com (GitHub Pages/CF); backend helmet() has contentSecurityPolicy:false; no nginx/CF header layer", "FAIL", "Critical", "Infra/Frontend", "No", "curl -sI live site; server.js:135"),
+
+# ── P1 HIGH ──────────────────────────────────────────────────────────────────
+("Security", "P1-06", "Rate limiting on M&R backend public endpoints", "Rate-limited (esp. unauth write paths)", "ZERO rate limiting in server.js (no express-rate-limit); /api/contact, /api/upload, OIDC callback all unthrottled. DocumentService :3004 has 100/15min limiter, M&R backend has none", "FAIL", "High", "Backend", "No", "package.json (no rate pkg); server.js full read"),
+("Data Integrity", "P1-07", "Document ID issuance idempotency + FK chain", "Unique, irrevocable, ledger-recorded; no dupes on double-submit", "No idempotency key anywhere: double-submit of POST /api/documents mints TWO CipherNex Document IDs for same file (sha256 not deduped). documents table has no unique constraint on document_id. No FK (foreign_keys=OFF). Mint happens before local INSERT - local failure after mint = orphan on-chain ID. Local schema drift: server.js INSERT omits title/type/amount/sha256 columns that the table defines", "FAIL", "Critical", "Backend", "No", "masseyrosupo.db schema; server.js:434-440; PRAGMA foreign_keys=0"),
+("Data Integrity", "P1-08", "CIPR/Document chain in production", "Document ID -> reserveReference -> CIPR chain proven", "documents=0, arbitrations=0, filings=3 (seed rows only). No Document ID has ever been minted through the gateway; the whole CIPR chain is unproven in prod", "FAIL", "High", "Backend", "No", "DB row counts (read-only)"),
+("Auth", "P1-09", "Client/beneficiary arbitration visibility", "Beneficiary sees own cases", "Logic bug: POST stamps owner_sub = filing TRUSTEE's sub; GET scopes client by owner_sub == beneficiary sub. Since only trustees file, owner_sub never matches a beneficiary -> client-arbitration.html always empty", "FAIL", "High", "Backend", "No", "server.js:259-305"),
+("Auth", "P1-10", "Keycloak redirect URIs (massey-admin/massey-client)", "Exact HTTPS redirect URIs per portal", "Public clients (no secret, PKCE - correct) BUT redirect lists include http://localhost:3019/*, http://127.0.0.1:3019/*, http://95.217.151.38:3019/* wildcards (HTTP, public client) and identical 30+ page sets for BOTH clients; wildcard+HTTP = code-interception/open-redirect surface", "FAIL", "High", "IAM", "No", "keycloak-ciphernex-db redirect_uris table"),
+("Security", "P1-11", "Stored XSS in arbitration case rendering", "User-supplied case fields escaped before innerHTML", "arbitration.html:861-892 renders c.respondent / c.id into innerHTML template literals with NO escaping; respondent is trustee-supplied -> stored XSS candidate across trustee/beneficiary dashboards. IDENTIFIED only, not exploited (read-only)", "FAIL", "High", "Frontend", "No", "arbitration.html:873,892; LitDash.html:410"),
+("Navigation", "P1-12", "Footer instrument links + #ledger section", "Footer links reach a live section", "Footer (index.html:1461-1488) links Bill of Exchange/Promissory Note/Trust Bond/Reserve Pledge/Trust Instrument + 'Ledger Registration' all to #ledger; section id='ledger' EXISTS (line 1026) but style='display:none' - dead nav", "FAIL", "High", "Frontend", "No", "index.html:1026,1461-1488"),
+("Navigation", "P1-13", "SecureMainDash category links", "Category links route to filtered views", "8 links (State & Admin, International, UCC, State DBs, Federal DBs, Tax, Procedural Summaries, Packets) all self-reference SecureMainDash.html with no anchor - dead scaffolding", "FAIL", "Medium", "Frontend", "No", "SecureMainDash.html:452-456,843-851"),
+("Security", "P1-14", "CORS policy on M&R backend", "Allowlisted origins only", "cors({ origin: true, credentials: true }) reflects ANY origin with credentials; combined with Bearer-token-in-localStorage model, raises token-exfil surface if any XSS exists", "FAIL", "Medium", "Backend", "No", "server.js:136"),
+("Security", "P1-15", "Contact/inquiry endpoint (/api/contact)", "Validated, stored, SLA-trackable", "No validation, no persistence, no rate limit; PII (name/email) only console.log'd; 'reviewed within 2 business days' SLA unenforceable against nothing stored", "FAIL", "Medium", "Backend", "No", "server.js:535-540"),
+
+# ── P2 MEDIUM ────────────────────────────────────────────────────────────────
+("Content/Markup", "P2-16", "Cache-bust block in <head>", "Single block per page", "11 duplicated CACHE-BUST blocks in index.html (local source AND live): hashes 20260802,a6b5003,d545e46,a3fa263,bec37a1,c0b1e7e,5c85a34,5178444,51e3112,9b000df,685c08a = historical deploys. bump_version.py claims idempotent but its strip regex requires exact 2-space indent; any drift -> append-only behavior. Build-tool bug, not live drift", "FAIL", "Medium", "DevOps", "No", "bump_version.py; local index.html:1-30"),
+("Auth", "P2-17", "Role matrix per audit plan (10 roles)", "Trustee/Co-Trustee/Protector/Beneficiary/Observer/Admin/Auditor/EntityRep matrix", "Only realm roles trustee(5 users), beneficiary(1), observer exist. NO co-trustee/protector/auditor/admin/entity-rep roles. Server only enforces trustee/beneficiary. Matrix cannot be satisfied with current IAM", "FAIL", "Medium", "IAM", "No", "keycloak_role table (realm roles); user_role_mapping counts"),
+("Navigation", "P2-18", "Arbitration CTAs (goArbitration)", "Open case manager / FAA pipeline", "NOT a dead feature: role-router sends trustee->arbitration.html, client->client-arbitration.html (both exist, API-wired). But href='#'+onclick anti-pattern: no href, no-JS broken, trusts localStorage role claim; 'FAA Pipeline' is not a distinct destination - same router", "WARN", "Medium", "Frontend", "No", "index.html:1508-1519; my-account.html:173; LitDash.html:372"),
+("Content", "P2-19", "LitDash mock data vs backend", "Single source of truth", "LitDash hardcodes mockMatters (M-101/M-102 'Breach of Contract', 'Shareholder Dispute', filed 2025) rendered as real matters; client-side FS-01..FS-50 fee generation duplicates backend schedule_fees table (two sources of truth)", "FAIL", "Medium", "Frontend", "No", "LitDash.html:366-368"),
+("Housekeeping", "P2-20", "Repo cleanliness", "Production files only", "test.html, LitDash1.html, dashboard_template.html, ledger.html still in repo; manifold-tracker.html untracked; ledger.html removal was pending from prior session", "FAIL", "Low", "DevOps", "No", "repo listing; git status"),
+("Security", "P2-21", "OIDC callback redirect_uri handling", "Server pins redirect_uri", "POST /api/auth/oidc-callback accepts redirect_uri from request BODY (redirect_uri || fallback). Keycloak validates against client registration, but body-controlled URI is sloppy and should be removed", "WARN", "Medium", "Backend", "No", "server.js:187-227"),
+
+# ── P3 LOW ───────────────────────────────────────────────────────────────────
+("Discoverability", "P3-22", "sitemap.xml", "Valid sitemap", "404 (GitHub Pages default)", "FAIL", "Low", "Frontend", "No", "direct fetch"),
+("Housekeeping", "P3-23", "JWT_SECRET config", "Used or removed", "JWT_SECRET declared (default 'change-me-in-prod-masseyrosupo') but NEVER used - all verify paths are RS256 via Keycloak public key. Dead config; remove or wire", "WARN", "Low", "Backend", "No", "server.js:41,150; grep jwt.sign = none"),
+("Data Integrity", "P3-24", "DB backup hygiene", "Checkpointed, portable backups", "masseyrosupo.db is 4KB with 1.2MB uncheckpointed -wal (Jul 12); copying only the .db file loses data; foreign_keys=OFF; WAL mode correct", "WARN", "Low", "DevOps", "No", "ls -la masseyrosupo.db*; PRAGMAs"),
+("Content", "P3-25", "README accuracy", "Reflects deployed state", "README still says api.wisdomignited.com/admin.wisdomignited.com 'pending DNS'; integration section marked 'upcoming' though live", "WARN", "Low", "Docs", "No", "README.md:26-49"),
+("Logging", "P3-26", "Audit logging for mint/retire/filings", "who/when/old-new/correlation ID", "No audit log table; only console.log in /api/contact; no correlation ID across wizard -> DocumentService -> ledger; DocumentService persists to documents.json (no DB audit trail)", "FAIL", "High", "Backend", "No", "server.js; DocumentService.js persistence note"),
+
+# ── RESOLVED THIS PASS ───────────────────────────────────────────────────────
+("Infra", "R-01", "Stray backend process on :3012", "Single authoritative backend", "KILLED this pass. pid 2722624 (started Jul 12, PPID 1, orphaned manual launch, no systemd/pm2, nothing referenced :3012). Verified: only :3019 (systemd masseyrosupo-backend.service pid 2197261) listening; /health OK; DB integrity OK", "PASS", "Info", "DevOps", "Yes", "kill + ss + curl + PRAGMA integrity_check"),
+("API/Infra", "R-02", "ciphernexid.wisdomignited.com public TLS", "Auth endpoint reachable", "Public DNS = 95.217.151.38 (direct origin, grey cloud); off-box HTTPS check 200 (realm openid-configuration) from es2/id1/il1. Keycloak auth path WORKS publicly - proves 1-level-subdomain + LE wildcard direct-origin pattern", "PASS", "Info", "Infra", "Yes", "dig @1.1.1.1; check-host.net HTTP 200"),
+("Auth", "R-03", "Realm role scoping (requireRole)", "Realm roles in realm_access", "trustee/beneficiary/observer are REALM-scoped roles (client_realm_constraint NULL) -> realm_access.roles contains them -> server requireRole() functional. Also exist: entity-admin, hub-admin, hub-broker, hub-gateway", "PASS", "Info", "IAM", "Yes", "keycloak_role join query"),
+("Navigation", "R-04", "goArbitration classification", "Redirect-pending vs built", "Classified: BUILT role-router (not a stub). See P2-18 for remaining anti-pattern", "PASS", "Info", "Frontend", "Yes", "source reads"),
+
+# ── SECTION-LEVEL ROWS (audit plan mapping) ──────────────────────────────────
+("§1 IA", "IA-1", "Header nav anchors", "Each anchor scrolls to matching section", "overview/structure/governance/operations/contact all exist; Arbitration uses goArbitration JS (see P2-18); footer #arbitration + #ledger exist but #ledger display:none (P1-12)", "WARN", "Medium", "Frontend", "No", "id map of index.html"),
+("§1 IA", "IA-2", "Dashboard reachability", "Dashboards auth-gated, not guessable", "Dashboards are static .html served publicly (GitHub Pages + :3019 static) - reachable by URL guess; data is gated server-side by JWT but the shell pages and markup load unauthenticated; trustee UI strings visible pre-auth (admin-portal.html loads full layout before Keycloak redirect)", "WARN", "Medium", "Frontend", "No", "curl each dashboard URL unauthenticated"),
+("§2 Nav", "NAV-1", "Hero 'Access Client Portal'", "portal-login.html", "Correct", "PASS", "Info", "-", "Yes", "index.html:733"),
+("§2 Nav", "NAV-2", "Nav My Account / Client Portal / Trustee / Sign Out", "correct pages", "Correct (my-account.html, portal-login.html, admin-portal.html, logout.html). logout.html uses Keycloak OIDC logout endpoint with params (global session term) - good pattern, not live-tested", "PASS", "Info", "-", "Yes", "index.html:712-715; logout.html:39"),
+("§2 Nav", "NAV-3", "4 dashboard cards", "EntDash/SecureMainDash/MainAccessDash/LitDash", "Correct hrefs", "PASS", "Info", "-", "Yes", "index.html:963-984"),
+("§2 Nav", "NAV-4", "Arbitration tiles (5)", "Distinct destinations", "All routed via goArbitration() (P2-18); 'FAA Pipeline' not a distinct page", "WARN", "Medium", "Frontend", "No", "index.html:1321-1341"),
+("§2 Nav", "NAV-5", "Contact Trustee (post-submission)", "#contact", "Correct - section exists (index.html:1376)", "PASS", "Info", "-", "Yes", "index.html:1291,1376"),
+("§2 Nav", "NAV-6", "WisdomIgnited Member Link", "api.wisdomignited.com", "Member link surfaces via ledger.html (Accrual Ledger -> wisdomignited.com/api/chat) and manifold-tracker.html (wisdomignited.com/api/registry/public/ - known 401). No member link on homepage itself", "WARN", "Low", "Frontend", "No", "ledger.html:874; manifold-tracker.html:76"),
+("§3 Journey A", "JA-1", "Public instrument registration", "4-step wizard -> Document ID", "BROKEN end-to-end: P0-02 (dead hostname + missing route). Wizard steps are client-side; no server persistence path exists for it", "FAIL", "Critical", "Backend+Frontend", "No", "index.html wizard fetch"),
+("§3 Journey B", "JB-1", "Client portal login -> dashboard", "Client-specific dashboard", "massey-client PKCE path works (client public, realm role beneficiary); destination = client-arbitration.html read-only 'my cases' which can never populate (P1-09). No other client dashboard", "FAIL", "High", "Backend", "No", "my-account.html:188-191; server.js:259"),
+("§3 Journey C", "JC-1", "Trustee CIPR issuance", "MainAccessDash -> approve -> CIPR -> SecureMainDash", "Requires working API hostname (P0-03) + DocumentService (up, healthy) + admin gateway :3005 (up). Chain present in code; NOT verifiable end-to-end publicly until P0-03 fixed; zero documents in prod", "WARN", "High", "Backend", "No", "server.js:384-508; container health"),
+("§3 Journey D", "JD-1", "Arbitration case (live)", "File -> track -> award -> enforce", "Code exists (POST/PATCH /api/arbitration, statuses NOTICE_PENDING..SETTLED, 90-day bar) but 0 cases; public path dead (P0-03); XSS candidate (P1-11); client visibility bug (P1-09)", "WARN", "Medium", "Backend", "No", "server.js:253-326"),
+("§6 Auth", "AUTH-1", "Unified Keycloak session across dashboards", "One SSO session, logout terminates globally", "Same realm/client tokens reused across dashboards (localStorage mrToken) - unified. logout.html calls OIDC logout endpoint. NOT live-tested (no creds); verified by code + Keycloak client config only", "WARN", "Medium", "IAM", "No", "partials/keycloak-gate.js:156; logout.html"),
+("§7 Data", "DI-1", "Legal anchor persistence", "Anchor text immutable at submission", "Anchor text stored ONLY in DocumentService documents.json (external), never in M&R DB; template edits to index.html legal anchors would not rewrite historical docs, but there is no snapshot in M&R-local store either - persistence depends entirely on :3004 file store", "WARN", "High", "Backend", "No", "DocumentService.js; documents table lacks legal_anchor column"),
+("§7 Data", "DI-2", "Amount/currency precision", "No unit/precision drift into ledger", "amount stored as String in server.js mint body; CipherNex side stores as-is; no normalization/validation (e.g. '1e3', 'NaN', negative) - server accepts any string", "WARN", "Medium", "Backend", "No", "server.js:409-413"),
+("§8 Sync", "SYNC-1", "WisdomIgnited status sync", "Defined SLA", "No webhook/polling anywhere: /api/operations fetches upstream WISDOM_BACKEND_API on every request (read-through, request-time latency). 'Real-time on load' by construction; no SLA, no push, no caching", "WARN", "Medium", "Integration", "No", "server.js:232-243"),
+("§8 Sync", "SYNC-2", "CIPR balance after issuance", "Immediate or refresh", "enrichWithCiphernex() fetches :3004 per read -> immediate on load; when :3004 down dashboards show '(CipherNex unavailable)'", "PASS", "Info", "Backend", "Yes", "server.js:512-532"),
+("§9 Calendar", "CAL-1", "Arbitration deadlines / due dates", "Calendar feed or reminder", "No calendar integration exists; instrument dueDate exists in DocumentService schema (optional); no reminders anywhere. DEFER per audit plan (feature not built)", "WARN", "Low", "Product", "No", "DocumentService.js schema"),
+("§10 WF1", "WF1-1", "Instrument -> CIPR -> discharge", "Workflow with rejection state", "Retire path exists (PATCH /documents/:id/retire). NO rejection path: no reject/deny status for a submitted document; DocumentService statuses only active/retired - a rejected submission would hang in limbo", "FAIL", "High", "Backend", "No", "DocumentService.js endpoints"),
+("§10 WF2", "WF2-1", "Arbitration rollback (withdrawn/settled)", "Clear terminal states", "Statuses include SETTLED; no WITHDRAWN/DISMISSED state; PATCH allows any string status (no enum validation)", "WARN", "Medium", "Backend", "No", "server.js:308-326"),
+("§11 API", "API-1", "DocumentService :3004", "Registry CRUD, rate-limited, trustee writes", "UP healthy. Has rate limit (100/15min), helmet, CORS allowlist (config-driven), trustee JWT on writes. NOTE: reads open (public document tracking - intended)", "PASS", "Info", "Backend", "Yes", "container healthy; DocumentService.js"),
+("§11 API", "API-2", "PublicAPI :3001", "Public inquiry, rate-limited", "Container UP. NOT used by M&R frontend (frontend points at massey hostname). Public write path actually lives on M&R backend (contact/upload) which has NO rate limit", "WARN", "Medium", "Backend", "No", "nginx set $api ciphernex-ciphernex-api-1:3001"),
+("§11 API", "API-3", "AdminGateway :3005", "Trustee console + dashboard data", "UP healthy; nginx admin.wisdomignited.com -> ciphernex-admin-1:3005 works publicly. M&R dashboards do NOT use it (they use the massey backend hostname)", "WARN", "Medium", "Integration", "No", "container healthy; nginx.conf:183"),
+("§11 API", "API-4", "M&R Backend :3019", "Site + API + doc bridge", "UP (systemd). Internet-exposed plaintext (P0-04). Bridge to :3004 works (localhost). OIDC to Keycloak :8123 (KC_URL=http://localhost:8123) - :8123 forwards to keycloak-ciphernex:8080 (verified via nginx vhost ciphernexid)", "PASS", "Info", "Backend", "Yes", "systemctl; ss; nginx.conf:275-314"),
+("§12 DB", "DB-1", "Document ID primary-key uniqueness", "No collision across concurrent submits", "document_id TEXT with no unique constraint; uuidv4 local id is unique but document_id (chain) can collide/duplicate; double-mint possible (P1-07)", "FAIL", "High", "Backend", "No", "DB schema"),
+("§12 DB", "DB-2", "Orphaned CIPR references", "No CIPR -> non-existent Document ID", "No FK enforcement (foreign_keys=OFF, no REFERENCES); orphan risk between local INSERT and :3004 mint; documents.json (chain) and M&R sqlite can diverge", "FAIL", "High", "Backend", "No", "schema; server.js order of operations"),
+("§12 DB", "DB-3", "Archived/discharged queryability", "Archived records queryable, excluded from active totals", "Retired status exists in DocumentService (/documents/status/retired); M&R local table has no archive flag - retire is external-only", "WARN", "Medium", "Backend", "No", "DocumentService.js:314"),
+("§15 Forms", "FORM-1", "4-step wizard validation + Back persistence", "Required-field validation; Back preserves data", "Client-side only; wizard state kept in page JS (Back preserves); validation client-side only - server has no corresponding schema. Wizard unreachable end-to-end (P0-02)", "WARN", "Medium", "Frontend", "No", "index.html wizard script"),
+("§15 Forms", "FORM-2", "7 instrument types + legal anchors", "Distinct anchor language per type", "index.html:1633-1637 defines per-type anchors for bill-of-exchange, reserve-pledge + 5 more (all 7 present); default anchor '12 USC 411 | UCC 3-311 | UCC 3-603' in DocumentService. UCC Tender dropdown presence per type NOT verified (JS logic)", "PASS", "Info", "Frontend", "Yes", "index.html:1633; DocumentService.js:138-149"),
+("§15 Forms", "FORM-3", "Currency formatting (CIPR/USD/XRP)", "Format per currency", "Client-side amount display only; no server-side currency validation; amount stored as unvalidated string (DI-2)", "WARN", "Medium", "Frontend", "No", "server.js:409"),
+("§15 Content", "CONT-1", "Footer disclaimer on wizard pages", "Disclaimer on every page with wizard", "Disclaimer present in index.html footer (line 1497-1499). Wizard only exists on index.html; no other page hosts it - requirement met by construction", "PASS", "Info", "-", "Yes", "index.html:1497"),
+("§16 Notify", "NOTIF-1", "Document ID email confirmation", "Email + on-screen", "NO email/notification anywhere in backend (no mailer dependency); Document ID is on-screen only (and currently unreachable, P0-02). Closed tab = lost ID", "FAIL", "High", "Backend", "No", "backend deps (no nodemailer); server.js"),
+("§16 Notify", "NOTIF-2", "Trustee notified of new document", "Notify on pending review", "No notification mechanism exists", "FAIL", "Medium", "Backend", "No", "server.js"),
+("§17 Files", "FILE-1", "Uploaded docs storage/versioning/ACL", "Stored, versioned, access-controlled", "Trustee uploads stored in doc-store/ (50MB cap) with SHA-256; download ACL enforced (trustee/public/owner); NO versioning (overwrite semantics); uploaddrop.html 'temporary transfer channel' still present with hardcoded key (P0-01)", "WARN", "High", "Backend", "No", "server.js:374-489; upload.js"),
+("§18 Sec", "SEC-1", "Public write paths (wizard + inquiry)", "CSRF-protected, sanitized, rate-limited", "No CSRF tokens (Bearer-header model makes CSRF largely N/A but no double-submit protection on OIDC callback); NO sanitization anywhere (data stored 'verbatim' per site copy); NO rate limiting; upload path has hardcoded key (P0-01)", "FAIL", "Critical", "Backend", "No", "server.js full; upload.js"),
+("§18 Sec", "SEC-2", "Wallet/Ledger address validation", "Server-side validation", "Wallet address field accepted client-side only; mint body sends amount/currency/parties unvalidated; address defaulting CIPR issuance - no server-side format check", "FAIL", "High", "Backend", "No", "server.js:388-413"),
+("§18 Sec", "SEC-3", "EIN/Tax ID PII encryption at rest", "Encrypted PII", "No encryption at rest for any DB field (SQLite plaintext); wizard PII (if it ever lands) would be plaintext; no crypto module usage in backend besides sha256 hashing", "FAIL", "High", "Backend", "No", "DB schema (TEXT plaintext); server.js"),
+("§19-24", "OPS-1", "Logging audit trail", "who/when/old-new/correlation per issuance", "No audit table; no correlation IDs; console.log only (P3-26)", "FAIL", "High", "Backend", "No", "server.js"),
+("§19-24", "OPS-2", "Error handling: half-recorded instrument", "No Document ID without ledger entry", "No transaction spans local DB + :3004: mint then local INSERT; failure between = orphan (P1-07). Token expiry mid-filing: wizard is client-side; on fetch failure no recovery/resume", "FAIL", "High", "Backend", "No", "server.js:414-440"),
+("§25 Biz", "BIZ-1", "Entity rep edit after submission", "'Cannot be undone' honored", "No edit path exists for entities (no such API) - honored by absence; but no immutable audit record either (P3-26)", "PASS", "Info", "-", "Yes", "server.js route inventory"),
+("§25 Biz", "BIZ-2", "Co-trustee scope (subsidiary)", "Scoped approval only", "No co-trustee role or entity-scope enforcement exists anywhere (role model = trustee/beneficiary only); all trustees see all documents", "FAIL", "High", "IAM+Backend", "No", "keycloak roles; server.js:456-463"),
+("§25 Biz", "BIZ-3", "Beneficiary cross-allocation visibility", "Own reserve only", "Beneficiary can see PUBLIC documents (intended) + own entity's; entity scoping keyed to preferred_username/sub match on the entity column - brittle (username drift) but no cross-allocation exposure found; arbitration bug P1-09 limits visibility, not expands", "WARN", "Medium", "Backend", "No", "server.js:456-463"),
+("§25 Biz", "BIZ-4", "Auditor read-only guarantee", "No state change possible", "No auditor role exists (P2-17); nothing to test yet", "WARN", "Low", "IAM", "No", "keycloak roles"),
+("§25 Biz", "BIZ-5", "Discharged instrument re-registration", "Block re-registration of settled Document ID", "No guard: same file can be re-minted after retire (no sha256/status check on POST) - duplicate/re-registration possible", "FAIL", "High", "Backend", "No", "server.js:384-450"),
+("§25 Biz", "BIZ-6", "Arbitration against discharged instrument", "Blocked", "No linkage between arbitration cases and document status; no check exists", "FAIL", "Medium", "Backend", "No", "server.js:275-305"),
+("§26 Proc", "PROC-1", "Listening process inventory", "All processes matched to known services", "Verified: :3012 stray killed (R-01); :3019 systemd; docker containers healthy; keycloak :8080/:8123/:8124; tailscaled; tor :9050 (pre-existing). No other unexplained listeners found", "PASS", "Info", "DevOps", "Yes", "ss -tlnp; ps"),
+("§27 Build", "BUILD-1", "Cache-bust single injection", "One block per deploy", "bump_version.py strip regex brittle (requires 2-space indent + trailing newline); 11 blocks accumulated. Fix: harden regex (strip both CRLF/LF, maxsplit=1), collapse once, re-verify single block", "FAIL", "Medium", "DevOps", "No", "bump_version.py; 11 blocks in index.html"),
+("§28 Scaffold", "SCAFF-1", "Dead scaffolding pattern sweep", "No href='#' + display:none + self-references", "Pattern confirmed beyond known instances: #ledger display:none (P1-12), SecureMainDash 8 self-links (P1-13), mockMatters (P2-19), 4+ stray files (P2-20), LitDash1.html/test.html/dashboard_template.html all contain placeholder scaffolding", "FAIL", "Medium", "Frontend", "No", "full repo grep"),
+("§29 TLS", "TLS-1", "Hostname/cert topology", "All hostnames cert-covered", "MAP: masseyrosupo.com (CF, GitHub Pages, cert masseyrosupo.com+*.masseyrosupo.com OK); api.masseyrosupo.wisdomignited.com (CF proxied, 2-level, NO edge cert - FAIL); ciphernexid.wisdomignited.com (direct origin 95.217.151.38, LE wildcard, OK off-box); api./admin.wisdomignited.com (direct origin, OK). FIX OPTIONS: (a) CF Advanced Cert incl. api.masseyrosupo (needs CF token with SSL perms - both stored tokens dead), or (b) rename to 1-level hostname (e.g. massey-api.wisdomignited.com) - proven pattern via ciphernexid, zero cert work, requires DNS record + nginx vhost name + 5 frontend file edits", "FAIL", "Critical", "Infra", "No", "openssl s_client; check-host.net; dig @1.1.1.1"),
+]
+
+def main():
+    os.makedirs(OUT, exist_ok=True)
+    header = ["Area","Finding ID","Feature","Expected Behavior","Actual Behavior","Pass/Fail","Severity","Assigned To","Fixed","Evidence"]
+    csv_path = os.path.join(OUT, "master-audit-20260802.csv")
+    with open(csv_path, "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.writer(f)
+        w.writerow(header)
+        for r in ROWS:
+            w.writerow(list(r) + [""]*(len(header)-len(r)))
+    print(f"CSV: {csv_path} ({len(ROWS)} rows)")
+
+    # Try xlsx
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Master Audit"
+        ws.append(header)
+        sev_fill = {
+            "Critical": PatternFill("solid", fgColor="FFC7CE"),
+            "High": PatternFill("solid", fgColor="FFEB9C"),
+            "Medium": PatternFill("solid", fgColor="FFEFD5"),
+            "Low": PatternFill("solid", fgColor="E2EFDA"),
+            "Info": PatternFill("solid", fgColor="DDEBF7"),
+        }
+        for c in ws[1]:
+            c.font = Font(bold=True)
+            c.fill = PatternFill("solid", fgColor="4472C4")
+            c.font = Font(bold=True, color="FFFFFF")
+        for r in ROWS:
+            ws.append(list(r) + [""]*(len(header)-len(r)))
+        for row in ws.iter_rows(min_row=2):
+            sev = row[6].value
+            if sev and sev in sev_fill:
+                row[6].fill = sev_fill[sev]
+        widths = [16,12,38,40,70,10,10,16,6,40]
+        for i, w in enumerate(widths, 1):
+            ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
+        for row in ws.iter_rows(min_row=1, max_row=ws.max_row, max_col=10):
+            for c in row:
+                c.alignment = Alignment(wrap_text=True, vertical="top")
+        ws.freeze_panes = "A2"
+        xlsx_path = os.path.join(OUT, "master-audit-20260802.xlsx")
+        wb.save(xlsx_path)
+        print(f"XLSX: {xlsx_path}")
+    except ImportError:
+        print("openpyxl not available - CSV only")
+
+    # Summary stats
+    from collections import Counter
+    c = Counter(r[5] for r in ROWS)
+    print("Severity distribution:", dict(c))
+    pf = Counter(r[6] for r in ROWS)
+    print("Pass/Fail distribution:", dict(pf))
+
+if __name__ == "__main__":
+    main()

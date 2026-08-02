@@ -19,6 +19,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const helmet = require("helmet");
 const { v4: uuidv4 } = require("uuid");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const fs = require("fs");
 
@@ -116,6 +117,23 @@ db.exec(`
     uploaded_by TEXT,              -- trustee sub (gateway audit)
     created_at TEXT DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS inquiries (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    email TEXT,
+    nature TEXT,
+    message TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE TABLE IF NOT EXISTS audit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts TEXT DEFAULT (datetime('now')),
+    actor TEXT,
+    kind TEXT,
+    ref TEXT,
+    detail TEXT
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_documents_document_id ON documents(document_id);
 `);
 
 // ── Migration: ensure arbitration columns exist (idempotent) ──────────────────
@@ -123,7 +141,7 @@ db.exec(`
 // without dropping existing data.
 (function migrateArbitrations(){
   const cols = db.prepare("PRAGMA table_info(arbitrations)").all().map(c => c.name);
-  const want = ["entity","address","agreement","commerce","violations","total","award_date","bar_date","owner_sub","owner_name"];
+  const want = ["entity","address","agreement","commerce","violations","total","award_date","bar_date","owner_sub","owner_name","beneficiary_sub"];
   for (const c of want) {
     if (!cols.includes(c)) db.prepare(`ALTER TABLE arbitrations ADD COLUMN ${c} TEXT`).run();
   }
@@ -133,8 +151,34 @@ db.exec(`
 // CSP disabled here: the site uses inline styles/scripts, Google Fonts, and a
 // cross-origin Keycloak redirect. helmet's default CSP would break the look.
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: true, credentials: true }));
+
+// ── CORS allowlist (P1-14 remediation 2026-08-02): explicit origins only.
+// No reflect-any-origin; keeps credentials:true for the PKCE flows that need it.
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS ||
+  "https://masseyrosupo.com,https://www.masseyrosupo.com,https://massey-api.wisdomignited.com,http://localhost:3019,http://127.0.0.1:3019,http://95.217.151.38:3019"
+).split(",").map(s => s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    return cb(new Error("Origin not allowed by CORS policy"));
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: "10mb" }));
+
+// ── Rate limiting (P1-06 remediation 2026-08-02). Public/unauthenticated
+// write paths get strict limits; authenticated APIs get a generous ceiling.
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 120,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: "Too many requests — please try again in 15 minutes" },
+});
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 20,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: "Too many requests — please try again in 15 minutes" },
+});
+const auditLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false, message: { error: "Too many requests" } });
 
 // Verify a Keycloak access token (RS256, hub realm). Returns decoded payload.
 let _kcPubKey = null, _kcPubKeyAt = 0;
@@ -178,13 +222,35 @@ function requireRole(role) {
   };
 }
 
+// ── Audit trail (P3-26 remediation 2026-08-02) ──────────────────────────────
+function logAudit(kind, ref, detail, actor) {
+  try {
+    db.prepare("INSERT INTO audit_log (actor, kind, ref, detail) VALUES (?,?,?,?)")
+      .run(actor || "public", kind || "", ref || "", String(detail || "").slice(0, 500));
+  } catch (e) { /* never break a request because logging failed */ }
+}
+// Catch-all: every mutating /api call lands an audit row (actor is enriched
+// per-handler on the money paths: document mint/retire, arbitration writes).
+app.use((req, res, next) => {
+  if (["POST", "PATCH", "PUT", "DELETE"].includes(req.method) && req.path.startsWith("/api")) {
+    logAudit("http." + req.method.toLowerCase(), req.path,
+      JSON.stringify(req.body || {}).slice(0, 300), req.user?.sub || "public");
+  }
+  next();
+});
+
 // ── Health ───────────────────────────────────────────────────────────────────
 app.get("/health", (req, res) => res.json({ ok: true, service: "masseyrosupo-backend" }));
+
+// ── Audit trail read-back (P3-26): trustee-only, most recent 200 entries ─────
+app.get("/api/audit", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) => {
+  res.json(db.prepare("SELECT * FROM audit_log ORDER BY id DESC LIMIT 200").all());
+});
 
 // ── OIDC callback (ported from wisdom-backend) ───────────────────────────────
 // Exchanges `code` + `code_verifier` for a Keycloak token, role-checks, returns
 // the access token. `portal` selects which M&R client/role applies.
-app.post("/api/auth/oidc-callback", async (req, res) => {
+app.post("/api/auth/oidc-callback", strictLimiter, async (req, res) => {
   const { code, code_verifier, redirect_uri, portal } = req.body;
   if (!code || !code_verifier) return res.status(400).json({ error: "missing code" });
 
@@ -262,8 +328,8 @@ app.get("/api/arbitration", auth, async (req, res) => {
     const isTrustee = roles.includes(KC_REQUIRED_ROLE_TRUSTEE);
     const rows = isTrustee
       ? db.prepare("SELECT * FROM arbitrations ORDER BY created_at DESC").all()
-      : db.prepare("SELECT * FROM arbitrations WHERE owner_sub = ? ORDER BY created_at DESC")
-          .all(req.user?.sub || "");
+      : db.prepare("SELECT * FROM arbitrations WHERE owner_sub = ? OR beneficiary_sub = ? ORDER BY created_at DESC")
+          .all(req.user?.sub || "", req.user?.sub || "");
     return res.json({ cases: rows, scope: isTrustee ? "trustee:all" : "client:own", upstream: [] });
   } catch (e) {
     return res.status(500).json({ error: "list failed", detail: e.message });
@@ -276,15 +342,15 @@ app.post("/api/arbitration", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) =
   const id = uuidv4();
   const {
     case_ref, claimant, respondent, entity, address, agreement, commerce,
-    violations, total, status, clause, detail,
+    violations, total, status, clause, detail, beneficiary_sub,
   } = req.body || {};
   if (!respondent) return res.status(400).json({ error: "respondent is required" });
   const owner_sub = req.user?.sub || "";
   const owner_name = req.user?.preferred_username || req.user?.email || owner_sub;
   db.prepare(`INSERT INTO arbitrations
     (id, case_ref, claimant, respondent, entity, address, agreement, commerce,
-     violations, total, status, clause, detail, owner_sub, owner_name)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+     violations, total, status, clause, detail, owner_sub, owner_name, beneficiary_sub)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
     id,
     case_ref || null,
     claimant || owner_name,
@@ -299,8 +365,10 @@ app.post("/api/arbitration", requireRole(KC_REQUIRED_ROLE_TRUSTEE), (req, res) =
     clause || "",
     detail || "",
     owner_sub,
-    owner_name
+    owner_name,
+    beneficiary_sub || null
   );
+  logAudit("arbitration.create", case_ref || id, `respondent: ${respondent}`, owner_sub);
   return res.status(201).json({ id, ok: true, scope: "trustee" });
 });
 
@@ -404,6 +472,16 @@ app.post("/api/documents", requireRole(KC_REQUIRED_ROLE_TRUSTEE), docUpload.sing
     const buf = fs.readFileSync(req.file.path);
     const sha256 = crypto.createHash("sha256").update(buf).digest("hex");
 
+    // 1b. Idempotency guard (P1-07 remediation): same SHA-256 = same instrument.
+    //     A duplicate submission returns the existing Document ID instead of
+    //     minting a second on-chain record.
+    const dup = db.prepare("SELECT * FROM documents WHERE sha256 = ? AND status = 'active'").get(sha256);
+    if (dup) {
+      fs.unlink(req.file.path, () => {});
+      logAudit("document.mint", dup.document_id, "duplicate suppressed (sha256 match)", req.user?.sub || "");
+      return res.status(200).json({ ok: true, id: dup.id, documentId: dup.document_id, sha256, duplicate: true, note: "Instrument already registered — returned existing Document ID." });
+    }
+
     // 2. Mint the CipherNex Document ID — forward the trustee's Keycloak token.
     const parties = { drawer: drawer || "Massey & Rosupo Co.", drawee, payee };
     const mintBody = {
@@ -429,15 +507,21 @@ app.post("/api/documents", requireRole(KC_REQUIRED_ROLE_TRUSTEE), docUpload.sing
       return res.status(502).json({ error: "CipherNex unreachable", detail: e.message });
     }
 
-    // 3. Persist the LOCAL record — only gateway-local fields. CipherNex is the
-    //    source of truth for title/type/parties/amount/status/sha256.
+    // 3. Persist the LOCAL record — gateway-local fields plus the fields the
+    //    schema defines (fixes the insert/schema drift found in the audit).
+    //    CipherNex remains source of truth for chain status; local row now
+    //    carries title/type/sha256/amount so it is not blank when :3004 is down.
     const id = uuidv4();
     db.prepare(`INSERT INTO documents
-      (id, document_id, stored_name, filename, visibility, entity, uploaded_by)
-      VALUES (?,?,?,?,?,?,?)`).run(
+      (id, document_id, stored_name, filename, visibility, entity, uploaded_by,
+       title, document_type, mime, size, sha256, status, amount, currency, parties, memo, chain_receipt)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
       id, documentId, path.basename(req.file.path), req.file.originalname,
-      visibility === "public" ? "public" : "private", entity, req.user?.sub || "trustee"
+      visibility === "public" ? "public" : "private", entity, req.user?.sub || "trustee",
+      title, documentType, req.file.mimetype, req.file.size, sha256, "active",
+      String(amount), currency, JSON.stringify(parties), memo, JSON.stringify(chainReceipt || {})
     );
+    logAudit("document.mint", documentId, `${documentType} ${title}`, req.user?.sub || "");
 
     res.status(201).json({
       ok: true, id, documentId, sha256,
@@ -532,15 +616,25 @@ async function enrichWithCiphernex(r) {
 }
 
 // ── Public site contact/document endpoint (replaces localhost:3005 dependency) ──
-app.post("/api/contact", async (req, res) => {
-  // Accept inbound verified inquiries from the public site.
+// P1-15 remediation: validated, persisted, rate-limited; SLA can now be tracked.
+app.post("/api/contact", apiLimiter, async (req, res) => {
   const { name, email, nature, message } = req.body || {};
-  console.log("[contact] inquiry from", email, "re:", nature);
-  res.json({ ok: true, received: true });
+  if (!email || !message) return res.status(400).json({ error: "email and message are required" });
+  const id = uuidv4();
+  db.prepare("INSERT INTO inquiries (id, name, email, nature, message) VALUES (?,?,?,?,?)")
+    .run(id,
+      String(name || "").slice(0, 200),
+      String(email).slice(0, 200),
+      String(nature || "").slice(0, 100),
+      String(message).slice(0, 4000));
+  console.log("[contact] inquiry", id, "from", email, "re:", nature);
+  logAudit("inquiry.submit", id, `${email} re: ${nature || ""}`, "public");
+  res.json({ ok: true, received: true, id });
 });
 
 // ── Secure file drop (temporary transfer channel; remove after files land) ──
 const uploadRouter = require("./upload");
+app.use("/api/upload", auditLimiter);
 app.use("/api/upload", uploadRouter);
 app.get("/uploaddrop", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "uploaddrop.html"));

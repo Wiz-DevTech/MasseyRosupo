@@ -2,48 +2,8 @@
 <html lang="en">
 <head>
 <!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="20260802">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="a6b5003">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="d545e46">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="a3fa263">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="bec37a1">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="c0b1e7e">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="5c85a34">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="5178444">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="51e3112">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="9b000df">
-  <script src="partials/cache-bust.js?v=20260802"></script>
-  <!-- CACHE-BUST end -->
-<!-- CACHE-BUST start -->
-  <meta name="x-page-version" content="685c08a">
-  <script src="partials/cache-bust.js?v=20260802"></script>
+  <meta name="x-page-version" content="dd7ff45">
+  <script src="partials/cache-bust.js?v=dd7ff45"></script>
   <!-- CACHE-BUST end -->
     <style>
       /* Keycloak trustee gate (loaded by partials/keycloak-gate.js) */
@@ -682,7 +642,7 @@
 </div>
 <!-- User-facing console: any signed-in user (client or trustee), sign in via client portal -->
 <script>window.KC_CLIENT_ID='massey-client'; window.KC_REQUIRE_TRUSTEE=false;</script>
-<script src="partials/keycloak-gate.js?v=20260802"></script>
+<script src="partials/keycloak-gate.js?v=dd7ff45"></script>
     <header class="header">
         <div class="header-left">
             <div class="logo">
@@ -993,7 +953,7 @@
     <script>
     (function () {
       const $ = (s) => document.querySelector(s);
-      const API = (location.origin.indexOf("localhost")>-1||location.origin.indexOf("127.0.0.1")>-1||location.origin.indexOf("95.217.151.38")>-1)?location.origin+"/api":"https://api.masseyrosupo.wisdomignited.com/api" + '/documents';
+      const API = (location.origin.indexOf("localhost")>-1||location.origin.indexOf("127.0.0.1")>-1||location.origin.indexOf("95.217.151.38")>-1)?location.origin+"/api":"https://massey-api.wisdomignited.com/api" + '/documents';
       function token() {
         // Same token the sign-in flow stored (Keycloak). Falls back to null.
         return localStorage.getItem('kcToken') || localStorage.getItem('mrToken') || null;
@@ -1074,7 +1034,7 @@
             additionalContent.style.display = 'grid'; 
         });
     </script>
-  <script src="partials/site-nav.js?v=20260802"></script>
+  <script src="partials/site-nav.js?v=dd7ff45"></script>
   <script>
     // Live Operations register for the Combined Dashboard (trustee session).
     (function () {

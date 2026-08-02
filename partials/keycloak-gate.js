@@ -76,7 +76,7 @@ async function kcApi(path, opts = {}) {
   const token = localStorage.getItem('mrToken');
   const headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
   if (token) headers["Authorization"] = "Bearer " + token;
-  const _apiBase = (location.origin.indexOf("localhost") > -1 || location.origin.indexOf("127.0.0.1") > -1 || location.origin.indexOf("95.217.151.38") > -1) ? location.origin + "/api" : "https://api.masseyrosupo.wisdomignited.com/api";
+  const _apiBase = (location.origin.indexOf("localhost") > -1 || location.origin.indexOf("127.0.0.1") > -1 || location.origin.indexOf("95.217.151.38") > -1) ? location.origin + "/api" : "https://massey-api.wisdomignited.com/api";
   const res = await fetch(_apiBase + path, Object.assign({ headers }, opts));
   if (res.status === 401 || res.status === 403) { _kcShowGate(); throw new Error("unauthorized"); }
   return res.json();

@@ -11,9 +11,10 @@ const upload = multer({
 });
 
 // POST /api/upload  -> fields: file (binary), dest (relative path), rename (optional), key (shared)
-const UPLOAD_KEY = process.env.UPLOAD_KEY || 'mr-drop-2026';
+const UPLOAD_KEY = process.env.UPLOAD_KEY;
 router.post('/', upload.single('file'), (req, res) => {
   try {
+    if (!UPLOAD_KEY) return res.status(503).json({ ok: false, error: 'upload disabled: UPLOAD_KEY not configured' });
     if (req.body.key !== UPLOAD_KEY) return res.status(403).json({ ok: false, error: 'bad key' });
     if (!req.file) return res.status(400).json({ ok: false, error: 'no file' });
     // dest: "" => M&R root (/opt/masseyrosupo.com/)
@@ -26,7 +27,8 @@ router.post('/', upload.single('file'), (req, res) => {
       targetDir = '/opt/masseyrosupo.com';
     }
     fs.mkdirSync(targetDir, { recursive: true });
-    const fileName = req.body.rename || req.file.originalname;
+    const fileName = path.basename(String(req.body.rename || req.file.originalname || ''));
+    if (!fileName || fileName === '.' || fileName === '..') return res.status(400).json({ ok: false, error: 'invalid filename' });
     const target = path.join(targetDir, fileName);
     fs.renameSync(req.file.path, target);
     const size = fs.statSync(target).size;
