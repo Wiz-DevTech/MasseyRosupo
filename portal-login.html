@@ -91,6 +91,14 @@
           localStorage.setItem("mrToken", j.access_token);
           if (j.refresh_token) localStorage.setItem("mrRefresh", j.refresh_token);
           if (j.id_token) localStorage.setItem("mrIdToken", j.id_token);
+          // Remember the last username for prefill on the next sign-in.
+          try {
+            var idt = j.id_token || j.access_token;
+            var payload = JSON.parse(atob(idt.split(".")[1]));
+            if (payload.preferred_username || payload.email || payload.sub) {
+              localStorage.setItem("mr_last_user", payload.preferred_username || payload.email || payload.sub);
+            }
+          } catch (e) {}
           sessionStorage.removeItem("mr_portal_pkce_v");
           window.location.replace(REDIRECT.split("/portal-login.html")[0] + "/MainAccessDash.html");
         } else {
@@ -107,7 +115,7 @@
         var challenge = b64url(h);
         var state = rnd(16);
         sessionStorage.setItem("mr_portal_pkce_v", verifier);
-        window.location.href = KC_AUTH + "?" + new URLSearchParams({
+        var params = {
           client_id: CLIENT,
           response_type: "code",
           scope: "openid",
@@ -116,7 +124,10 @@
           state: state,
           code_challenge: challenge,
           code_challenge_method: "S256"
-        }).toString();
+        };
+        var lastUser = localStorage.getItem("mr_last_user");
+        if (lastUser) params.login_hint = lastUser; // prefill the username field
+        window.location.href = KC_AUTH + "?" + new URLSearchParams(params).toString();
       });
     }
     document.getElementById("signin").addEventListener("click", goKeycloak);
@@ -134,7 +145,17 @@
     window.logout = logout; window.switchUser = switchUser;
     (function () {
       var b = document.getElementById("signin");
-      if (b && !document.getElementById("switch-link")) {
+      if (!b) return;
+      // Show who was last signed in, and prefill the username hint.
+      var lastUser = localStorage.getItem("mr_last_user");
+      if (lastUser) {
+        var who = document.createElement("div");
+        who.id = "last-user";
+        who.textContent = "Last signed in: " + lastUser;
+        who.style.cssText = "margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:#8a8a8a;text-transform:uppercase";
+        b.parentNode.insertBefore(who, b);
+      }
+      if (!document.getElementById("switch-link")) {
         var a = document.createElement("a");
         a.id = "switch-link"; a.href = "javascript:void(0)";
         a.textContent = "Switch user";

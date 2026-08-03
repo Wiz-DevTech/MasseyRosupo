@@ -577,6 +577,9 @@ const docUpload = multer({ dest: DOC_STORE_DIR, limits: { fileSize: 50 * 1024 * 
 const DOC_TYPES = [
   "bill-of-exchange", "trust-bond", "indemnity", "reserve-pledge",
   "promissory-note", "court-order", "trust-instrument",
+  // Scenario credit instruments (2026-08-02)
+  "accounts-receivable", "accounts-payable", "nol-credit", "business-expense",
+  "deduction-credit", "reduction-credit", "cod-credit", "carryforward-credit",
 ];
 
 // POST /api/documents — trustee uploads a file; we mint a CipherNex Document ID.
@@ -820,6 +823,15 @@ const ANCHOR_TEMPLATES = {
   'reserve-pledge':   'This Reserve Pledge secures CIPR reserve obligations. The pledgor commits specified assets as collateral for CIPR issuance. Perfected under UCC Article 9; priority interest registered with Delaware SOS.',
   'court-order':      'Instrument issued pursuant to judicial authority. All parties are bound by the terms of this Order under applicable Delaware and federal law. Filed for record with the CipherNex ledger pursuant to trust governance protocols.',
   'trust-instrument': 'This Trust Instrument establishes, amends, or restates fiduciary arrangements under the laws of the State of Delaware. Governs the rights and obligations of all named parties to the trust. UCC-1 filed.',
+  // ── Scenario credit anchors (2026-08-02) — dollar for dollar, transferable ──
+  'accounts-receivable': 'Documented accounts receivable — allowed use of documented credits and write-offs, dollar for dollar, to acquire currency on the platform. UCC Article 9 security interest.',
+  'accounts-payable': 'Documented accounts payable placed on the blockchain after conversion — a medium the chain accepts. UCC Article 3 obligation.',
+  'nol-credit': 'Net operating loss converted to a carry forward or carry back credit. The conversion transfers the statutory loss into a recognized credit — a transferable attribute that may be bartered, sold, or transferred. IRC §172.',
+  'business-expense': 'Documented business expense converted for acquisition of cryptocurrency on a platform that accepts such. IRC §162.',
+  'deduction-credit': 'Statutory deduction or debt-forgiveness offset — dollar for dollar; recognized as a gain on the books and on the chain. IRC §61(a)(12).',
+  'reduction-credit': 'Offset or debt-forgiveness reduction — dollar for dollar; recognized as a gain on the books and on the chain.',
+  'cod-credit': 'Cancellation of debt (1099-C) — documented deduction/reduction, dollar for dollar, usable on the chain. IRC §108.',
+  'carryforward-credit': 'Converted loss credit — property, transferable and assignable; its value assigned on the chain and used as a medium of exchange to acquire cryptocurrency. IRC §172.',
 };
 const CIPHERNEX_PUBLIC_API = process.env.CIPHERNEX_PUBLIC_API || "http://127.0.0.1:3001";
 const ANCHOR_WALLET_FILE = process.env.ANCHOR_WALLET_FILE || path.join(__dirname, "anchor-wallet.json");

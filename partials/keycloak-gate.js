@@ -64,20 +64,64 @@ function kcGoKeycloak(){
     const challenge = _kcB64url(h);
     const state = _kcRnd(16);
     sessionStorage.setItem('kc_pkce_v', verifier);
-    location.href = KC_AUTH + "?" + new URLSearchParams({
+    const params = {
       client_id: KC_CLIENT, response_type: "code", scope: "openid", prompt: "select_account",
       redirect_uri: KC_REDIRECT, state, code_challenge: challenge, code_challenge_method: "S256"
-    }).toString();
+    };
+    const lastUser = localStorage.getItem('mr_last_user');
+    if (lastUser) params.login_hint = lastUser; // prefill the username field
+    location.href = KC_AUTH + "?" + new URLSearchParams(params).toString();
   });
 }
 
-/* Shared authenticated API helper. Throws on non-2xx and re-shows the gate. */
+/* ── Token lifetime helpers ──────────────────────────────────────────────── */
+function _kcTokenPayload(){
+  const t = localStorage.getItem('mrToken');
+  if (!t) return null;
+  return _kcDecode(t);
+}
+/* True when the access token is missing, undecodable, or within 30s of exp. */
+function _kcTokenExpired(){
+  const p = _kcTokenPayload();
+  if (!p || !p.exp) return true;
+  return (p.exp - 30) * 1000 < Date.now();
+}
+/* Silent refresh-token rotation. Returns true on success (new tokens stored). */
+async function kcRefreshToken(){
+  const refresh = localStorage.getItem('mrRefresh');
+  if (!refresh) return false;
+  try {
+    const res = await fetch(KC_TOKEN, { method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ grant_type: "refresh_token", client_id: KC_CLIENT, refresh_token: refresh }) });
+    const j = await res.json();
+    if (j.access_token) {
+      localStorage.setItem('mrToken', j.access_token);
+      if (j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
+      if (j.id_token) localStorage.setItem('mrIdToken', j.id_token);
+      return true;
+    }
+    return false;
+  } catch(e){ return false; }
+}
+
+/* Shared authenticated API helper. Silently refreshes an expired token before
+ * the call and retries once on 401/403 — only then re-shows the gate. */
 async function kcApi(path, opts = {}) {
-  const token = localStorage.getItem('mrToken');
+  let token = localStorage.getItem('mrToken');
+  if (!token || _kcTokenExpired()) {
+    if (await kcRefreshToken()) token = localStorage.getItem('mrToken');
+  }
   const headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
   if (token) headers["Authorization"] = "Bearer " + token;
   const _apiBase = (location.origin.indexOf("localhost") > -1 || location.origin.indexOf("127.0.0.1") > -1 || location.origin.indexOf("95.217.151.38") > -1) ? location.origin + "/api" : "https://massey-api.wisdomignited.com/api";
-  const res = await fetch(_apiBase + path, Object.assign({ headers }, opts));
+  let res = await fetch(_apiBase + path, Object.assign({ headers }, opts));
+  if ((res.status === 401 || res.status === 403) && token) {
+    if (await kcRefreshToken()) {
+      headers["Authorization"] = "Bearer " + localStorage.getItem('mrToken');
+      res = await fetch(_apiBase + path, Object.assign({ headers }, opts));
+    }
+  }
   if (res.status === 401 || res.status === 403) { _kcShowGate(); throw new Error("unauthorized"); }
   return res.json();
 }
@@ -112,6 +156,13 @@ window.kcApplyAdminVisible = kcApplyAdminVisible;
         localStorage.setItem('mrToken', j.access_token);
         if (j.refresh_token) localStorage.setItem('mrRefresh', j.refresh_token);
         if (j.id_token) localStorage.setItem('mrIdToken', j.id_token);
+        /* Remember the last username for prefill on the next sign-in. */
+        try {
+          const p = _kcDecode(j.id_token || j.access_token);
+          if (p && (p.preferred_username || p.email || p.sub)) {
+            localStorage.setItem('mr_last_user', p.preferred_username || p.email || p.sub);
+          }
+        } catch(e){}
         sessionStorage.removeItem('kc_pkce_v');
         history.replaceState(null, '', KC_REDIRECT);
         if (_kcAuthorized()) { _kcHideAll(); kcApplyAdminVisible(); window.dispatchEvent(new Event('kc:authed')); }
@@ -123,9 +174,27 @@ window.kcApplyAdminVisible = kcApplyAdminVisible;
 })();
 
 (function _kcBoot(){
-  if (_kcAuthorized()) { _kcHideAll(); }
-  else if (localStorage.getItem('mrToken') && KC_REQUIRE_TRUSTEE) _kcShowForbidden();
-  else _kcShowGate();
+  const token = localStorage.getItem('mrToken');
+  if (!token) { _kcShowGate(); return; }
+  if (!_kcTokenExpired()) {
+    // Fresh token: any-user pages enter, trustee pages check role.
+    if (_kcAuthorized()) _kcHideAll();
+    else if (KC_REQUIRE_TRUSTEE) _kcShowForbidden();
+    else _kcShowGate();
+    return;
+  }
+  // Token exists but expired — try one silent refresh before showing the gate.
+  kcRefreshToken().then(ok => {
+    if (ok) {
+      if (_kcAuthorized()) _kcHideAll();
+      else if (KC_REQUIRE_TRUSTEE) _kcShowForbidden();
+      else _kcShowGate();
+    } else {
+      // Refresh failed: drop the dead identity so the next sign-in is clean.
+      localStorage.removeItem('mrToken'); localStorage.removeItem('mrRefresh'); localStorage.removeItem('mrIdToken');
+      _kcShowGate();
+    }
+  }).catch(() => _kcShowGate());
 })();
 
 document.addEventListener('DOMContentLoaded', function(){

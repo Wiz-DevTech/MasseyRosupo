@@ -100,3 +100,21 @@ test("audit trail: document.mint row recorded", () => {
   assert.ok(row, "audit row exists");
   assert.strictEqual(row.ref, ctx.filedId);
 });
+
+test("scenario instrument types accepted (accounts-receivable)", async () => {
+  const r = await fetch(ctx.base + "/api/public/instruments", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...VALID, documentType: "accounts-receivable", title: "AR Credit Test" }),
+  });
+  assert.strictEqual(r.status, 201);
+  const d = await r.json();
+  assert.match(d.documentId, /^DOC-TEST-\d{12}$/);
+});
+
+test("scenario instrument types accepted (nol-credit)", async () => {
+  const r = await fetch(ctx.base + "/api/public/instruments", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...VALID, documentType: "nol-credit", title: "NOL Carryforward Test" }),
+  });
+  assert.strictEqual(r.status, 201);
+});
